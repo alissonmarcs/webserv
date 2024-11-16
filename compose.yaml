@@ -1,0 +1,12 @@
+services:
+  server:
+    image: nginx
+    ports:
+      - "7000:7000"
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./admin:/admin
+      - ./car:/car
+      - ./moto:/moto
