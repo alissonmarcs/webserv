@@ -1,6 +1,8 @@
 services:
   server:
-    image: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "7000:7000"
       - "8000:8000"
@@ -10,3 +12,4 @@ services:
       - ./admin:/admin
       - ./car:/car
       - ./moto:/moto
+      - ./cgi-bin:/cgi-bin/
