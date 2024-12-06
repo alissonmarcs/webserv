@@ -16,6 +16,16 @@
 # define RESET "\033[0m"
 # define INVERSE "\033[7m"
 
+enum file_status
+{
+	FileNoPermission,
+	DirectoryNoPermission,
+	FileNotFound,
+	DirectoryNotFound,
+	FileWithPermissions,
+	DirectoryWithPermissions
+};
+
 # include <cmath>
 # include <iostream>
 # include <sstream>
@@ -23,6 +33,9 @@
 # include <string>
 # include <unistd.h>
 # include <vector>
+# include <sys/stat.h>
+# include <stdio.h>
+# include <cerrno>
 
 
 
