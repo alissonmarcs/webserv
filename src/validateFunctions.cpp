@@ -32,28 +32,28 @@ bool validateConfigFile(int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		std::cerr << RED << "Error: " << RESET << "Invalid number of arguments." << std::endl;
+		std::cerr << RED << "Error: " << YELLOW << "Invalid number of arguments" << RESET << std::endl;
 		return (true);
 	}
 	std::string file = argv[1];
 	if (file.size() < 5 || file.substr(file.size() - 5) != ".conf")
 	{
-    	std::cerr << RED << "Error: " << RESET << "The file must have a .conf extension." << std::endl;
+    	std::cerr << RED << "Error: " << YELLOW << "The file must have a .conf extension" << RESET << std::endl;
     	return true;
 	}
 	if (processInput(argv[1]) == FileNotFound)
 	{
-		std::cerr << RED << "Error: " << RESET << "File not found." << std::endl;
+		std::cerr << RED << "Error: " << YELLOW << "File not found" << RESET << std::endl;
 		return (true);
 	}
 	if (processInput(argv[1]) == FileNoPermission)
 	{
-		std::cerr << RED << "Error: " << RESET << "No permission to read file." << std::endl;
+		std::cerr << RED << "Error: " << YELLOW << "No permission to read file" << RESET << std::endl;
 		return (true);
 	}
 	if (processInput(argv[1]) != FileWithPermissions)
 	{
-		std::cerr << RED << "Error: " << RESET << "The file must be a regular file and must have the appropriate permissions." << std::endl;
+		std::cerr << RED << "Error: " << YELLOW << "The file must be a regular file and must have the appropriate permissions" << RESET << std::endl;
 		return (true);
 	}
 	return (false);
