@@ -18,7 +18,7 @@ RM		=	rm -rf
 
 # Dir and file names
 NAME	=	webserv
-SRCS	=	./src/main.cpp
+SRCS	=	./src/main.cpp ./src/validateFunctions.cpp
 BIN_DIR =	./bin
 OBJS	=	$(addprefix $(BIN_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 INC		=	$(wildcard /includes/*.hpp)

@@ -38,6 +38,10 @@ enum file_status
 # include <cerrno>
 
 
+int processInput(std::string path);
+bool validateConfigFile(int argc, char **argv);
+
+
 
 
 
