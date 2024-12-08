@@ -1,64 +1,46 @@
-#------------------------------------------------------------------------------#
-#                                  GENERICS                                    #
-#------------------------------------------------------------------------------#
+NAME		= webserv
+WFLAGS 		= -Wall -Werror -Wextra
+CPPFLAGS	= -std=c++98 -I ./includes/
+DEBUG_FLAGS =
 
-# Special variables
-DEFAULT_GOAL: all
-.DELETE_ON_ERROR: $(NAME)
-.PHONY: all bonus clean fclean re
+SOURCES		= $(wildcard ./src/*.cpp)
+SOURCES		:= $(patsubst ./src/%,%, $(SOURCES))
+OBJECTS		= $(addprefix objs/,$(SOURCES:.cpp=.o))
 
-#------------------------------------------------------------------------------#
-#                                VARIABLES                                     #
-#------------------------------------------------------------------------------#
+HEADERS 	= $(wildcard ./includes/*.hpp)
 
-# Compiler and flags
-CC		=	c++
-CFLAGS	=	-Wall -Werror -Wextra -std=c++98  -g3 -O0 -I./includes
-RM		=	rm -rf
+ifdef REMOVE_W_FLAGS
+	WFLAGS =
+endif
 
-# Dir and file names
-NAME	=	webserv
-SRCS	=	./src/main.cpp ./src/validateFunctions.cpp
-BIN_DIR =	./bin
-OBJS	=	$(addprefix $(BIN_DIR)/, $(notdir $(SRCS:.cpp=.o)))
-INC		=	$(wildcard /includes/*.hpp)
+ifdef DEBUG
+		DEBUG_FLAGS := -g3 -fno-limit-debug-info
+endif
 
-GREEN	=	"\033[32;1m"
-RED		=	"\033[31;1m"
-CYAN	=	"\033[36;1;3m"
-WHITE_U	=	"\033[37;1;4m"
-LIMITER =	"\033[0m"
+ifdef REMOVE_STD
+		CPPFLAGS := $(subst -std=c++98,,$(CPPFLAGS))
+endif
 
-#------------------------------------------------------------------------------#
-#                                 TARGETS                                      #
-#------------------------------------------------------------------------------#
+CYAN = \033[36m
+RESET = \033[0m
 
-all: $(BIN_DIR) $(NAME)
+all: objs $(NAME)
 
-# Generates output file
-$(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(OBJS) -o $@
+objs:
+	@mkdir objs
 
-# Compiles sources into objects
-$(BIN_DIR)/%.o: ./src/%.cpp $(INC)
-	@echo $(GREEN)[Compiling $<]$(LIMITER) $(WHITE_U)with$(LIMITER) $(CYAN)[$(CC) $(CFLAGS)]$(LIMITER)
-	@$(CC) $(CFLAGS) -c $< -o $@
+$(NAME): $(OBJECTS)
+	@printf "$(CYAN)Compiling...$(RESET)\n" 
+	@c++ $(CPPFLAGS) $(DEBUG_FLAGS) $(WFLAGS) $(OBJECTS) -o $(NAME)
+	@printf "$(CYAN)Target ./$(NAME) done$(RESET)\n" 
 
-# Create bin directory
-$(BIN_DIR):
-	@echo $(GREEN)[Creating $(BIN_DIR)]$(LIMITER)
-	@mkdir -p $@
+objs/%.o: ./src/%.cpp $(HEADERS)
+	@c++ $(CPPFLAGS) $(DEBUG_FLAGS) $(WFLAGS) -c $< -o $@
 
-# Removes objects
 clean:
-	@echo $(GREEN)[Cleaning objects]$(LIMITER)
-	@$(RM) $(OBJS)
+	@rm -rf objs
 
-# Removes objects and executables
 fclean: clean
-	@echo $(GREEN)[Cleaning $(NAME)]$(LIMITER)
-	@$(RM) $(NAME)
-	@$(RM) $(BIN_DIR)
+	@rm -rf $(NAME)
 
-# Removes objects and executables and remakes
 re: fclean all
