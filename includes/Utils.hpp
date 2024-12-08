@@ -36,7 +36,9 @@ enum file_status
 # include <sys/stat.h>
 # include <stdio.h>
 # include <cerrno>
+# include <map>
 
+using namespace std;
 
 int processInput(std::string path);
 bool validateConfigFile(int argc, char **argv);
