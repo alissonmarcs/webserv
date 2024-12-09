@@ -1,8 +1,16 @@
 #include "Server.hpp"
 
-#include <iostream>
-
-Server::Server()
+Server::Server ()
 {
-    std::cout << "Hello\n";
+
+}
+
+Server::Server (const Server & src)
+{
+    (void) src;
+}
+
+Server::~Server ()
+{
+
 }
