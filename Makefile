@@ -20,11 +20,11 @@ ifdef REMOVE_W_FLAGS
 endif
 
 ifdef DEBUG
-		DEBUG_FLAGS := -g3 -fno-limit-debug-info
+		DEBUG_FLAGS := -ggdb3 -O0
 endif
 
 ifdef REMOVE_STD
-		CPPFLAGS := $(subst -std=c++98,,$(CPPFLAGS))
+		CPPFLAGS := 
 endif
 
 CYAN = \033[36m
