@@ -6,7 +6,7 @@ DEBUG_FLAGS =
 CLASSES = ./src/classes
 
 HEADERS_FOLDERS := $(wildcard $(CLASSES)/*/)
-HEADERS_FOLDERS := $(addprefix -I, $(HEADERS))
+HEADERS_FOLDERS := $(addprefix -I, $(HEADERS_FOLDERS))
 HEADER_FILES = $(wildcard $(CLASSES)/*/*.hpp)
 
 SOURCES = $(wildcard src/classes/*/*.cpp)
@@ -39,6 +39,7 @@ $(NAME): $(OBJECTS) $(HEADER_FILES)
 	@printf "$(CYAN)Compiling...$(RESET)\n" 
 	@c++ $(CPPFLAGS) $(HEADERS_FOLDERS) $(DEBUG_FLAGS) $(WFLAGS) $(OBJECTS) -o $(NAME)
 	@printf "$(CYAN)Target ./$(NAME) done$(RESET)\n" 
+
 
 ./objs/%.o: %.cpp 
 	@mkdir -p $(dir $@)
