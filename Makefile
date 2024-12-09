@@ -1,13 +1,19 @@
 NAME		= webserv
 WFLAGS 		= -Wall -Werror -Wextra
-CPPFLAGS	= -std=c++98 -I ./includes/
+CPPFLAGS	= -std=c++98 
 DEBUG_FLAGS =
 
-SOURCES		= $(wildcard ./src/*.cpp)
-SOURCES		:= $(patsubst ./src/%,%, $(SOURCES))
-OBJECTS		= $(addprefix objs/,$(SOURCES:.cpp=.o))
+CLASSES = ./src/classes
 
-HEADERS 	= $(wildcard ./includes/*.hpp)
+HEADERS_FOLDERS := $(wildcard $(CLASSES)/*/)
+HEADERS_FOLDERS := $(addprefix -I, $(HEADERS))
+HEADER_FILES = $(wildcard $(CLASSES)/*/*.hpp)
+
+SOURCES = $(wildcard src/classes/*/*.cpp)
+SOURCES += src/main.cpp
+
+OBJECTS := $(SOURCES:.cpp=.o)
+OBJECTS := $(addprefix ./objs/, $(OBJECTS))
 
 ifdef REMOVE_W_FLAGS
 	WFLAGS =
@@ -27,15 +33,16 @@ RESET = \033[0m
 all: objs $(NAME)
 
 objs:
-	@mkdir objs
+	@mkdir ./objs;
 
-$(NAME): $(OBJECTS)
+$(NAME): $(OBJECTS) $(HEADER_FILES)
 	@printf "$(CYAN)Compiling...$(RESET)\n" 
-	@c++ $(CPPFLAGS) $(DEBUG_FLAGS) $(WFLAGS) $(OBJECTS) -o $(NAME)
+	@c++ $(CPPFLAGS) $(HEADERS_FOLDERS) $(DEBUG_FLAGS) $(WFLAGS) $(OBJECTS) -o $(NAME)
 	@printf "$(CYAN)Target ./$(NAME) done$(RESET)\n" 
 
-objs/%.o: ./src/%.cpp $(HEADERS)
-	@c++ $(CPPFLAGS) $(DEBUG_FLAGS) $(WFLAGS) -c $< -o $@
+./objs/%.o: %.cpp 
+	@mkdir -p $(dir $@)
+	@c++ $(CPPFLAGS) $(HEADERS_FOLDERS) $(DEBUG_FLAGS) $(WFLAGS) -c $< -o $@
 
 clean:
 	@rm -rf objs
