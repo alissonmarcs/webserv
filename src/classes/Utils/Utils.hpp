@@ -51,7 +51,7 @@ int processInput(std::string path);
 bool validateConfigFile(int argc, char **argv);
 bool isValidIp(string ip);
 void fatalError(string msg);
-char * getClientIp(struct sockaddr_in * client_addr);
+string getClientIp(struct sockaddr_in * client_addr);
 
 
 

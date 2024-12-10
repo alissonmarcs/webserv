@@ -16,11 +16,13 @@ void fatalError(string msg)
 	exit(EXIT_FAILURE);
 }
 
-char * getClientIp(struct sockaddr_in * client_addr)
+string getClientIp(struct sockaddr_in * client_addr)
 {
-    static char ip[INET_ADDRSTRLEN];
+    char tmp[INET_ADDRSTRLEN];
+	stringstream ip;
 
-    bzero(ip, INET_ADDRSTRLEN);
-    inet_ntop(AF_INET, &client_addr->sin_addr, ip, INET_ADDRSTRLEN);
-    return (ip);
+    bzero(tmp, INET_ADDRSTRLEN);
+    inet_ntop(AF_INET, &client_addr->sin_addr, tmp, INET_ADDRSTRLEN);
+	ip << tmp << ":" << ntohs(client_addr->sin_port);
+    return (ip.str());
 }
