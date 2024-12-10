@@ -19,9 +19,12 @@ Server::~Server ()
 
 void Server::init ()
 {
+    int value = 1;
+
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0)
         fatalError("Error creating server's socket");
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(int));
     bzero(&adress, sizeof(adress));
     adress.sin_family = AF_INET;
     adress.sin_addr.s_addr = inet_addr(ip.c_str());

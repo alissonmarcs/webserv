@@ -45,20 +45,21 @@ Server * ServerManager::isServer (int fd)
 
 void ServerManager::acceptClient(Server * owner)
 {
-    struct epoll_event event;
+    struct epoll_event ev;
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
     int client_fd, server_fd;
 
     bzero (&client_addr, sizeof(client_addr));
-    bzero (&event, sizeof(event));
+    bzero (&ev, sizeof(ev));
     server_fd = owner->server_fd;
     client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
     if (client_fd == -1)
         fatalError("Error accepting client");
     clients[client_fd] = Client(client_fd, client_addr, owner);
-    event.events = EPOLLIN;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &event) != 0) 
+    ev.events = EPOLLRDHUP;
+    ev.data.fd = client_fd;
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1) 
         fatalError("Error adding client's file descriptor to epoll");
     cout << "New connection from " << getClientIp(&client_addr) << endl;
 }
@@ -81,28 +82,14 @@ void ServerManager::mainLoop ()
                 acceptClient(server);
             else
             {
-                if (events[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))
+                if (events[i].events & EPOLLRDHUP)
                 {
-                    cout << "Connection closed" << endl;
-                    close(events[i].data.fd);
+                    cout << "Client closed connection " << endl;
+                    if (close (events[i].data.fd) == -1)
+                        fatalError("close");
                     clients.erase(events[i].data.fd);
                 }
-                else if (events[i].events & EPOLLIN)
-                {
-                    char buffer[1024];
-                    int bytes_read;
-
-                    cout << "Content: \n" << endl;
-                    bytes_read = read(events[i].data.fd, buffer, 1);
-                    cout << "bytes read: " << bytes_read << endl;
-                    if (bytes_read == -1)
-                        fatalError("Error reading from client");
-                }
-                else if (events[i].events & EPOLLOUT)
-                {
-                    cout << "write\n" << endl;
-                }
-            }
+            } 
         }
     }
 }
