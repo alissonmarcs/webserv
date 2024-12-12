@@ -57,7 +57,7 @@ void ServerManager::acceptClient(Server * owner)
     if (client_fd == -1)
         fatalError("Error accepting client");
     clients[client_fd] = Client(client_fd, client_addr, owner);
-    ev.events = EPOLLRDHUP;
+    ev.events = EPOLLRDHUP | EPOLLIN;
     ev.data.fd = client_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1) 
         fatalError("Error adding client's file descriptor to epoll");
@@ -88,6 +88,15 @@ void ServerManager::mainLoop ()
                     if (close (events[i].data.fd) == -1)
                         fatalError("close");
                     clients.erase(events[i].data.fd);
+                }
+                else
+                {
+                    char buffer[1024];
+                    int ret;
+
+                    bzero(&buffer, sizeof(buffer));
+                    ret = read(events[i].data.fd, buffer, 1);
+                    cout << "Received: " << buffer << endl;
                 }
             } 
         }

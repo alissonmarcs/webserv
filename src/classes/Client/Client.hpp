@@ -3,8 +3,6 @@
 
 #include "Utils.hpp"
 #include "Server.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
 
 class Client
 {
@@ -17,8 +15,6 @@ public:
     int client_fd;
     struct sockaddr_in adress;
     Server * server_owner;
-    Request request;
-    Response response;
 
 };
 
