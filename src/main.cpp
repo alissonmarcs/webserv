@@ -1,5 +1,6 @@
 #include "Utils.hpp"
 #include "ServerManager.hpp"
+#include "ConfigParser.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -17,9 +18,14 @@ void populateServers(ServerManager &Manager)
 
 int main(int argc, char **argv)
 {
-	ServerManager Manager;	
-
-	populateServers(Manager);
-	Manager.initServers();
-	Manager.mainLoop();
+	if (validateConfigFile(argc, argv))
+		exit(EXIT_FAILURE);
+	try
+	{
+		ConfigParser parser;
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << RED << e.what() << RESET << std::endl;
+	}
 }

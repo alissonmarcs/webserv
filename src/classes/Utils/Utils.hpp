@@ -41,6 +41,8 @@ enum file_status
 # include <stdio.h>
 # include <cerrno>
 # include <map>
+# include <list>
+# include <vector>
 # include <sys/socket.h>
 # include <arpa/inet.h>
 # include <sys/epoll.h>
