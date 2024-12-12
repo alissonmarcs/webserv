@@ -1,4 +1,12 @@
 #include "Utils.hpp"
+#include <cstdio>
+#include <cstdlib>
+
+void error(const char *msg, const char *file, long line)
+{
+	std::fprintf(stderr, "Fatal error: %s in %s:%ld: %s\n", msg, file, line, strerror(errno));
+	std::exit(EXIT_FAILURE);
+}
 
 bool isValidIp(string ip)
 {

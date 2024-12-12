@@ -52,8 +52,9 @@ bool validateConfigFile(int argc, char **argv);
 bool isValidIp(string ip);
 void fatalError(string msg);
 string getClientIp(struct sockaddr_in * client_addr);
+void error(const char *msg, const char *file, long line);
 
-
+#define FATAL_ERROR(msg) error(msg, __FILE__, __LINE__)
 
 
 

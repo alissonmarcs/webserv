@@ -58,7 +58,7 @@ void ServerManager::acceptClient(Server * owner)
         fatalError("Error accepting client");
     clients[client_fd] = Client(client_fd, client_addr, owner);
     ev.events = EPOLLRDHUP | EPOLLIN;
-    ev.data.fd = client_fd;
+    // ev.data.fd = client_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1) 
         fatalError("Error adding client's file descriptor to epoll");
     cout << "New connection from " << getClientIp(&client_addr) << endl;
@@ -86,7 +86,7 @@ void ServerManager::mainLoop ()
                 {
                     cout << "Client closed connection " << endl;
                     if (close (events[i].data.fd) == -1)
-                        fatalError("close");
+                       FATAL_ERROR("close()");
                     clients.erase(events[i].data.fd);
                 }
                 else
