@@ -9,12 +9,12 @@
 class ConfigParser
 {
   public:
-	ConfigParser();
+	ConfigParser(const string &path);
 	ConfigParser &operator=(const ConfigParser &rhs);
 	
 	vector<Server> servers;
 	void parseGlobalConfig(const string &line);
-	void parseServerConfig(std::ifstream &file);
+	void parseServerConfig(istringstream &file);
 	void parseRouteConfig(Server &server, std::ifstream &file);
 
 	void loadConfig(const string &path);

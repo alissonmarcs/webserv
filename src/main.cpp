@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	try
 	{
-		ConfigParser parser;
+		ConfigParser parser(argv[1]);
 	}
 	catch (const std::exception &e)
 	{
