@@ -26,3 +26,16 @@ string getClientIp(struct sockaddr_in * client_addr)
 	ip << tmp << ":" << ntohs(client_addr->sin_port);
     return (ip.str());
 }
+
+string readFileAsString(const string &path)
+{
+	ifstream file(path.c_str());
+
+	if (!file.is_open())
+		fatalError("Error: Could not open file");
+	
+	stringstream buffer;
+	buffer << file.rdbuf();
+	file.close();
+	return (buffer.str());
+}

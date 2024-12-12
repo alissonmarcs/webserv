@@ -46,6 +46,7 @@ enum file_status
 # include <sys/socket.h>
 # include <arpa/inet.h>
 # include <sys/epoll.h>
+# include <fstream>
 
 using namespace std;
 
@@ -54,6 +55,7 @@ bool validateConfigFile(int argc, char **argv);
 bool isValidIp(string ip);
 void fatalError(string msg);
 string getClientIp(struct sockaddr_in * client_addr);
+string readFileAsString(const string &path);
 
 
 
