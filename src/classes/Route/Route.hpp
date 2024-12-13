@@ -9,7 +9,7 @@ class Route
 {
   public:
 	Route();
-	Route &operator=(const Route &rhs);
+	//Route &operator=(const Route &rhs);
 
 	string path;
 	string root;

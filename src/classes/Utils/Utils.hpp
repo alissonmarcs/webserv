@@ -42,6 +42,7 @@ enum file_status
 # include <cerrno>
 # include <map>
 # include <list>
+# include <stdexcept>
 # include <vector>
 # include <sys/socket.h>
 # include <arpa/inet.h>

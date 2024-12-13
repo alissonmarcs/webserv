@@ -1,5 +1,5 @@
 NAME		= webserv
-WFLAGS 		= -Wall -Werror -Wextra -g3
+WFLAGS 		= -Wall -Werror -Wextra
 CPPFLAGS	= -std=c++98 
 DEBUG_FLAGS =
 
@@ -20,7 +20,7 @@ ifdef REMOVE_W_FLAGS
 endif
 
 ifdef DEBUG
-		DEBUG_FLAGS :=  -gdwarf-4 -O0 -fmacro-backtrace-limit=0 -Wunused-macros 
+		DEBUG_FLAGS :=  -gdwarf-4 -O0 -fmacro-backtrace-limit=0 -Wunused-macros -fno-limit-debug-info
 endif
 
 ifdef REMOVE_STD

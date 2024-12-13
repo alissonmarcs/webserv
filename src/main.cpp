@@ -18,14 +18,21 @@ void populateServers(ServerManager &Manager)
 
 int main(int argc, char **argv)
 {
+	ServerManager Manager;
+
 	if (validateConfigFile(argc, argv))
 		exit(EXIT_FAILURE);
+	
+	string configFile = readFileAsString(argv[1]);
 	try
 	{
-		ConfigParser parser(argv[1]);
+		ConfigParser parser(configFile);
+		Manager.servers = parser.servers;
+
 	}
 	catch (const std::exception &e)
 	{
 		std::cerr << RED << e.what() << RESET << std::endl;
 	}
+
 }
