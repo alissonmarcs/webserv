@@ -1,10 +1,11 @@
 #include "Utils.hpp"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 void error(const char *msg, const char *file, long line)
 {
-	std::fprintf(stderr, "Fatal error: %s in %s:%ld: %s\n", msg, file, line, strerror(errno));
+	std::fprintf(stderr, "Fatal error: %s in %s:%ld: %s\n", msg, file, line, std::strerror(errno));
 	std::exit(EXIT_FAILURE);
 }
 
@@ -16,12 +17,6 @@ bool isValidIp(string ip)
 	if (inet_pton(AF_INET, ip.c_str(), &adress.sin_addr) == 1)
 		return (true);
 	return (false);
-}
-
-void fatalError(string msg)
-{
-	perror(msg.c_str());
-	exit(EXIT_FAILURE);
 }
 
 string getClientIp(struct sockaddr_in * client_addr)

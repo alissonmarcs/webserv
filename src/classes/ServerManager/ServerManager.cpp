@@ -21,7 +21,7 @@ void ServerManager::initServers ()
 
     epoll_fd = epoll_create(1);
     if (epoll_fd == -1)
-        fatalError("Error creating epoll file descriptor");
+        FATAL_ERROR("Error creating epoll file descriptor");
     for (size_t i = 0; i < servers.size(); i++)
     {
         servers[i].init();
@@ -29,7 +29,7 @@ void ServerManager::initServers ()
         event.events = EPOLLIN;
         event.data.fd = servers[i].server_fd;
         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, servers[i].server_fd, &event) == -1)
-            fatalError("Error adding server's file descriptor to epoll");
+            FATAL_ERROR("Error adding server's file descriptor to epoll");
     }
 }
 
@@ -55,12 +55,12 @@ void ServerManager::acceptClient(Server * owner)
     server_fd = owner->server_fd;
     client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
     if (client_fd == -1)
-        fatalError("Error accepting client");
+        FATAL_ERROR("accept");
     clients[client_fd] = Client(client_fd, client_addr, owner);
     ev.events = EPOLLRDHUP | EPOLLIN;
-    // ev.data.fd = client_fd;
+    ev.data.fd = client_fd;
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1) 
-        fatalError("Error adding client's file descriptor to epoll");
+        FATAL_ERROR("epoll_ctl");
     cout << "New connection from " << getClientIp(&client_addr) << endl;
 }
 
@@ -75,7 +75,7 @@ void ServerManager::mainLoop ()
         bzero (&events, sizeof(events));
         ready_fds = epoll_wait(epoll_fd, events, MAX_EPOLL_EVENTS, 300);
         if (ready_fds == -1)
-            fatalError("Error waiting for events");
+            FATAL_ERROR("epoll_wait");
         for (int i = 0; i < ready_fds; i++)
         {
             if ((server = isServer(events[i].data.fd)))
