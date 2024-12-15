@@ -1,5 +1,5 @@
 NAME		= webserv
-WFLAGS 		= -Wall -Werror -Wextra
+WFLAGS 		= -Wall -Werror -Wextra -g3
 CPPFLAGS	= -std=c++98 
 DEBUG_FLAGS =
 

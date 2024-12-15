@@ -37,6 +37,12 @@ ConfigParser::ConfigParser(const string &config)
 		if (bracketCount == 1)
 			parseServerConfig(line, *activeServer);
 	}
+
+	cout << servers[0].host << endl;
+	cout << servers[0].server_name << endl;
+	cout << servers[0].error_pages[404] << endl;
+	cout << servers[0].client_max_body_size << endl;
+
 	if (bracketCount != 0)
 		throw ConfigParserException("Error: brackets mismatch");
 }
@@ -54,44 +60,25 @@ void ConfigParser::parseGlobalConfig(const string &line)
 
 void ConfigParser::parseServerConfig(const string &line, Server &server)
 {
-	if (line.find("listen") != string::npos)
-	{
-		istringstream iss(line);
-		string directive;
+	istringstream iss(line);
+	string directive;
+	iss >> directive;
 
-		iss >> directive >> server.port;
-	}
-	if (line.find("host") != string::npos)
+	if (directive == "host")
+		iss >> server.host;
+	else if (directive == "port")
+		iss >> server.port;
+	else if (directive == "server_name")
+		iss >> server.server_name;
+	else if (directive == "error_page")
 	{
-		istringstream iss(line);
-		string directive;
-
-		iss >> directive >> server.host;
-	}
-	if (line.find("server_name") != string::npos)
-	{
-		istringstream iss(line);
-		string directive;
-
-		iss >> directive >> server.server_name;
-	}
-	if (line.find("error_page") != string::npos)
-	{
-		istringstream iss(line);
-		string directive;
 		int code;
 		string path;
-
-		iss >> directive >> code >> path;
+		iss >> code >> path;
 		server.error_pages[code] = path;
 	}
-	if (line.find("client_max_body_size") != string::npos)
-	{
-		istringstream iss(line);
-		string directive;
-
-		iss >> directive >> server.client_max_body_size;
-	}
+	else if (directive == "client_max_body_size")
+		iss >> server.client_max_body_size;
 }
 
 void ConfigParser::parseRouteConfig(Server &server, std::ifstream &file)
