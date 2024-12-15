@@ -14,7 +14,7 @@ class Route
 	string path;
 	string root;
 	bool autoindex;
-	vector<string> allowed_methods;
+	std::vector<string> allowed_methods;
 	string redirect;
 	string default_file;
 	string cgi_ext;

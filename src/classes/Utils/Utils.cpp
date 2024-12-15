@@ -1,4 +1,6 @@
 #include "Utils.hpp"
+#include "Server.hpp"
+#include "ServerManager.hpp"
 
 bool isValidIp(string ip)
 {
@@ -38,4 +40,17 @@ string readFileAsString(const string &path)
 	buffer << file.rdbuf();
 	file.close();
 	return (buffer.str());
+}
+
+//print server info
+void printServerInfo(ServerManager &Manager)
+{
+	for (size_t i = 0; i < Manager.servers.size(); i++)
+	{
+		cout << "Server " << i << ":\n";
+		cout << "Host: " << Manager.servers[i].host << "\n";
+		cout << "Port: " << Manager.servers[i].port << "\n";
+		cout << "Server name: " << Manager.servers[i].server_name << "\n";
+		cout << "Client max body size: " << Manager.servers[i].client_max_body_size << "\n";
+	}
 }

@@ -19,7 +19,9 @@
 # define QUEUED_CONNECTIONS 300
 # define MAX_EPOLL_EVENTS 300
 
-enum file_status
+using namespace	std;
+
+enum			file_status
 {
 	FileNoPermission,
 	DirectoryNoPermission,
@@ -29,39 +31,34 @@ enum file_status
 	DirectoryWithPermissions
 };
 
+# include <arpa/inet.h>
+# include <cerrno>
 # include <cmath>
+# include <fstream>
 # include <iostream>
+# include <list>
+# include <map>
 # include <sstream>
 # include <stdexcept>
-# include <string>
+# include <stdio.h>
 # include <string.h>
+# include <string>
+# include <sys/epoll.h>
+# include <sys/socket.h>
+# include <sys/stat.h>
 # include <unistd.h>
 # include <vector>
-# include <sys/stat.h>
-# include <stdio.h>
-# include <cerrno>
-# include <map>
-# include <list>
-# include <stdexcept>
-# include <vector>
-# include <sys/socket.h>
-# include <arpa/inet.h>
-# include <sys/epoll.h>
-# include <fstream>
+# include "ServerManager.hpp"
 
-using namespace std;
+class ServerManager;
+class Client;
 
-int processInput(std::string path);
-bool validateConfigFile(int argc, char **argv);
-bool isValidIp(string ip);
-void fatalError(string msg);
-string getClientIp(struct sockaddr_in * client_addr);
-string readFileAsString(const string &path);
-
-
-
-
-
-
+int				processInput(string path);
+bool			validateConfigFile(int argc, char **argv);
+bool			isValidIp(string ip);
+void			fatalError(string msg);
+string			getClientIp(struct sockaddr_in *client_addr);
+string			readFileAsString(const string &path);
+void			printServerInfo(ServerManager &Manager);
 
 #endif

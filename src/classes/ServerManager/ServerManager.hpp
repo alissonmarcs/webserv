@@ -1,8 +1,12 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
+#include "Utils.hpp"
 #include "Server.hpp"
 #include "Client.hpp"
+
+class Client;
+class Server;
 
 class ServerManager
 {

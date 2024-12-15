@@ -1,4 +1,5 @@
 #include "ConfigParser.hpp"
+#include "Error.hpp"
 
 string removeComments(string &line);
 string trim(const string &str);
@@ -36,7 +37,6 @@ ConfigParser::ConfigParser(const string &config)
 		if (bracketCount == 1)
 			parseServerConfig(line, *activeServer);
 	}
-
 	if (bracketCount != 0)
 		throw ConfigParserException("Error: brackets mismatch");
 }
@@ -59,9 +59,7 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 		istringstream iss(line);
 		string directive;
 
-		cout << line << "\n";
 		iss >> directive >> server.port;
-		cout << "Port: " << server.port << endl;
 	}
 	if (line.find("host") != string::npos)
 	{
@@ -69,9 +67,31 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 		string directive;
 
 		iss >> directive >> server.host;
-		cout << "Host: " << server.host << endl;
 	}
+	if (line.find("server_name") != string::npos)
+	{
+		istringstream iss(line);
+		string directive;
 
+		iss >> directive >> server.server_name;
+	}
+	if (line.find("error_page") != string::npos)
+	{
+		istringstream iss(line);
+		string directive;
+		int code;
+		string path;
+
+		iss >> directive >> code >> path;
+		server.error_pages[code] = path;
+	}
+	if (line.find("client_max_body_size") != string::npos)
+	{
+		istringstream iss(line);
+		string directive;
+
+		iss >> directive >> server.client_max_body_size;
+	}
 }
 
 void ConfigParser::parseRouteConfig(Server &server, std::ifstream &file)
