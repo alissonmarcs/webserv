@@ -2,7 +2,7 @@
 
 Server::Server ()
 {
-    bzero (&adress, sizeof(adress));
+    memset (&adress, 0, sizeof(adress));
     server_fd = 0;
     port = 0;
 }
@@ -25,7 +25,7 @@ void Server::init ()
     if (server_fd < 0)
         FATAL_ERROR("Error creating server's socket");
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(int));
-    bzero(&adress, sizeof(adress));
+    memset (&adress, 0, sizeof(adress));
     adress.sin_family = AF_INET;
     adress.sin_addr.s_addr = inet_addr(ip.c_str());
     if (adress.sin_addr.s_addr == (in_addr_t) -1)

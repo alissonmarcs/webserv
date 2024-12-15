@@ -25,7 +25,7 @@ void ServerManager::initServers ()
     for (size_t i = 0; i < servers.size(); i++)
     {
         servers[i].init();
-        bzero(&event, sizeof(event));
+        std::memset(&event, 0, sizeof(event));
         event.events = EPOLLIN;
         event.data.fd = servers[i].server_fd;
         if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, servers[i].server_fd, &event) == -1)
@@ -50,8 +50,8 @@ void ServerManager::acceptClient(Server * owner)
     socklen_t client_addr_len = sizeof(client_addr);
     int client_fd, server_fd;
 
-    bzero (&client_addr, sizeof(client_addr));
-    bzero (&ev, sizeof(ev));
+    memset(&client_addr, 0, sizeof(client_addr));
+    memset(&ev, 0, sizeof(ev));
     server_fd = owner->server_fd;
     client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
     if (client_fd == -1)
@@ -72,7 +72,7 @@ void ServerManager::mainLoop ()
 
     while (1)
     {
-        bzero (&events, sizeof(events));
+        memset (&events, 0, sizeof(events));
         ready_fds = epoll_wait(epoll_fd, events, MAX_EPOLL_EVENTS, 300);
         if (ready_fds == -1)
             FATAL_ERROR("epoll_wait");
@@ -94,7 +94,7 @@ void ServerManager::mainLoop ()
                     char buffer[1024];
                     int ret;
 
-                    bzero(&buffer, sizeof(buffer));
+                    memset (&buffer, 0, sizeof(buffer));
                     ret = read(events[i].data.fd, buffer, 1);
                     cout << "Received: " << buffer << endl;
                 }

@@ -2,7 +2,7 @@
 
 Client::Client ()
 {
-    bzero (&adress, sizeof(adress));
+    memset (&adress, 0, sizeof(adress));
     client_fd = 0;
 }
 

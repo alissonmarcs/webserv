@@ -44,6 +44,7 @@ enum file_status
 # include <sys/socket.h>
 # include <arpa/inet.h>
 # include <sys/epoll.h>
+# include <cstring>
 
 using namespace std;
 
