@@ -11,9 +11,11 @@
 void
 populateServers (ServerManager &Manager)
 {
-  Manager.servers.push_back (Server ());
-  Manager.servers[0].ip = "127.0.0.1";
-  Manager.servers[0].port = 9000;
+  Server * server;
+  Manager.addEmptyServer ();
+  server = Manager.getLastServer ();
+  server->setIp ("127.0.0.1");
+  server->setPort (9000);
 }
 
 int

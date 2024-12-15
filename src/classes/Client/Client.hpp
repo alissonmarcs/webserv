@@ -12,6 +12,7 @@ public:
   ~Client ();
   Client (const Client &src);
 
+private:
   int client_fd;
   struct sockaddr_in adress;
   Server *server_owner;

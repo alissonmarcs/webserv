@@ -19,8 +19,8 @@ ServerManager::initServers ()
       servers[i].init ();
       std::memset (&event, 0, sizeof (event));
       event.events = EPOLLIN;
-      event.data.fd = servers[i].server_fd;
-      if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, servers[i].server_fd, &event)
+      event.data.fd = servers[i].getServerFd ();
+      if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, servers[i].getServerFd (), &event)
           == -1)
         FATAL_ERROR ("Error adding server's file descriptor to epoll");
     }
@@ -31,7 +31,7 @@ ServerManager::isServer (int fd)
 {
   for (size_t serverIndex = 0; serverIndex < servers.size (); serverIndex++)
     {
-      if (servers[serverIndex].server_fd == fd)
+      if (servers[serverIndex].getServerFd () == fd)
         return (&servers[serverIndex]);
     }
   return (NULL);
@@ -47,7 +47,7 @@ ServerManager::acceptClient (Server *owner)
 
   memset (&client_addr, 0, sizeof (client_addr));
   memset (&ev, 0, sizeof (ev));
-  server_fd = owner->server_fd;
+  server_fd = owner->getServerFd ();
   client_fd
       = accept (server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
   if (client_fd == -1)
@@ -98,4 +98,24 @@ ServerManager::mainLoop ()
             }
         }
     }
+}
+
+Server * ServerManager::getServer (int index)
+{
+  return (&servers[index]);
+}
+
+int ServerManager::getServersSize ()
+{
+  return (servers.size ());
+}
+
+Server * ServerManager::getLastServer (void)
+{
+  return (&servers[servers.size () - 1]);
+}
+
+void ServerManager::addEmptyServer (void)
+{
+  servers.push_back (Server ());
 }

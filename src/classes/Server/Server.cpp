@@ -31,3 +31,34 @@ Server::init ()
   if (listen (server_fd, QUEUED_CONNECTIONS) < 0)
     FATAL_ERROR ("Error listening on server's socket");
 }
+
+int
+Server::getServerFd ()
+{
+  return (server_fd);
+}
+
+string
+Server::getIp ()
+{
+  return (ip);
+}
+
+void
+Server::setIp (string ip)
+{
+  this->ip = ip;
+}
+
+uint16_t
+Server::getPort ()
+{
+  return (port);
+}
+
+void
+Server::setPort (uint16_t port)
+{
+  this->port = port;
+}
+
