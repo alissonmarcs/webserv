@@ -59,19 +59,40 @@ printServerInfo (ServerManager &Manager)
 
   for (size_t i = 0; i < size; i++)
     {
-      cout << "Server " << i << ":\n";
-      cout << "Host: " << servers[i].getHost () << "\n";
-      cout << "Port: " << servers[i].getPort () << "\n";
-      cout << "Server name: " << servers[i].getServerName () << "\n";
-      cout << "Client max body size: " << servers[i].getClientMaxBodySize ()
-           << "\n";
-      cout << "Error pages count: " << servers[i].error_pages.size () << "\n";
-      cout << "Error pages:\n";
+      cout << BLUE << "-------------------Server------------- " << i << RESET << ":\n";
+      cout << PINK << "Host: " << GREEN << servers[i].getHost () << RESET << "\n";
+      cout << PINK << "Port: " << GREEN << servers[i].getPort () << RESET << "\n";
+      cout << PINK << "Server name: " << GREEN << servers[i].getServerName () << RESET << "\n";
+      cout << PINK << "Client max body size: " << GREEN << servers[i].getClientMaxBodySize ()
+           << RESET << "\n";
+      cout << PINK << "Error pages count: " << GREEN << servers[i].error_pages.size () << RESET << "\n";
+      cout << PINK << "Error pages :\n";
 
       map<int, string>::iterator start = servers[i].error_pages.begin ();
       map<int, string>::iterator end = servers[i].error_pages.end ();
       for (; start != end; start++)
-        cout << "\tError code: " << start->first << ", file: " << start->second
-             << "\n";
+        cout << PINK << "\tError code: " << RED << start->first << RESET << ", file: " << PURPLE << start->second
+             << RESET << "\n";
+	  printRoutesInfo(servers[i]);
     }
+}
+
+void
+printRoutesInfo(Server &server)
+{
+	vector<Route> routes = server.getRoutes();
+	size_t size = routes.size();
+
+	for (size_t i = 0; i < size; i++)
+	{
+		cout << BLUE << "-------------------Route------------- " << i << RESET << ":\n";
+		cout << PINK << "Path: " << GREEN << routes[i].path << RESET << "\n";
+		cout << PINK << "Root: " << GREEN << routes[i].root << RESET << "\n";
+		cout << PINK << "Autoindex: " << GREEN << routes[i].autoindex << RESET << "\n";
+		cout << PINK << "Allowed methods count: " << GREEN << routes[i].allowed_methods.size() << RESET << "\n";
+		cout << PINK << "Redirect: " << GREEN << routes[i].redirect << RESET << "\n";
+		cout << PINK << "Default file: " << GREEN << routes[i].default_file << RESET << "\n";
+		cout << PINK << "Cgi ext: " << GREEN << routes[i].cgi_ext << RESET << "\n";
+		cout << PINK << "Upload store: " << GREEN << routes[i].upload_store << RESET << "\n";
+	}
 }

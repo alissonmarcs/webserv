@@ -14,7 +14,7 @@ public:
 
   vector<Server> servers;
   void parseServerConfig (const string &line, Server &server);
-  void parseRouteConfig (Server &server, const string &line);
+  int parseRouteConfig (Server &server, const string &line, istringstream &stream);
   void loadConfig (const string &config);
   void removeSemicolon (string &line);
 

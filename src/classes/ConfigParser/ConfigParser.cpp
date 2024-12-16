@@ -36,6 +36,8 @@ ConfigParser::ConfigParser (const string &config)
         throw ConfigParserException ("Error: brackets mismatch");
       if (bracketCount == 1)
         parseServerConfig (line, *activeServer);
+	  else if (bracketCount == 2 && activeServer && line.find("location") != string::npos)
+		bracketCount += parseRouteConfig (*activeServer, line, stream);
     }
   if (bracketCount != 0)
     throw ConfigParserException ("Error: brackets mismatch");
@@ -92,11 +94,61 @@ ConfigParser::parseServerConfig (const string &line, Server &server)
     }
 }
 
-void
-ConfigParser::parseRouteConfig (Server &server, const string &line)
+int
+ConfigParser::parseRouteConfig (Server &server, const string &line, istringstream &stream)
 {
-  (void)server;
-  (void)line;
+  Route route;
+  string directive, path;
+  istringstream iss (line);
+
+  iss >> directive >> path;
+  removeSemicolon (path);
+  route.path = path;
+
+	string routeLine;
+  while(getline(stream, routeLine))
+  {
+	if (routeLine.find("}") != string::npos)
+	{
+		server.addRoute(route);
+		return (-1);
+	}
+	routeLine = trim(removeComments(routeLine));
+	if (routeLine.empty())
+		continue;
+
+	istringstream routeIss(routeLine);
+	string routeDirective;
+	routeIss >> routeDirective;
+
+	if (routeDirective == "root")
+		routeIss >> route.root;
+	else if (routeDirective == "autoindex")
+	{
+		string value;
+		routeIss >> value;
+		route.autoindex = (value == "on");
+	}
+	else if (routeDirective == "allowed_methods")
+	{
+		string methods;
+		while(routeIss >> methods)
+		{
+			if (methods == ";")
+				break;
+			route.allowed_methods.push_back(methods);
+		}
+ 	}
+	else if (routeDirective == "redirect")
+		routeIss >> route.redirect;
+	else if (routeDirective == "default_file")
+		routeIss >> route.default_file;
+	else if (routeDirective == "cgi_ext")
+		routeIss >> route.cgi_ext;
+	else if (routeDirective == "upload_store")
+		routeIss >> route.upload_store;
+  }
+  return (0);
 }
 
 string

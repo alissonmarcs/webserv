@@ -1,9 +1,9 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
+#include "Utils.hpp"
 #include "Client.hpp"
 #include "Server.hpp"
-#include "Utils.hpp"
 
 class Client;
 class Server;

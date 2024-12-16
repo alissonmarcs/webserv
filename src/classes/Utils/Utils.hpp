@@ -18,6 +18,7 @@
 
 #define QUEUED_CONNECTIONS 300
 #define MAX_EPOLL_EVENTS 300
+#define FATAL_ERROR(msg) error (msg, __FILE__, __LINE__)
 
 using namespace std;
 
@@ -34,6 +35,7 @@ enum file_status
 #include <arpa/inet.h>
 #include <cerrno>
 #include <cmath>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -48,10 +50,12 @@ enum file_status
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include <wchar.h>
 
 using namespace std;
 
 class ServerManager;
+class Server;
 
 int processInput (string path);
 bool validateConfigFile (int argc, char **argv);
@@ -60,25 +64,8 @@ string getClientIp (struct sockaddr_in *client_addr);
 string readFileAsString (const string &path);
 void printServerInfo (ServerManager &Manager);
 void error (const char *msg, const char *file, long line);
+void printRoutesInfo(Server &server);
 
-#define FATAL_ERROR(msg) error (msg, __FILE__, __LINE__)
-
-#include <arpa/inet.h>
-#include <cerrno>
-#include <cmath>
-#include <cstring>
-#include <iostream>
-#include <map>
-#include <sstream>
-#include <stdexcept>
-#include <stdio.h>
-#include <string.h>
-#include <string>
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <vector>
 
 int processInput (std::string path);
 bool validateConfigFile (int argc, char **argv);

@@ -38,4 +38,6 @@ main (int argc, char **argv)
       std::cerr << RED << e.what () << RESET << std::endl;
     }
   printServerInfo (Manager);
+  
+  return (0);
 }
