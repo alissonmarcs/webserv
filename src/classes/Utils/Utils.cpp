@@ -62,5 +62,12 @@ void printServerInfo(ServerManager &Manager)
 		cout << "Port: " << servers[i].getPort() << "\n";
 		cout << "Server name: " << servers[i].getServerName() << "\n";
 		cout << "Client max body size: " << servers[i].getClientMaxBodySize() << "\n";
+    cout << "Error pages count: " << servers[i].error_pages.size() << "\n";
+    cout << "Error pages:\n";
+
+    map<int, string>::iterator start = servers[i].error_pages.begin();
+    map<int, string>::iterator end = servers[i].error_pages.end();
+    for (; start != end; start++)
+      cout << "\tError code: " << start->first << ", file: " << start->second << "\n";
 	}
 }
