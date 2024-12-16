@@ -13,9 +13,13 @@ public:
   Client (const Client &src);
 
 private:
+  /* Connection */
   int client_fd;
   struct sockaddr_in adress;
   Server *server_owner;
+
+  /* Request */
+  map <string, string> request_headers;
 };
 
 #endif
