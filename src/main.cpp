@@ -15,7 +15,7 @@ populateServers (ServerManager &Manager)
   Server * server;
   Manager.addEmptyServer ();
   server = Manager.getLastServer ();
-  server->setIp ("127.0.0.1");
+  server->setHost ("127.0.0.1");
   server->setPort (9000);
 }
 

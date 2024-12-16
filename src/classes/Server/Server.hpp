@@ -28,8 +28,6 @@ class Server
   
 	/* Getter and Setters */
 	int getServerFd ();
-	string getIp();
-	void setIp(string ip);
 	uint16_t getPort();
 	void setPort(uint16_t port);
 	string getHost();
@@ -48,7 +46,6 @@ class Server
 	size_t client_max_body_size;
 	vector<Route> routes;
 	int server_fd;
-	string ip;
 	struct sockaddr_in adress;
 
 

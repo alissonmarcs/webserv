@@ -6,7 +6,6 @@ Server::Server ()
 	client_max_body_size = 0;
 	host = "";
 	server_name = "";
-	ip = "";
 }
 
 Server::Server (const Server & src): host(src.host), port(src.port),
@@ -26,7 +25,7 @@ Server::init ()
   setsockopt (server_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof (int));
   memset (&adress, 0, sizeof (adress));
   adress.sin_family = AF_INET;
-  adress.sin_addr.s_addr = inet_addr (ip.c_str ());
+  adress.sin_addr.s_addr = inet_addr (host.c_str ());
   if (adress.sin_addr.s_addr == (in_addr_t)-1)
     FATAL_ERROR ("Error converting ip address");
   adress.sin_port = htons (port);
@@ -40,18 +39,6 @@ int
 Server::getServerFd ()
 {
   return (server_fd);
-}
-
-string
-Server::getIp ()
-{
-  return (ip);
-}
-
-void
-Server::setIp (string ip)
-{
-  this->ip = ip;
 }
 
 uint16_t
