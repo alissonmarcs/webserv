@@ -1,95 +1,126 @@
 #include "ServerManager.hpp"
 
-ServerManager::ServerManager ()
+ServerManager::ServerManager () {}
+
+ServerManager::ServerManager (const ServerManager &src) { (void)src; }
+
+ServerManager::~ServerManager () {}
+
+void
+ServerManager::initServers ()
 {
+  struct epoll_event event;
 
-}
-
-ServerManager::ServerManager (const ServerManager & src)
-{
-    (void) src;
-}
-
-ServerManager::~ServerManager ()
-{
-
-}
-
-void ServerManager::initServers ()
-{
-    struct epoll_event event;    
-
-    epoll_fd = epoll_create(1);
-    if (epoll_fd == -1)
-        fatalError("Error creating epoll file descriptor");
-    for (size_t i = 0; i < servers.size(); i++)
+  epoll_fd = epoll_create (1);
+  if (epoll_fd == -1)
+    FATAL_ERROR ("Error creating epoll file descriptor");
+  for (size_t i = 0; i < servers.size (); i++)
     {
-        servers[i].init();
-        bzero(&event, sizeof(event));
-        event.events = EPOLLIN;
-        event.data.fd = servers[i].server_fd;
-        if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, servers[i].server_fd, &event) == -1)
-            fatalError("Error adding server's file descriptor to epoll");
+      servers[i].init ();
+      std::memset (&event, 0, sizeof (event));
+      event.events = EPOLLIN;
+      event.data.fd = servers[i].getServerFd ();
+      if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, servers[i].getServerFd (), &event)
+          == -1)
+        FATAL_ERROR ("Error adding server's file descriptor to epoll");
     }
 }
 
-Server * ServerManager::isServer (int fd)
+Server *
+ServerManager::isServer (int fd)
 {
-    for (size_t serverIndex = 0; serverIndex < servers.size(); serverIndex++)
+  for (size_t serverIndex = 0; serverIndex < servers.size (); serverIndex++)
     {
-        if (servers[serverIndex].server_fd == fd)
-            return (&servers[serverIndex]);
+      if (servers[serverIndex].getServerFd () == fd)
+        return (&servers[serverIndex]);
     }
-    return (NULL);
+  return (NULL);
 }
 
-void ServerManager::acceptClient(Server * owner)
+void
+ServerManager::acceptClient (Server *owner)
 {
-    struct epoll_event ev;
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
-    int client_fd, server_fd;
+  struct epoll_event ev;
+  struct sockaddr_in client_addr;
+  socklen_t client_addr_len = sizeof (client_addr);
+  int client_fd, server_fd;
 
-    bzero (&client_addr, sizeof(client_addr));
-    bzero (&ev, sizeof(ev));
-    server_fd = owner->server_fd;
-    client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
-    if (client_fd == -1)
-        fatalError("Error accepting client");
-    clients[client_fd] = Client(client_fd, client_addr, owner);
-    ev.events = EPOLLRDHUP;
-    ev.data.fd = client_fd;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1) 
-        fatalError("Error adding client's file descriptor to epoll");
-    cout << "New connection from " << getClientIp(&client_addr) << endl;
+  memset (&client_addr, 0, sizeof (client_addr));
+  memset (&ev, 0, sizeof (ev));
+  server_fd = owner->getServerFd ();
+  client_fd
+      = accept (server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+  if (client_fd == -1)
+    FATAL_ERROR ("accept");
+  clients[client_fd] = Client (client_fd, client_addr, owner);
+  ev.events = EPOLLRDHUP | EPOLLIN;
+  ev.data.fd = client_fd;
+  if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1)
+    FATAL_ERROR ("epoll_ctl");
+  cout << "New connection from " << getClientIp (&client_addr) << endl;
 }
 
-void ServerManager::mainLoop ()
+void
+ServerManager::mainLoop ()
 {
-    struct epoll_event events[MAX_EPOLL_EVENTS];
-    int ready_fds;
-    Server * server;
+  struct epoll_event events[MAX_EPOLL_EVENTS];
+  int ready_fds;
+  Server *server;
 
-    while (1)
+  while (1)
     {
-        bzero (&events, sizeof(events));
-        ready_fds = epoll_wait(epoll_fd, events, MAX_EPOLL_EVENTS, 300);
-        if (ready_fds == -1)
-            fatalError("Error waiting for events");
-        for (int i = 0; i < ready_fds; i++)
+      memset (&events, 0, sizeof (events));
+      ready_fds = epoll_wait (epoll_fd, events, MAX_EPOLL_EVENTS, 300);
+      if (ready_fds == -1)
+        FATAL_ERROR ("epoll_wait");
+      for (int i = 0; i < ready_fds; i++)
         {
-            if ((server = isServer(events[i].data.fd)))
-                acceptClient(server);
-            else
+          if ((server = isServer (events[i].data.fd)))
+            acceptClient (server);
+          else
             {
-                if (events[i].events & EPOLLRDHUP)
+              if (events[i].events & EPOLLRDHUP)
                 {
-                    cout << "Client closed connection " << endl;
-                    if (close (events[i].data.fd) == -1)
-                        fatalError("close");
-                    clients.erase(events[i].data.fd);
+                  cout << "Client closed connection " << endl;
+                  if (close (events[i].data.fd) == -1)
+                    FATAL_ERROR ("close()");
+                  clients.erase (events[i].data.fd);
                 }
-            } 
+              else
+                {
+                  char buffer[1024];
+                  int ret;
+
+                  memset (&buffer, 0, sizeof (buffer));
+                  ret = read (events[i].data.fd, buffer, 1);
+                  cout << "Received: " << buffer << endl;
+                }
+            }
         }
     }
+}
+
+Server * ServerManager::getServer (int index)
+{
+  return (&servers[index]);
+}
+
+int ServerManager::getServersSize ()
+{
+  return (servers.size ());
+}
+
+Server * ServerManager::getLastServer (void)
+{
+  return (&servers[servers.size () - 1]);
+}
+
+void ServerManager::addEmptyServer (void)
+{
+  servers.push_back (Server ());
+}
+
+vector<Server> & ServerManager::getServersRef()
+{
+  return (servers);
 }

@@ -1,32 +1,39 @@
 #include "Utils.hpp"
 #include "Server.hpp"
 #include "ServerManager.hpp"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
-bool isValidIp(string ip)
+void
+error (const char *msg, const char *file, long line)
 {
-	struct sockaddr_in adress;
-
-	bzero(&adress, sizeof(adress));
-	if (inet_pton(AF_INET, ip.c_str(), &adress.sin_addr) == 1)
-		return (true);
-	return (false);
+  std::fprintf (stderr, "Fatal error: %s in %s:%ld: %s\n", msg, file, line,
+                std::strerror (errno));
+  std::exit (EXIT_FAILURE);
 }
 
-void fatalError(string msg)
+bool
+isValidIp (string ip)
 {
-	perror(msg.c_str());
-	exit(EXIT_FAILURE);
+  struct sockaddr_in adress;
+
+  memset (&adress, 0, sizeof (adress));
+  if (inet_pton (AF_INET, ip.c_str (), &adress.sin_addr) == 1)
+    return (true);
+  return (false);
 }
 
-string getClientIp(struct sockaddr_in * client_addr)
+string
+getClientIp (struct sockaddr_in *client_addr)
 {
-    char tmp[INET_ADDRSTRLEN];
-	stringstream ip;
+  char tmp[INET_ADDRSTRLEN];
+  stringstream ip;
 
-    bzero(tmp, INET_ADDRSTRLEN);
-    inet_ntop(AF_INET, &client_addr->sin_addr, tmp, INET_ADDRSTRLEN);
-	ip << tmp << ":" << ntohs(client_addr->sin_port);
-    return (ip.str());
+  memset (tmp, 0, INET_ADDRSTRLEN);
+  inet_ntop (AF_INET, &client_addr->sin_addr, tmp, INET_ADDRSTRLEN);
+  ip << tmp << ":" << ntohs (client_addr->sin_port);
+  return (ip.str ());
 }
 
 string readFileAsString(const string &path)
@@ -34,7 +41,7 @@ string readFileAsString(const string &path)
 	ifstream file(path.c_str());
 
 	if (!file.is_open())
-		fatalError("Error: Could not open file");
+		FATAL_ERROR("Error: Could not open file");
 	
 	stringstream buffer;
 	buffer << file.rdbuf();
@@ -45,12 +52,15 @@ string readFileAsString(const string &path)
 //print server info
 void printServerInfo(ServerManager &Manager)
 {
-	for (size_t i = 0; i < Manager.servers.size(); i++)
+  vector<Server> servers = Manager.getServersRef();
+  size_t size = servers.size();
+
+	for (size_t i = 0; i < size; i++)
 	{
 		cout << "Server " << i << ":\n";
-		cout << "Host: " << Manager.servers[i].host << "\n";
-		cout << "Port: " << Manager.servers[i].port << "\n";
-		cout << "Server name: " << Manager.servers[i].server_name << "\n";
-		cout << "Client max body size: " << Manager.servers[i].client_max_body_size << "\n";
+		cout << "Host: " << servers[i].getHost() << "\n";
+		cout << "Port: " << servers[i].getPort() << "\n";
+		cout << "Server name: " << servers[i].getServerName() << "\n";
+		cout << "Client max body size: " << servers[i].getClientMaxBodySize() << "\n";
 	}
 }

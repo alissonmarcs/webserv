@@ -24,18 +24,36 @@ class Server
 	}
 	
 	void init();
+	void addRoute(const Route &route);
+  
+	/* Getter and Setters */
+	int getServerFd ();
+	string getIp();
+	void setIp(string ip);
+	uint16_t getPort();
+	void setPort(uint16_t port);
+	string getHost();
+	void setHost(string host);
+	void setServerName(string server_name);
+	string getServerName();
+	void setClientMaxBodySize(size_t client_max_body_size);
+	size_t getClientMaxBodySize();
 
+	map<int, string> error_pages;
+
+ private:
 	string host;
 	uint16_t port;
 	string server_name;
-	map<int, string> error_pages;
 	size_t client_max_body_size;
 	vector<Route> routes;
 	int server_fd;
 	string ip;
 	struct sockaddr_in adress;
 
-	void addRoute(const Route &route);
+
+
+
 };
 
 #endif
