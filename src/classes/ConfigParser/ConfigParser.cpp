@@ -64,7 +64,7 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 		u_int16_t value;	
 
 		iss >> value;
-		server.setPort(htons(value));
+		server.setPort(value);
 	}
 	else if (directive == "server_name")
 	{
