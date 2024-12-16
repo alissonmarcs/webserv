@@ -14,6 +14,7 @@ Server::Server (const Server &src)
 		server_name (src.server_name),
     	client_max_body_size (src.client_max_body_size) {
 			  error_pages = src.error_pages;
+			  routes = src.routes;
 		}
 
 Server::~Server () {}

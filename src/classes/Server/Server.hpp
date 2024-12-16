@@ -20,6 +20,7 @@ public:
         server_name = other.server_name;
         error_pages = other.error_pages;
         client_max_body_size = other.client_max_body_size;
+		routes = other.routes;
       }
     return (*this);
   }
