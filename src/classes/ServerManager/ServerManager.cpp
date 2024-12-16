@@ -95,6 +95,8 @@ ServerManager::mainLoop ()
                   memset (&buffer, 0, sizeof (buffer));
                   ret = read (events[i].data.fd, buffer, 1);
                   cout << "Received: " << buffer << endl;
+				  //alissao isso aq é pro compilador parar de gritar
+				  (void)ret;
                 }
             }
         }

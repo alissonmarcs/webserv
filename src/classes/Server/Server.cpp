@@ -2,18 +2,19 @@
 
 Server::Server ()
 {
-  memset (&adress, 0, sizeof (adress));
-  client_max_body_size = 0;
   host = "";
   server_name = "";
+  client_max_body_size = 0;
+  memset (&adress, 0, sizeof (adress));
 }
 
-Server::Server (const Server &src)
-    : host (src.host), port (src.port), server_name (src.server_name),
-      error_pages (src.error_pages),
-      client_max_body_size (src.client_max_body_size)
-{
-}
+Server::Server (const Server &src) 
+	:	host (src.host), 
+		port (src.port), 
+		server_name (src.server_name),
+    	client_max_body_size (src.client_max_body_size) {
+			  error_pages = src.error_pages;
+		}
 
 Server::~Server () {}
 
@@ -90,4 +91,10 @@ size_t
 Server::getClientMaxBodySize ()
 {
   return (client_max_body_size);
+}
+
+void
+Server::setErrorPages (map<int, string> error_pages)
+{
+  this->error_pages = error_pages;
 }
