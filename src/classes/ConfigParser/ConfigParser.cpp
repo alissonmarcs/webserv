@@ -37,12 +37,6 @@ ConfigParser::ConfigParser(const string &config)
 		if (bracketCount == 1)
 			parseServerConfig(line, *activeServer);
 	}
-
-	cout << servers[0].host << endl;
-	cout << servers[0].server_name << endl;
-	cout << servers[0].error_pages[404] << endl;
-	cout << servers[0].client_max_body_size << endl;
-
 	if (bracketCount != 0)
 		throw ConfigParserException("Error: brackets mismatch");
 }
@@ -51,11 +45,6 @@ ConfigParser &ConfigParser::operator=(const ConfigParser &rhs)
 {
 	(void)rhs;
 	return (*this);
-}
-
-void ConfigParser::parseGlobalConfig(const string &line)
-{
-	(void)line;
 }
 
 void ConfigParser::parseServerConfig(const string &line, Server &server)
@@ -81,12 +70,11 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 		iss >> server.client_max_body_size;
 }
 
-void ConfigParser::parseRouteConfig(Server &server, std::ifstream &file)
+void ConfigParser::parseRouteConfig(Server &server, const string &line)
 {
 	(void)server;
-	(void)file;
+	(void)line;
 }
-
 
 string removeComments(string &line)
 {
