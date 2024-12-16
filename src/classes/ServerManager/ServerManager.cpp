@@ -20,7 +20,8 @@ ServerManager::initServers ()
       std::memset (&event, 0, sizeof (event));
       event.events = EPOLLIN;
       event.data.fd = servers[i].getServerFd ();
-      if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, servers[i].getServerFd (), &event)
+      if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, servers[i].getServerFd (),
+                     &event)
           == -1)
         FATAL_ERROR ("Error adding server's file descriptor to epoll");
     }
@@ -100,27 +101,32 @@ ServerManager::mainLoop ()
     }
 }
 
-Server * ServerManager::getServer (int index)
+Server *
+ServerManager::getServer (int index)
 {
   return (&servers[index]);
 }
 
-int ServerManager::getServersSize ()
+int
+ServerManager::getServersSize ()
 {
   return (servers.size ());
 }
 
-Server * ServerManager::getLastServer (void)
+Server *
+ServerManager::getLastServer (void)
 {
   return (&servers[servers.size () - 1]);
 }
 
-void ServerManager::addEmptyServer (void)
+void
+ServerManager::addEmptyServer (void)
 {
   servers.push_back (Server ());
 }
 
-vector<Server> & ServerManager::getServersRef()
+vector<Server> &
+ServerManager::getServersRef ()
 {
   return (servers);
 }

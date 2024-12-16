@@ -21,7 +21,7 @@ private:
   Server *server_owner;
 
   /* Request */
-  map <string, string> request_headers;
+  map<string, string> request_headers;
 };
 
 #endif

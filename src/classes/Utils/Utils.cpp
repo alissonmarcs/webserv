@@ -36,38 +36,42 @@ getClientIp (struct sockaddr_in *client_addr)
   return (ip.str ());
 }
 
-string readFileAsString(const string &path)
+string
+readFileAsString (const string &path)
 {
-	ifstream file(path.c_str());
+  ifstream file (path.c_str ());
 
-	if (!file.is_open())
-		FATAL_ERROR("Error: Could not open file");
-	
-	stringstream buffer;
-	buffer << file.rdbuf();
-	file.close();
-	return (buffer.str());
+  if (!file.is_open ())
+    FATAL_ERROR ("Error: Could not open file");
+
+  stringstream buffer;
+  buffer << file.rdbuf ();
+  file.close ();
+  return (buffer.str ());
 }
 
-//print server info
-void printServerInfo(ServerManager &Manager)
+// print server info
+void
+printServerInfo (ServerManager &Manager)
 {
-  vector<Server> servers = Manager.getServersRef();
-  size_t size = servers.size();
+  vector<Server> servers = Manager.getServersRef ();
+  size_t size = servers.size ();
 
-	for (size_t i = 0; i < size; i++)
-	{
-		cout << "Server " << i << ":\n";
-		cout << "Host: " << servers[i].getHost() << "\n";
-		cout << "Port: " << servers[i].getPort() << "\n";
-		cout << "Server name: " << servers[i].getServerName() << "\n";
-		cout << "Client max body size: " << servers[i].getClientMaxBodySize() << "\n";
-    cout << "Error pages count: " << servers[i].error_pages.size() << "\n";
-    cout << "Error pages:\n";
+  for (size_t i = 0; i < size; i++)
+    {
+      cout << "Server " << i << ":\n";
+      cout << "Host: " << servers[i].getHost () << "\n";
+      cout << "Port: " << servers[i].getPort () << "\n";
+      cout << "Server name: " << servers[i].getServerName () << "\n";
+      cout << "Client max body size: " << servers[i].getClientMaxBodySize ()
+           << "\n";
+      cout << "Error pages count: " << servers[i].error_pages.size () << "\n";
+      cout << "Error pages:\n";
 
-    map<int, string>::iterator start = servers[i].error_pages.begin();
-    map<int, string>::iterator end = servers[i].error_pages.end();
-    for (; start != end; start++)
-      cout << "\tError code: " << start->first << ", file: " << start->second << "\n";
-	}
+      map<int, string>::iterator start = servers[i].error_pages.begin ();
+      map<int, string>::iterator end = servers[i].error_pages.end ();
+      for (; start != end; start++)
+        cout << "\tError code: " << start->first << ", file: " << start->second
+             << "\n";
+    }
 }

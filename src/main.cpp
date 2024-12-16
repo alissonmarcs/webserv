@@ -1,5 +1,5 @@
-#include "ServerManager.hpp"
 #include "ConfigParser.hpp"
+#include "ServerManager.hpp"
 #include "Utils.hpp"
 
 #include <cstring>
@@ -12,7 +12,7 @@
 void
 populateServers (ServerManager &Manager)
 {
-  Server * server;
+  Server *server;
   Manager.addEmptyServer ();
   server = Manager.getLastServer ();
   server->setHost ("127.0.0.1");
@@ -22,21 +22,22 @@ populateServers (ServerManager &Manager)
 int
 main (int argc, char **argv)
 {
-	ServerManager Manager;
+  ServerManager Manager;
 
-	if (validateConfigFile(argc, argv))
-		exit(EXIT_FAILURE);
-	
-	string configFile = readFileAsString(argv[1]);
-	try
-	{
-		ConfigParser parser(configFile);
-		Manager.getServersRef() = parser.servers;
+  if (validateConfigFile (argc, argv))
+    exit (EXIT_FAILURE);
 
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << RED << e.what() << RESET << std::endl;
-	}
-	printServerInfo(Manager);
+  string configFile = readFileAsString (argv[1]);
+  try
+    {
+      ConfigParser parser (configFile);
+      Manager.getServersRef () = parser.servers;
+    }
+  catch (const std::exception &e)
+    {
+      std::cerr << RED << e.what () << RESET << std::endl;
+    }
+  printServerInfo (Manager);
+  Manager.initServers ();
+  Manager.mainLoop ();
 }

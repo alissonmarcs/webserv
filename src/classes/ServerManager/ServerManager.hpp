@@ -1,9 +1,9 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
-#include "Utils.hpp"
-#include "Server.hpp"
 #include "Client.hpp"
+#include "Server.hpp"
+#include "Utils.hpp"
 
 class Client;
 class Server;
@@ -19,11 +19,11 @@ public:
   void initServers ();
   void acceptClient (Server *owner);
   Server *isServer (int fd);
-  Server * getServer (int index);
-  Server * getLastServer (void);
+  Server *getServer (int index);
+  Server *getLastServer (void);
   int getServersSize ();
   void addEmptyServer (void);
-  vector<Server> & getServersRef();
+  vector<Server> &getServersRef ();
 
 private:
   int epoll_fd;

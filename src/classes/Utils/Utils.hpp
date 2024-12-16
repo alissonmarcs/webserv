@@ -19,9 +19,9 @@
 #define QUEUED_CONNECTIONS 300
 #define MAX_EPOLL_EVENTS 300
 
-using namespace	std;
+using namespace std;
 
-enum			file_status
+enum file_status
 {
   FileNoPermission,
   DirectoryNoPermission,
@@ -31,35 +31,35 @@ enum			file_status
   DirectoryWithPermissions
 };
 
-# include <arpa/inet.h>
-# include <cerrno>
-# include <cmath>
-# include <fstream>
-# include <iostream>
-# include <list>
-# include <map>
-# include <sstream>
-# include <stdexcept>
-# include <stdio.h>
-# include <string.h>
-# include <string>
-# include <sys/epoll.h>
-# include <sys/socket.h>
-# include <sys/stat.h>
-# include <unistd.h>
-# include <vector>
+#include <arpa/inet.h>
+#include <cerrno>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <map>
+#include <sstream>
+#include <stdexcept>
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <vector>
 
 using namespace std;
 
 class ServerManager;
 
-int				processInput(string path);
-bool			validateConfigFile(int argc, char **argv);
-bool			isValidIp(string ip);
-string			getClientIp(struct sockaddr_in *client_addr);
-string			readFileAsString(const string &path);
-void			printServerInfo(ServerManager &Manager);
-void      error (const char *msg, const char *file, long line);
+int processInput (string path);
+bool validateConfigFile (int argc, char **argv);
+bool isValidIp (string ip);
+string getClientIp (struct sockaddr_in *client_addr);
+string readFileAsString (const string &path);
+void printServerInfo (ServerManager &Manager);
+void error (const char *msg, const char *file, long line);
 
 #define FATAL_ERROR(msg) error (msg, __FILE__, __LINE__)
 
@@ -80,11 +80,9 @@ void      error (const char *msg, const char *file, long line);
 #include <unistd.h>
 #include <vector>
 
-
 int processInput (std::string path);
 bool validateConfigFile (int argc, char **argv);
 bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
-
 
 #endif
