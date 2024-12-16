@@ -16,6 +16,7 @@ class ConfigParser
 	void parseServerConfig(const string &line, Server &server);
 	void parseRouteConfig(Server &server, const string &line);
 	void loadConfig(const string &config);
+	void removeSemicolon(string &line);
 
 
 	class ConfigParserException : public std::exception

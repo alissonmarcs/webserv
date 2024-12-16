@@ -56,6 +56,7 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 	if (directive == "host")
 	{
 		iss >> value;
+		removeSemicolon(value);
 		server.setHost(value);
 	}
 	else if (directive == "listen")
@@ -68,6 +69,7 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 	else if (directive == "server_name")
 	{
 		iss >> value;
+		removeSemicolon(value);
 		server.setServerName(value);
 	}
 	else if (directive == "error_page")
@@ -76,6 +78,7 @@ void ConfigParser::parseServerConfig(const string &line, Server &server)
 		string path;
 
 		iss >> code >> path;
+		removeSemicolon(path);
 		server.error_pages[code] = path;
 	}
 	else if (directive == "client_max_body_size")
@@ -106,4 +109,11 @@ string trim(const string &str)
 	size_t untilFirstChar = str.find_first_not_of(" \t");
 	size_t untilLastChar = str.find_last_not_of(" \t");
 	return ((untilFirstChar == string::npos || untilLastChar == string::npos) ? "" : str.substr(untilFirstChar, untilLastChar - untilFirstChar + 1));
+}
+
+void ConfigParser::removeSemicolon(string &line)
+{
+	size_t pos = line.find(";");
+	if (pos != string::npos)
+		line = line.substr(0, pos);
 }
