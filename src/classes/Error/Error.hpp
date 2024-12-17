@@ -1,30 +1,53 @@
 #ifndef ERROR_HPP_
-#define ERROR_HPP_
+# define ERROR_HPP_
 
-#include "Utils.hpp"
-#include <exception>
+# include "Utils.hpp"
+# include <exception>
 // Class declaration
 class Error : public exception
 {
-public:
-  virtual ~Error () throw () {}
-  explicit Error (const string &message) : _message (message) {}
+  public:
+	virtual ~Error() throw()
+	{
+	}
+	explicit Error(const string &message) : _message(message)
+	{
+	}
 
-  const char *
-  what () const throw ()
-  {
-    return (_message.c_str ());
-  }
+	const char *what() const throw()
+	{
+		return (_message.c_str());
+	}
 
-private:
-  string _message;
+  private:
+	string _message;
 };
 ;
 
 class ConfigException : public Error
 {
-public:
-  explicit ConfigException (const string &msg) : Error (msg) {}
+  public:
+	explicit ConfigException(const string &msg) : Error(msg)
+	{
+	}
+};
+
+class ConfigParserException : public std::exception
+{
+  public:
+	ConfigParserException(const string &msg) : _msg(msg)
+	{
+	}
+	virtual const char *what() const throw()
+	{
+		return (_msg.c_str());
+	}
+	~ConfigParserException() throw()
+	{
+	}
+
+  private:
+	string _msg;
 };
 
 #endif

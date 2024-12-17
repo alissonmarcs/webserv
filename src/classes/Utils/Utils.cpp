@@ -57,6 +57,34 @@ readFileAsString (const string &path)
   return (buffer.str ());
 }
 
+void
+removeSemicolon (string &line)
+{
+  size_t pos = line.find (";");
+  if (pos != string::npos)
+    line = line.substr (0, pos);
+}
+
+string
+trim (const string &str)
+{
+  size_t untilFirstChar = str.find_first_not_of (" \t");
+  size_t untilLastChar = str.find_last_not_of (" \t");
+  return (
+      (untilFirstChar == string::npos || untilLastChar == string::npos)
+          ? ""
+          : str.substr (untilFirstChar, untilLastChar - untilFirstChar + 1));
+}
+
+string
+removeComments (string &line)
+{
+  size_t pos = line.find ("#");
+  if (pos != string::npos)
+    line = line.substr (0, pos);
+  return (line);
+}
+
 // print server info
 void
 printServerInfo (ServerManager &Manager)

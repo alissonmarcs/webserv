@@ -40,6 +40,50 @@ Server::init ()
     FATAL_ERROR ("Error listening on server's socket");
 }
 
+void
+Server::parseServerConfig (const string &line, Server &server)
+{
+  istringstream iss (line);
+  string directive, value;
+  iss >> directive;
+
+  if (directive == "host")
+    {
+      iss >> value;
+      removeSemicolon (value);
+      server.setHost (value);
+    }
+  else if (directive == "listen")
+    {
+      u_int16_t value;
+
+      iss >> value;
+      server.setPort (value);
+    }
+  else if (directive == "server_name")
+    {
+      iss >> value;
+      removeSemicolon (value);
+      server.setServerName (value);
+    }
+  else if (directive == "error_page")
+    {
+      int code;
+      string path;
+
+      iss >> code >> path;
+      removeSemicolon (path);
+      server.error_pages[code] = path;
+    }
+  else if (directive == "client_max_body_size")
+    {
+      size_t value;
+
+      iss >> value;
+      server.setClientMaxBodySize (value);
+    }
+}
+
 int
 Server::getServerFd ()
 {
