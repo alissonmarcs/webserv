@@ -4,6 +4,8 @@
 #include "Route.hpp"
 #include "Utils.hpp"
 
+class Route;
+
 class Server
 {
 public:
@@ -39,6 +41,8 @@ public:
   size_t getClientMaxBodySize ();
   void addRoute (Route route);
   vector<Route> getRoutes ();
+
+  void parseServerConfig (const string &line, Server &server);
 
   map<int, string> error_pages;
 
