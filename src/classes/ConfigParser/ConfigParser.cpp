@@ -133,7 +133,7 @@ ConfigParser::parseRouteConfig (Server &server, const string &line, istringstrea
 		else if (value == "off")
 			route.setAutoindex(false);
 	}
-	else if (routeDirective == "allow_methods")
+	else if (routeDirective == "allowed_methods")
 	{
 		string methods;
 		while(routeIss >> methods)
@@ -144,7 +144,14 @@ ConfigParser::parseRouteConfig (Server &server, const string &line, istringstrea
 			route.setAllowedMethods(methods);
 		}
  	}
-	
+	else if (routeDirective == "redirect")
+		route.setRedirect(routeIss.str());
+	else if (routeDirective == "default_file")
+		route.setDefaultFile(routeIss.str());
+	else if (routeDirective == "cgi_ext")
+		route.setCgiExt(routeIss.str());
+	else if (routeDirective == "upload_store")
+		route.setUploadStore(routeIss.str());
   }
   return (0);
 }
