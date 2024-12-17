@@ -37,7 +37,6 @@ public:
   string getServerName ();
   void setClientMaxBodySize (size_t client_max_body_size);
   size_t getClientMaxBodySize ();
-  void	setErrorPages (map<int, string> error_pages);
   void addRoute (Route route);
   vector<Route> getRoutes ();
 

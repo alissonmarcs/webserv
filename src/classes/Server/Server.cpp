@@ -95,12 +95,6 @@ Server::getClientMaxBodySize ()
 }
 
 void
-Server::setErrorPages (map<int, string> error_pages)
-{
-  this->error_pages = error_pages;
-}
-
-void
 Server::addRoute (Route route)
 {
   routes.push_back (route);
