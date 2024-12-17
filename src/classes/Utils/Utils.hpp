@@ -19,6 +19,7 @@
 #define QUEUED_CONNECTIONS 300
 #define MAX_EPOLL_EVENTS 300
 #define FATAL_ERROR(msg) error (msg, __FILE__, __LINE__)
+#define NON_FATAL_ERROR(msg) non_fatal_error (msg, __FILE__, __LINE__)
 
 using namespace std;
 
@@ -64,6 +65,7 @@ string getClientIp (struct sockaddr_in *client_addr);
 string readFileAsString (const string &path);
 void printServerInfo (ServerManager &Manager);
 void error (const char *msg, const char *file, long line);
+void non_fatal_error (const char *msg, const char *file, long line);
 void printRoutesInfo(Server &server);
 
 

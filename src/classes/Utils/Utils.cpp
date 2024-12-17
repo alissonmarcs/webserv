@@ -13,6 +13,13 @@ error (const char *msg, const char *file, long line)
   std::exit (EXIT_FAILURE);
 }
 
+void
+non_fatal_error (const char *msg, const char *file, long line)
+{
+  std::fprintf (stderr, "Non fatal error: %s in %s:%ld: %s\n", msg, file, line,
+                std::strerror (errno));
+}
+
 bool
 isValidIp (string ip)
 {
