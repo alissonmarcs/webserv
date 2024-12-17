@@ -13,7 +13,6 @@ public:
   ConfigParser &operator= (const ConfigParser &rhs);
 
   vector<Server> servers;
-  int parseRouteConfig (Server &server, const string &line, istringstream &stream);
   void loadConfig (const string &config);
 
 };
