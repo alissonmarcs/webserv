@@ -3,6 +3,9 @@
 # define ROUTE_HPP_
 
 # include "Utils.hpp"
+# include "Server.hpp"
+
+class Server;
 
 // Class declaration
 class Route
@@ -31,6 +34,9 @@ class Route
 	void setDefaultFile(string default_file) { this->default_file = default_file; }
 	void setCgiExt(string cgi_ext) { this->cgi_ext = cgi_ext; }
 	void setUploadStore(string upload_store) { this->upload_store = upload_store; }
+
+	// Route parsing
+	int parseRouteConfig(const string &line, istringstream &stream);
 
   private:
 	string path;

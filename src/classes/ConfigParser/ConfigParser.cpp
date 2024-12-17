@@ -1,9 +1,6 @@
 #include "ConfigParser.hpp"
 #include "Error.hpp"
 
-string removeComments (string &line);
-string trim (const string &str);
-
 ConfigParser::ConfigParser (const string &config)
 {
   istringstream stream (config);
@@ -35,9 +32,13 @@ ConfigParser::ConfigParser (const string &config)
       if (bracketCount < 0)
         throw ConfigParserException ("Error: brackets mismatch");
       if (bracketCount == 1)
-        parseServerConfig (line, *activeServer);
+        activeServer->parseServerConfig (line, *activeServer);
 	  else if (bracketCount == 2 && activeServer && line.find("location") != string::npos)
-		bracketCount += parseRouteConfig (*activeServer, line, stream);
+		{
+			Route route;
+			bracketCount += route.parseRouteConfig(line, stream);
+			activeServer->addRoute(route);
+		}
     }
   if (bracketCount != 0)
     throw ConfigParserException ("Error: brackets mismatch");
@@ -48,137 +49,4 @@ ConfigParser::operator= (const ConfigParser &rhs)
 {
   (void)rhs;
   return (*this);
-}
-
-void
-ConfigParser::parseServerConfig (const string &line, Server &server)
-{
-  istringstream iss (line);
-  string directive, value;
-  iss >> directive;
-
-  if (directive == "host")
-    {
-      iss >> value;
-      removeSemicolon (value);
-      server.setHost (value);
-    }
-  else if (directive == "listen")
-    {
-      u_int16_t value;
-
-      iss >> value;
-      server.setPort (value);
-    }
-  else if (directive == "server_name")
-    {
-      iss >> value;
-      removeSemicolon (value);
-      server.setServerName (value);
-    }
-  else if (directive == "error_page")
-    {
-      int code;
-      string path;
-
-      iss >> code >> path;
-      removeSemicolon (path);
-      server.error_pages[code] = path;
-    }
-  else if (directive == "client_max_body_size")
-    {
-      size_t value;
-
-      iss >> value;
-      server.setClientMaxBodySize (value);
-    }
-}
-
-int
-ConfigParser::parseRouteConfig (Server &server, const string &line, istringstream &stream)
-{
-  Route route;
-  string directive, path;
-  istringstream iss (line);
-
-  iss >> directive >> path;
-  removeSemicolon (path);
-  route.setPath(path);
-
-	string routeLine;
-  while(getline(stream, routeLine))
-  {
-	if (routeLine.find("}") != string::npos)
-	{
-		server.addRoute(route);
-		return (-1);
-	}
-	routeLine = trim(removeComments(routeLine));
-	if (routeLine.empty())
-		continue;
-
-	istringstream routeIss(routeLine);
-	string routeDirective, value;
-	routeIss >> routeDirective >> value;
-
-	if (routeDirective == "root")
-		route.setRoot(value);
-	else if (routeDirective == "autoindex")
-	{
-		removeSemicolon(value);
-		if (value == "on")
-			route.setAutoindex(true);
-		else if (value == "off")
-			route.setAutoindex(false);
-	}
-	else if (routeDirective == "allowed_methods")
-	{
-		removeSemicolon(value);
-		route.setAllowedMethods(value);
-		while(routeIss >> value)
-		{
-			if (value == ";")
-				break;
-			removeSemicolon(value);
-			route.setAllowedMethods(value);
-		}
- 	}
-	else if (routeDirective == "redirect")
-		route.setRedirect(value);
-	else if (routeDirective == "default_file")
-		route.setDefaultFile(value);
-	else if (routeDirective == "cgi_ext")
-		route.setCgiExt(value);
-	else if (routeDirective == "upload_store")
-		route.setUploadStore(value);
-  }
-  return (0);
-}
-
-string
-removeComments (string &line)
-{
-  size_t pos = line.find ("#");
-  if (pos != string::npos)
-    line = line.substr (0, pos);
-  return (line);
-}
-
-string
-trim (const string &str)
-{
-  size_t untilFirstChar = str.find_first_not_of (" \t");
-  size_t untilLastChar = str.find_last_not_of (" \t");
-  return (
-      (untilFirstChar == string::npos || untilLastChar == string::npos)
-          ? ""
-          : str.substr (untilFirstChar, untilLastChar - untilFirstChar + 1));
-}
-
-void
-ConfigParser::removeSemicolon (string &line)
-{
-  size_t pos = line.find (";");
-  if (pos != string::npos)
-    line = line.substr (0, pos);
 }

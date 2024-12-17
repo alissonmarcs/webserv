@@ -33,3 +33,60 @@ Route::Route(const Route &src)
 {
 	*this = src;
 }
+
+int
+Route::parseRouteConfig(const string &line, istringstream &stream)
+{
+  string directive, path;
+  istringstream iss (line);
+
+  iss >> directive >> path;
+  removeSemicolon (path);
+  setPath(path);
+
+	string routeLine;
+  while(getline(stream, routeLine))
+  {
+	if (routeLine.find("}") != string::npos)
+		return (-1);
+	routeLine = trim(removeComments(routeLine));
+	if (routeLine.empty())
+		continue;
+
+	istringstream routeIss(routeLine);
+	string routeDirective, value;
+	routeIss >> routeDirective >> value;
+
+	if (routeDirective == "root")
+		setRoot(value);
+	else if (routeDirective == "autoindex")
+	{
+		removeSemicolon(value);
+		if (value == "on")
+			setAutoindex(true);
+		else if (value == "off")
+			setAutoindex(false);
+	}
+	else if (routeDirective == "allowed_methods")
+	{
+		removeSemicolon(value);
+		setAllowedMethods(value);
+		while(routeIss >> value)
+		{
+			if (value == ";")
+				break;
+			removeSemicolon(value);
+			setAllowedMethods(value);
+		}
+ 	}
+	else if (routeDirective == "redirect")
+		setRedirect(value);
+	else if (routeDirective == "default_file")
+		setDefaultFile(value);
+	else if (routeDirective == "cgi_ext")
+		setCgiExt(value);
+	else if (routeDirective == "upload_store")
+		setUploadStore(value);
+  }
+  return (0);
+}
