@@ -86,13 +86,18 @@ printRoutesInfo(Server &server)
 	for (size_t i = 0; i < size; i++)
 	{
 		cout << BLUE << "-------------------Route------------- " << i << RESET << ":\n";
-		cout << PINK << "Path: " << GREEN << routes[i].path << RESET << "\n";
-		cout << PINK << "Root: " << GREEN << routes[i].root << RESET << "\n";
-		cout << PINK << "Autoindex: " << GREEN << routes[i].autoindex << RESET << "\n";
-		cout << PINK << "Allowed methods count: " << GREEN << routes[i].allowed_methods.size() << RESET << "\n";
-		cout << PINK << "Redirect: " << GREEN << routes[i].redirect << RESET << "\n";
-		cout << PINK << "Default file: " << GREEN << routes[i].default_file << RESET << "\n";
-		cout << PINK << "Cgi ext: " << GREEN << routes[i].cgi_ext << RESET << "\n";
-		cout << PINK << "Upload store: " << GREEN << routes[i].upload_store << RESET << "\n";
+		cout << PINK << "Path: " << GREEN << routes[i].getPath() << RESET << "\n";
+		cout << PINK << "Root: " << GREEN << routes[i].getRoot() << RESET << "\n";
+		cout << PINK << "Autoindex: " << GREEN << routes[i].getAutoindex() << RESET << "\n";
+		cout << PINK << "Allowed methods count: " << GREEN << routes[i].getAllowedMethods().size() << RESET << "\n";
+		cout << PINK << "Allowed methods :\n";
+		vector<string> methods = routes[i].getAllowedMethods();
+		size_t size = methods.size();
+		for (size_t j = 0; j < size; j++)
+			cout << PINK << "\tMethod: " << RED << methods[j] << RESET << "\n";
+		cout << PINK << "Redirect: " << GREEN << routes[i].getRedirect() << RESET << "\n";
+		cout << PINK << "Default file: " << GREEN << routes[i].getDefaultFile() << RESET << "\n";
+		cout << PINK << "Cgi ext: " << GREEN << routes[i].getCgiExt() << RESET << "\n";
+		cout << PINK << "Upload store: " << GREEN << routes[i].getUploadStore() << RESET << "\n";
 	}
 }

@@ -103,7 +103,7 @@ ConfigParser::parseRouteConfig (Server &server, const string &line, istringstrea
 
   iss >> directive >> path;
   removeSemicolon (path);
-  route.path = path;
+  route.setPath(path);
 
 	string routeLine;
   while(getline(stream, routeLine))
@@ -122,31 +122,29 @@ ConfigParser::parseRouteConfig (Server &server, const string &line, istringstrea
 	routeIss >> routeDirective;
 
 	if (routeDirective == "root")
-		routeIss >> route.root;
+		route.setRoot(routeIss.str());
 	else if (routeDirective == "autoindex")
 	{
 		string value;
 		routeIss >> value;
-		route.autoindex = (value == "on");
+		removeSemicolon(value);
+		if (value == "on")
+			route.setAutoindex(true);
+		else if (value == "off")
+			route.setAutoindex(false);
 	}
-	else if (routeDirective == "allowed_methods")
+	else if (routeDirective == "allow_methods")
 	{
 		string methods;
 		while(routeIss >> methods)
 		{
 			if (methods == ";")
 				break;
-			route.allowed_methods.push_back(methods);
+			removeSemicolon(methods);
+			route.setAllowedMethods(methods);
 		}
  	}
-	else if (routeDirective == "redirect")
-		routeIss >> route.redirect;
-	else if (routeDirective == "default_file")
-		routeIss >> route.default_file;
-	else if (routeDirective == "cgi_ext")
-		routeIss >> route.cgi_ext;
-	else if (routeDirective == "upload_store")
-		routeIss >> route.upload_store;
+	
   }
   return (0);
 }
