@@ -17,4 +17,4 @@ public:
 
 };
 
-#endif // CONFIGPARSER_HPP_
+#endif

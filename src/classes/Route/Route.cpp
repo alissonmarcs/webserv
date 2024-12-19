@@ -37,19 +37,21 @@ Route::Route(const Route &src)
 int
 Route::parseRouteConfig(const string &line, istringstream &stream)
 {
-  string directive, path;
-  istringstream iss (line);
+  string directiveName, path;
+  istringstream routeStream (line);
 
-  iss >> directive >> path;
-  removeSemicolon (path);
+  routeStream >> directiveName >> path;
+  if (directiveName != "location")
+	throw ConfigParserException("Error: invalid directive in route");
+  lineTreatment(path);
   setPath(path);
 
-	string routeLine;
+string routeLine;
   while(getline(stream, routeLine))
   {
 	if (routeLine.find("}") != string::npos)
 		return (-1);
-	routeLine = trim(removeComments(routeLine));
+	lineTreatment(routeLine);
 	if (routeLine.empty())
 		continue;
 
@@ -61,7 +63,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 		setRoot(value);
 	else if (routeDirective == "autoindex")
 	{
-		removeSemicolon(value);
+		lineTreatment(value);
 		if (value == "on")
 			setAutoindex(true);
 		else if (value == "off")
@@ -69,13 +71,13 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	}
 	else if (routeDirective == "allowed_methods")
 	{
-		removeSemicolon(value);
+		lineTreatment(value);
 		setAllowedMethods(value);
 		while(routeIss >> value)
 		{
 			if (value == ";")
 				break;
-			removeSemicolon(value);
+			lineTreatment(value);
 			setAllowedMethods(value);
 		}
  	}

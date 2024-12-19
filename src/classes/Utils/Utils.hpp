@@ -51,6 +51,7 @@ enum file_status
 #include <unistd.h>
 #include <vector>
 #include <wchar.h>
+#include "Error.hpp"
 
 using namespace std;
 
@@ -72,9 +73,6 @@ bool validateConfigFile (int argc, char **argv);
 bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
 
-void removeSemicolon (string &line);
-string trim (const string &str);
-string removeComments (string &line);
-
+void lineTreatment (string &line);
 
 #endif

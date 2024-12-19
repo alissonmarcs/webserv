@@ -4,43 +4,43 @@
 ConfigParser::ConfigParser (const string &config)
 {
   istringstream stream (config);
-  string line;
-  int bracketCount = 0;
+  string lineStream;
+  int nestingLevel = 0;
   Server *activeServer = NULL;
 
-  while (getline (stream, line))
+  while (getline (stream, lineStream))
     {
-      line = trim (removeComments (line));
-      if (line.empty ())
+      lineTreatment (lineStream);
+      if (lineStream.empty ())
         continue;
-      if (line.find ("{") != string::npos)
+      if (lineStream.find ("{") != string::npos)
         {
-          bracketCount++;
-          if (bracketCount == 1)
+          nestingLevel++;
+          if (nestingLevel == 1)
             activeServer = new Server ();
         }
-      else if (line.find ("}") != string::npos)
+      else if (lineStream.find ("}") != string::npos)
         {
-          bracketCount--;
-          if (bracketCount == 0)
+          nestingLevel--;
+          if (nestingLevel == 0)
             {
               servers.push_back (*activeServer);
               delete activeServer;
               activeServer = NULL;
             }
         }
-      if (bracketCount < 0)
+      if (nestingLevel < 0)
         throw ConfigParserException ("Error: brackets mismatch");
-      if (bracketCount == 1)
-        activeServer->parseServerConfig (line, *activeServer);
-	  else if (bracketCount == 2 && activeServer && line.find("location") != string::npos)
+      if (nestingLevel == 1)
+        activeServer->parseServerConfig (lineStream, *activeServer);
+	  else if (nestingLevel == 2 && activeServer && lineStream.find("location") != string::npos)
 		{
 			Route route;
-			bracketCount += route.parseRouteConfig(line, stream);
+			nestingLevel += route.parseRouteConfig(lineStream, stream);
 			activeServer->addRoute(route);
 		}
     }
-  if (bracketCount != 0)
+  if (nestingLevel != 0)
     throw ConfigParserException ("Error: brackets mismatch");
 }
 
