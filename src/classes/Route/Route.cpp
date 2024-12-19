@@ -45,10 +45,11 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	throw ConfigParserException("Error: invalid directive in route");
   lineTreatment(path);
   setPath(path);
-
-string routeLine;
+  string routeLine;
   while(getline(stream, routeLine))
   {
+	if (routeLine.find("location") != string::npos)
+		throw ConfigParserException("Error: invalid directive in route");
 	if (routeLine.find("}") != string::npos)
 		return (-1);
 	lineTreatment(routeLine);
@@ -75,6 +76,8 @@ string routeLine;
 		setAllowedMethods(value);
 		while(routeIss >> value)
 		{
+			if (value != "GET" && value != "POST" && value != "DELETE")
+				throw ConfigParserException("Error: invalid method in allowed_methods");
 			if (value == ";")
 				break;
 			lineTreatment(value);
