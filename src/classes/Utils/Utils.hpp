@@ -18,8 +18,9 @@
 
 #define QUEUED_CONNECTIONS 300
 #define MAX_EPOLL_EVENTS 300
-#define FATAL_ERROR(msg) error (msg, __FILE__, __LINE__)
+#define FATAL_ERROR(msg) fatal_error (msg, __FILE__, __LINE__)
 #define NON_FATAL_ERROR(msg) non_fatal_error (msg, __FILE__, __LINE__)
+#define LOGGER(client, msg) logger(client, msg, __FILE__, __LINE__)
 
 using namespace std;
 
@@ -64,9 +65,10 @@ bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
 string readFileAsString (const string &path);
 void printServerInfo (ServerManager &Manager);
-void error (const char *msg, const char *file, long line);
+void fatal_error (const char *msg, const char *file, long line);
 void non_fatal_error (const char *msg, const char *file, long line);
 void printRoutesInfo(Server &server);
+void logger (const char *client, const char * msg, const char *file, long line);
 
 
 int processInput (std::string path);

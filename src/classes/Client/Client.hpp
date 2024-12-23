@@ -14,6 +14,8 @@ public:
   ~Client ();
   Client (const Client &src);
 
+  struct sockaddr_in * getAdress () { return (&adress); }
+
 private:
   /* Connection */
   int client_fd;

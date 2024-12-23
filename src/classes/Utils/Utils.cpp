@@ -6,7 +6,7 @@
 #include <cstring>
 
 void
-error (const char *msg, const char *file, long line)
+fatal_error (const char *msg, const char *file, long line)
 {
   std::fprintf (stderr, "Fatal error: %s in %s:%ld: %s\n", msg, file, line,
                 std::strerror (errno));
@@ -18,6 +18,12 @@ non_fatal_error (const char *msg, const char *file, long line)
 {
   std::fprintf (stderr, "Non fatal error: %s in %s:%ld: %s\n", msg, file, line,
                 std::strerror (errno));
+}
+
+void
+logger (const char *client, const char * msg, const char *file, long line)
+{
+  cout << "[" << file << ":" << line << "] [Client " << client << "]: " << msg << endl;
 }
 
 bool

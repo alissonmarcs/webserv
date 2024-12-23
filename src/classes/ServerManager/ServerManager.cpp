@@ -58,7 +58,7 @@ ServerManager::acceptClient (Server *owner)
   ev.data.fd = client_fd;
   if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1)
     FATAL_ERROR ("epoll_ctl");
-  cout << "New connection from " << getClientIp (&client_addr) << endl;
+  LOGGER (getClientIp(&client_addr).c_str(), "connected");
 }
 
 void
@@ -82,21 +82,10 @@ ServerManager::mainLoop ()
             {
               if (events[i].events & EPOLLRDHUP)
                 {
-                  cout << "Client closed connection " << endl;
+                  LOGGER (getClientIp(clients[events[i].data.fd].getAdress()).c_str(), "closed connection");
                   if (close (events[i].data.fd) == -1)
                     FATAL_ERROR ("close()");
                   clients.erase (events[i].data.fd);
-                }
-              else
-                {
-                  char buffer[1024];
-                  int ret;
-
-                  memset (&buffer, 0, sizeof (buffer));
-                  ret = read (events[i].data.fd, buffer, 1);
-                  cout << "Received: " << buffer << endl;
-				  //alissao isso aq é pro compilador parar de gritar
-				  (void)ret;
                 }
             }
         }
