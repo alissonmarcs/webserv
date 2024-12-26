@@ -20,7 +20,7 @@ ifdef REMOVE_W_FLAGS
 endif
 
 ifdef DEBUG
-		DEBUG_FLAGS :=  -gdwarf-4 -O0 -fmacro-backtrace-limit=0 -Wunused-macros -fno-limit-debug-info
+		DEBUG_FLAGS :=  -gdwarf-4 -O0 -Wunused-macros 
 endif
 
 ifdef REMOVE_STD

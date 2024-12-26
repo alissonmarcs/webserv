@@ -7,7 +7,7 @@ Client::Client ()
 }
 
 Client::Client (int fd, struct sockaddr_in addr, Server *owner)
-    : client_fd (fd), adress (addr), server_owner (owner)
+    : client_fd (fd), adress (addr), server_owner (owner), error_code (0)
 {
 }
 
