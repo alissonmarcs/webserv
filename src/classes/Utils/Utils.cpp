@@ -71,6 +71,14 @@ removeSemicolon (string &line)
     line = line.substr (0, pos);
 }
 
+void
+trim2 (std::string &str)
+{
+  const char *whiteSpace = " \t\n\r\f\v";
+  str.erase (str.find_last_not_of (whiteSpace) + 1);
+  str.erase (0, str.find_first_not_of (whiteSpace));
+}
+
 string
 trim (const string &str)
 {

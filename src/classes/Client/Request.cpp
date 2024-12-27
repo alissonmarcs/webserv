@@ -19,11 +19,45 @@ Client::readRequest ()
     }
     buffer[ret] = '\0';
     request = buffer;
-    if (parseRequestLine (request) == false)
+    if (parseRequestLine (request) == false || parseHeaders (request) == false)
     {
         error_code = 400;
         return ;
     }
+        printHeaders();
+}
+
+bool
+isValidToken (string & token)
+{
+    static const char special_bytes[] = {'!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~'};
+    const size_t special_bytes_size = sizeof(special_bytes) / sizeof(special_bytes[0]);
+    int c;
+
+    for (size_t i = 0; i < token.size(); c = token[i], i++)
+    {
+        if (isalnum(c))
+            continue;
+        for (size_t j = 0; j < special_bytes_size; j++)
+        {
+            if (c == special_bytes[j])
+                break;
+            if (j == special_bytes_size - 1)
+                return (false);
+        } 
+    }
+    return (true);
+} 
+
+bool
+isValidHeaderValue(string & value)
+{
+    for (size_t i = 0; i < value.size(); i++)
+    {
+        if (isprint(value[i]) == false)
+            return (false);
+    }
+    return (true);
 }
 
 bool
@@ -57,5 +91,40 @@ Client::parseRequestLine(string & request)
     iss >> method >> target_resource >> version;
     if (isValidMethod(method) == false || target_resource.empty() || version.empty() || version != "HTTP/1.1")
         return (false);
+    request.erase(0, end_request_line + 2);
     return (true);
+}
+
+bool
+Client::parseHeaders(string & request)
+{
+    const size_t end_headers = request.find("\r\n\r\n");
+    size_t end_request_line, double_dot;
+    string name, value;
+
+    for (size_t start = 0; start < end_headers; )
+    {
+        end_request_line = request.find("\r\n", start);
+        double_dot = request.find(":", start);
+        if (double_dot == string::npos || double_dot > end_request_line)
+            return (false);
+        name = request.substr(start, double_dot - start);
+        double_dot += 1;
+        value = request.substr(double_dot , end_request_line - double_dot);
+        trim2(name);
+        trim2(value);
+        if (isValidToken(name) == false || isValidHeaderValue(value) == false)
+            return (false);
+        request_headers[name] = value;
+        start = end_request_line + 2;
+    }
+    return (true);
+}
+
+void
+Client::printHeaders()
+{
+    map<string, string>::iterator it = request_headers.begin();
+    for (; it != request_headers.end(); it++)
+        cout << it->first << ": " << it->second << endl;
 }

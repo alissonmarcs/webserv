@@ -19,6 +19,8 @@ public:
   
   void readRequest ();
   bool parseRequestLine(string & request);
+  bool parseHeaders(string & request);
+  void printHeaders();
 
 private:
   /* Connection */
