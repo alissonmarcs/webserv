@@ -26,11 +26,11 @@ Client::readRequest ()
     }
     if (request_headers.count("content-Length") == 0 && !isChunked())
         is_request_parsing_done = true;
-    // else if (parseBody(request) == false)
-    // {
-    //     error_code = 400;
-    //     return ;
-    // }
+    else if (parseBody(request) == false)
+    {
+        error_code = 400;
+        return ;
+    }
 }
 
 bool
@@ -94,6 +94,9 @@ isValidMethod(string & method)
 bool
 Client::parseRequestLine(string & request)
 {
+    if (!method.empty())
+        return (true);
+
     size_t end_headers = request.find("\r\n\r\n");
     size_t end_request_line = request.find("\r\n"); 
 
@@ -121,6 +124,9 @@ Client::parseRequestLine(string & request)
 bool
 Client::parseHeaders(string & request)
 {
+    if (request_headers.size() > 0)
+        return (true);
+
     const size_t end_headers = request.find("\r\n\r\n");
     size_t end_request_line, double_dot;
     string name, value;
