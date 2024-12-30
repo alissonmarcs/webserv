@@ -41,12 +41,22 @@ Server::init ()
 }
 
 void
+Server::validServerDirective (const string &directive)
+{
+  if (directive == "host" || directive == "listen" || directive == "server_name" || directive == "error_page" || directive == "client_max_body_size")
+	return ;
+  std::cerr << "Invalid directive: " << directive << std::endl;
+  throw std::invalid_argument("Invalid directive: " + directive);
+}
+
+void
 Server::parseServerConfig (const string &line, Server &server)
 {
   istringstream serverStream (line);
   string directiveName, directiveValue;
   serverStream >> directiveName;
 
+  validServerDirective(directiveName);
   lineTreatment(directiveValue);
   if (directiveName == "host")
     {
@@ -111,6 +121,8 @@ void
 Server::setHost (string host)
 {
   this->host = host;
+  if (!isValidIp(host))
+	throw ConfigParserException("Error: invalid ip address");
 }
 
 void

@@ -34,6 +34,20 @@ Route::Route(const Route &src)
 	*this = src;
 }
 
+
+void Route::validDirective(const std::string &directive)
+{
+    if (directive == "root" || directive == "autoindex" || directive == "allowed_methods" || 
+        directive == "redirect" || directive == "default_file" || directive == "cgi_ext" || 
+        directive == "upload_store" || directive == "index" || directive == "client_max_body_size" || 
+		directive == "error_page" || directive == "return")
+    {
+		return ;
+	}
+    std::cerr << "Invalid directive: " << directive << std::endl;
+    throw std::invalid_argument("Invalid directive: " + directive);
+}
+
 int
 Route::parseRouteConfig(const string &line, istringstream &stream)
 {
@@ -60,6 +74,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	string routeDirective, value;
 	routeIss >> routeDirective >> value;
 
+	validDirective(routeDirective);
 	if (routeDirective == "root")
 		setRoot(value);
 	else if (routeDirective == "autoindex")

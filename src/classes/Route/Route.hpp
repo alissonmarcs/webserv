@@ -37,6 +37,7 @@ class Route
 
 	// Route parsing
 	int parseRouteConfig(const string &line, istringstream &stream);
+	void validDirective(const std::string &directive);
 
   private:
 	string path;
