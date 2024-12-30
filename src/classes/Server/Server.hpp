@@ -43,6 +43,7 @@ public:
   vector<Route> getRoutes ();
 
   void parseServerConfig (const string &line, Server &server);
+  void validServerDirective (const string &directive);
 
   map<int, string> error_pages;
 

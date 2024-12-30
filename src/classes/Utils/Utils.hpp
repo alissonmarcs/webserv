@@ -54,6 +54,7 @@ enum file_status
 #include <unistd.h>
 #include <vector>
 #include <wchar.h>
+#include "Error.hpp"
 
 using namespace std;
 
@@ -83,5 +84,6 @@ void trim2 (string &str);
 string removeComments (string &line);
 void lowercase (string &str);
 
+void lineTreatment (string &line);
 
 #endif

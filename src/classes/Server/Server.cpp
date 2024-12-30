@@ -22,12 +22,12 @@ Server::~Server () {}
 void
 Server::init ()
 {
-  int value = 1;
+  int directiveValue = 1;
 
   server_fd = socket (AF_INET, SOCK_STREAM, 0);
   if (server_fd < 0)
     FATAL_ERROR ("Error creating server's socket");
-  setsockopt (server_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof (int));
+  setsockopt (server_fd, SOL_SOCKET, SO_REUSEADDR, &directiveValue, sizeof (int));
   memset (&adress, 0, sizeof (adress));
   adress.sin_family = AF_INET;
   adress.sin_addr.s_addr = inet_addr (host.c_str ());
@@ -41,46 +41,55 @@ Server::init ()
 }
 
 void
+Server::validServerDirective (const string &directive)
+{
+  if (directive == "host" || directive == "listen" || directive == "server_name" || directive == "error_page" || directive == "client_max_body_size")
+	return ;
+  std::cerr << "Invalid directive: " << directive << std::endl;
+  throw std::invalid_argument("Invalid directive: " + directive);
+}
+
+void
 Server::parseServerConfig (const string &line, Server &server)
 {
-  istringstream iss (line);
-  string directive, value;
-  iss >> directive;
+  istringstream serverStream (line);
+  string directiveName, directiveValue;
+  serverStream >> directiveName;
 
-  if (directive == "host")
+  validServerDirective(directiveName);
+  lineTreatment(directiveValue);
+  if (directiveName == "host")
     {
-      iss >> value;
-      removeSemicolon (value);
-      server.setHost (value);
+      serverStream >> directiveValue;
+      server.setHost (directiveValue);
     }
-  else if (directive == "listen")
+  else if (directiveName == "listen")
     {
-      u_int16_t value;
+      u_int16_t directiveValue;
 
-      iss >> value;
-      server.setPort (value);
+      serverStream >> directiveValue;
+      server.setPort (directiveValue);
     }
-  else if (directive == "server_name")
+  else if (directiveName == "server_name")
     {
-      iss >> value;
-      removeSemicolon (value);
-      server.setServerName (value);
+      serverStream >> directiveValue;
+      server.setServerName (directiveValue);
     }
-  else if (directive == "error_page")
+  else if (directiveName == "error_page")
     {
       int code;
       string path;
 
-      iss >> code >> path;
-      removeSemicolon (path);
+      serverStream >> code >> path;
+	  lineTreatment(path);
       server.error_pages[code] = path;
     }
-  else if (directive == "client_max_body_size")
+  else if (directiveName == "client_max_body_size")
     {
-      size_t value;
+      size_t directiveValue;
 
-      iss >> value;
-      server.setClientMaxBodySize (value);
+      serverStream >> directiveValue;
+      server.setClientMaxBodySize (directiveValue);
     }
 }
 
@@ -112,6 +121,8 @@ void
 Server::setHost (string host)
 {
   this->host = host;
+  if (!isValidIp(host))
+	throw ConfigParserException("Error: invalid ip address");
 }
 
 void

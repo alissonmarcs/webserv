@@ -34,22 +34,39 @@ Route::Route(const Route &src)
 	*this = src;
 }
 
+
+void Route::validDirective(const std::string &directive)
+{
+    if (directive == "root" || directive == "autoindex" || directive == "allowed_methods" || 
+        directive == "redirect" || directive == "default_file" || directive == "cgi_ext" || 
+        directive == "upload_store" || directive == "index" || directive == "client_max_body_size" || 
+		directive == "error_page" || directive == "return")
+    {
+		return ;
+	}
+    std::cerr << "Invalid directive: " << directive << std::endl;
+    throw std::invalid_argument("Invalid directive: " + directive);
+}
+
 int
 Route::parseRouteConfig(const string &line, istringstream &stream)
 {
-  string directive, path;
-  istringstream iss (line);
+  string directiveName, path;
+  istringstream routeStream (line);
 
-  iss >> directive >> path;
-  removeSemicolon (path);
+  routeStream >> directiveName >> path;
+  if (directiveName != "location")
+	throw ConfigParserException("Error: invalid directive in route");
+  lineTreatment(path);
   setPath(path);
-
-	string routeLine;
+  string routeLine;
   while(getline(stream, routeLine))
   {
+	if (routeLine.find("location") != string::npos)
+		throw ConfigParserException("Error: invalid directive in route");
 	if (routeLine.find("}") != string::npos)
 		return (-1);
-	routeLine = trim(removeComments(routeLine));
+	lineTreatment(routeLine);
 	if (routeLine.empty())
 		continue;
 
@@ -57,11 +74,12 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	string routeDirective, value;
 	routeIss >> routeDirective >> value;
 
+	validDirective(routeDirective);
 	if (routeDirective == "root")
 		setRoot(value);
 	else if (routeDirective == "autoindex")
 	{
-		removeSemicolon(value);
+		lineTreatment(value);
 		if (value == "on")
 			setAutoindex(true);
 		else if (value == "off")
@@ -69,13 +87,15 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	}
 	else if (routeDirective == "allowed_methods")
 	{
-		removeSemicolon(value);
+		lineTreatment(value);
 		setAllowedMethods(value);
 		while(routeIss >> value)
 		{
+			if (value != "GET" && value != "POST" && value != "DELETE")
+				throw ConfigParserException("Error: invalid method in allowed_methods");
 			if (value == ";")
 				break;
-			removeSemicolon(value);
+			lineTreatment(value);
 			setAllowedMethods(value);
 		}
  	}

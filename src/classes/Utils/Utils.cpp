@@ -63,6 +63,7 @@ readFileAsString (const string &path)
   return (buffer.str ());
 }
 
+
 void
 removeSemicolon (string &line)
 {
@@ -104,6 +105,14 @@ removeComments (string &line)
   if (pos != string::npos)
     line = line.substr (0, pos);
   return (line);
+}
+
+void
+lineTreatment (string &line)
+{
+  removeSemicolon (line);
+  line = trim (line);
+  removeComments (line);
 }
 
 // print server info
