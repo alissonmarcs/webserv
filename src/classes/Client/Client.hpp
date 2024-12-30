@@ -16,11 +16,14 @@ public:
 
   struct sockaddr_in * getAdress () { return (&adress); }
   short getErrorCode () { return (error_code); }
+  bool getIsParsingDone () { return (is_request_parsing_done); }
   
   void readRequest ();
   bool parseRequestLine(string & request);
   bool parseHeaders(string & request);
+  bool parseBody(string & request);
   void printHeaders();
+  bool isChunked ();
 
 private:
   /* Connection */
@@ -30,8 +33,10 @@ private:
   short error_code;
 
   /* Request */
+  bool is_request_parsing_done;
   string method, target_resource, version;
   map<string, string> request_headers;
+  vector <unsigned char> body;
 
 };
 

@@ -24,7 +24,29 @@ Client::readRequest ()
         error_code = 400;
         return ;
     }
-        printHeaders();
+    if (request_headers.count("content-Length") == 0 && !isChunked())
+        is_request_parsing_done = true;
+    // else if (parseBody(request) == false)
+    // {
+    //     error_code = 400;
+    //     return ;
+    // }
+}
+
+bool
+Client::isChunked ()
+{
+    bool have_transfer_encoding = request_headers.count("transfer-encoding");
+    bool is_chunked = (have_transfer_encoding && request_headers["transfer-encoding"] == "chunked");
+
+    if (have_transfer_encoding && is_chunked)
+        return (true);
+    if (have_transfer_encoding && !is_chunked)
+    {
+        error_code = 501;
+        return (false);
+    }
+    return (false);
 }
 
 bool
@@ -34,8 +56,9 @@ isValidToken (string & token)
     const size_t special_bytes_size = sizeof(special_bytes) / sizeof(special_bytes[0]);
     int c;
 
-    for (size_t i = 0; i < token.size(); c = token[i], i++)
+    for (size_t i = -1; i < token.size(); i++)
     {
+        c = token[i];
         if (isalnum(c))
             continue;
         for (size_t j = 0; j < special_bytes_size; j++)
@@ -113,11 +136,14 @@ Client::parseHeaders(string & request)
         value = request.substr(double_dot , end_request_line - double_dot);
         trim2(name);
         trim2(value);
+        lowercase(name);
+        lowercase(value);
         if (isValidToken(name) == false || isValidHeaderValue(value) == false)
             return (false);
         request_headers[name] = value;
         start = end_request_line + 2;
     }
+    request.erase(0, end_headers + 4);
     return (true);
 }
 

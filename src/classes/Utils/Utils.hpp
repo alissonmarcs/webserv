@@ -16,7 +16,7 @@
 #define RESET "\033[0m"
 #define INVERSE "\033[7m"
 
-#define BUFFER_SIZE 6096
+#define BUFFER_SIZE 65000
 #define QUEUED_CONNECTIONS 300
 #define MAX_EPOLL_EVENTS 300
 #define FATAL_ERROR(msg) fatal_error (msg, __FILE__, __LINE__)
@@ -81,6 +81,7 @@ void removeSemicolon (string &line);
 string trim (const string &str);
 void trim2 (string &str);
 string removeComments (string &line);
+void lowercase (string &str);
 
 
 #endif

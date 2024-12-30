@@ -72,6 +72,13 @@ removeSemicolon (string &line)
 }
 
 void
+lowercase (string &str)
+{
+  for (size_t i = 0; i < str.size (); i++)
+    str[i] = tolower (str[i]);
+}
+
+void
 trim2 (std::string &str)
 {
   const char *whiteSpace = " \t\n\r\f\v";

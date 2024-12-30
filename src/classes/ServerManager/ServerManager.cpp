@@ -93,6 +93,7 @@ ServerManager::mainLoop ()
                   if (clients[events[i].data.fd].getErrorCode () != 0)
                     {
                       LOGGER (getClientIp(clients[events[i].data.fd].getAdress()).c_str(), "bad request, closing connection"); 
+                      cout << "Error code: " << clients[events[i].data.fd].getErrorCode() << endl;
                       if (close (events[i].data.fd) == -1)
                         FATAL_ERROR ("close()");
                       clients.erase (events[i].data.fd);
