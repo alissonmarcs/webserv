@@ -10,6 +10,7 @@ Route::Route()
 	default_file = "";
 	cgi_ext = "";
 	upload_store = "";
+	index = "";
 }
 
 // Class assignment operator
@@ -25,6 +26,7 @@ Route &Route::operator=(const Route &rhs)
 		default_file = rhs.default_file;
 		cgi_ext = rhs.cgi_ext;
 		upload_store = rhs.upload_store;
+		index = rhs.index;
 	}
 	return (*this);
 }
@@ -65,7 +67,15 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	if (routeLine.find("location") != string::npos)
 		throw ConfigParserException("Error: invalid directive in route");
 	if (routeLine.find("}") != string::npos)
+	{
+		if (getRoot().empty())
+			throw ConfigParserException("Error: root directive missing in route");
+  		if (getAllowedMethods().empty())
+			throw ConfigParserException("Error: allowed_methods directive missing in route");
+  		if (getIndex().empty())
+			throw ConfigParserException("Error: index directive missing in route");
 		return (-1);
+	}
 	lineTreatment(routeLine);
 	if (routeLine.empty())
 		continue;
@@ -107,6 +117,8 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 		setCgiExt(value);
 	else if (routeDirective == "upload_store")
 		setUploadStore(value);
+	else if (routeDirective == "index")
+		setIndex(value);
   }
   return (0);
 }

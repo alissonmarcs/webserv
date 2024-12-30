@@ -24,6 +24,7 @@ ConfigParser::ConfigParser (const string &config)
           nestingLevel--;
           if (nestingLevel == 0)
             {
+			  activeServer->checkServerValues(*activeServer);
               servers.push_back (*activeServer);
               delete activeServer;
               activeServer = NULL;
