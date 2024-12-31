@@ -46,7 +46,8 @@ void
 Server::validServerDirective (const string &directive)
 {
   if (directive == "host" || directive == "listen" || directive == "server_name" || directive == "error_page" || 
-  		directive == "client_max_body_size" || directive == "location" || directive == "return" || directive == "server")
+  		directive == "client_max_body_size" || directive == "location" || directive == "return" || directive == "server" ||
+		directive == "}" || directive == "{")
 	return ;
   std::cerr << "Invalid directive: " << directive << std::endl;
   throw std::invalid_argument("Invalid directive: " + directive);

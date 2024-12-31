@@ -42,7 +42,7 @@ void Route::validDirective(const std::string &directive)
     if (directive == "root" || directive == "autoindex" || directive == "allowed_methods" || 
         directive == "redirect" || directive == "default_file" || directive == "cgi_ext" || 
         directive == "upload_store" || directive == "index" || directive == "client_max_body_size" || 
-		directive == "error_page" || directive == "return")
+		directive == "error_page" || directive == "return" || directive == "}" || directive == "{")
     {
 		return ;
 	}
@@ -81,6 +81,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
   if (directiveName != "location")
 	throw ConfigParserException("Error: invalid directive in route");
   lineTreatment(path);
+  trimBraces(path);
   setPath(path);
   string routeLine;
   while(getline(stream, routeLine))

@@ -72,7 +72,7 @@ int processInput (std::string path);
 bool validateConfigFile (int argc, char **argv);
 bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
-
+void trimBraces (string &line);
 void lineTreatment (string &line);
 
 #endif

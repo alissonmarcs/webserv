@@ -87,6 +87,14 @@ lineTreatment (string &line)
   removeComments (line);
 }
 
+void
+trimBraces (string &line)
+{
+  size_t pos = line.find ("{");
+  if (pos != string::npos)
+	line = line.substr (0, pos);
+}
+
 // print server info
 void
 printServerInfo (ServerManager &Manager)
