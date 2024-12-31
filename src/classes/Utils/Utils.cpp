@@ -136,5 +136,11 @@ printRoutesInfo(Server &server)
 		cout << PINK << "Default file: " << GREEN << routes[i].getDefaultFile() << RESET << "\n";
 		cout << PINK << "Cgi ext: " << GREEN << routes[i].getCgiExt() << RESET << "\n";
 		cout << PINK << "Upload store: " << GREEN << routes[i].getUploadStore() << RESET << "\n";
+		cout << PINK << "Index count: " << GREEN << routes[i].getIndex().size() << RESET << "\n";
+		cout << PINK << "Index files :\n";
+		vector<string> index = routes[i].getIndex();
+		size = index.size();
+		for (size_t j = 0; j < size; j++)
+			cout << PINK << "\tIndex: " << RED << index[j] << RESET << "\n";
 	}
 }

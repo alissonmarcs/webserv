@@ -13,6 +13,8 @@ ConfigParser::ConfigParser (const string &config)
       lineTreatment (lineStream);
       if (lineStream.empty ())
         continue;
+	  if (nestingLevel == 0 && lineStream.find("server") == string::npos)
+		throw ConfigParserException("Error: server directive missing");
       if (lineStream.find ("{") != string::npos)
         {
           nestingLevel++;
