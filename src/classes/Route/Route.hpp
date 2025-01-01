@@ -41,6 +41,7 @@ class Route
 	int parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel);
 	void validDirective(const std::string &directive);
 	void checkDuplicateDirectiveRoute(const string &line);
+	void checkEmptyDirectiveValue(const string &value);
 
   private:
 	string path;

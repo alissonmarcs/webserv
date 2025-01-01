@@ -51,6 +51,13 @@ void Route::validDirective(const std::string &directive)
 }
 
 void
+Route::checkEmptyDirectiveValue(const string &value)
+{
+	if (value.empty())
+		throw ConfigParserException("Error: empty value in directive");
+}
+
+void
 Route::checkDuplicateDirectiveRoute(const string &line)
 {
 	if (line.find("root") != string::npos && !getRoot().empty())
@@ -112,6 +119,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 	routeIss >> routeDirective >> value;
 
 	validDirective(routeDirective);
+	checkEmptyDirectiveValue(value);
 	if (routeDirective == "root")
 		setRoot(value);
 	else if (routeDirective == "autoindex")
