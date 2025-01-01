@@ -26,11 +26,11 @@ Client::readRequest ()
     }
     if (request_headers.count("content-Length") == 0 && !isChunked())
         is_request_parsing_done = true;
-    else if (parseBody(request) == false)
-    {
-        error_code = 400;
-        return ;
-    }
+    // else if (parseBody(request) == false)
+    // {
+    //     error_code = 400;
+    //     return ;
+    // }
 }
 
 bool
