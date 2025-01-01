@@ -5,9 +5,9 @@ ConfigParser::ConfigParser (const string &config)
 {
 	istringstream stream (config);
 	string lineStream;
-	int nestingLevel = 0;
 	Server *activeServer = NULL;
 	bool serverFound = false;
+	nestingLevel = 0;
 
 	while (getline (stream, lineStream))
 	{
@@ -48,14 +48,14 @@ ConfigParser::ConfigParser (const string &config)
 		}
 		if (nestingLevel < 0)
 			throw ConfigParserException ("Error: brackets mismatch");
-		if (nestingLevel == 1)
-			activeServer->parseServerConfig (lineStream, *activeServer);
-		else if (nestingLevel == 2 && activeServer && lineStream.find("location") != string::npos)
+		if (activeServer && lineStream.find("location") != string::npos)
 		{
 			Route route;
-			nestingLevel += route.parseRouteConfig(lineStream, stream);
+			route.parseRouteConfig(lineStream, stream, nestingLevel);
 			activeServer->addRoute(route);
 		}
+		else if (nestingLevel == 1)
+			activeServer->parseServerConfig (lineStream, *activeServer);
 	}
 	if (nestingLevel != 0)
 		throw ConfigParserException ("Error: brackets mismatch");

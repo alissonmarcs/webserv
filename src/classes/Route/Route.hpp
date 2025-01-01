@@ -38,7 +38,7 @@ class Route
 	void setIndex(string index) { this->indexFiles.push_back(index); }
 
 	// Route parsing
-	int parseRouteConfig(const string &line, istringstream &stream);
+	int parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel);
 	void validDirective(const std::string &directive);
 	void checkDuplicateDirectiveRoute(const string &line);
 

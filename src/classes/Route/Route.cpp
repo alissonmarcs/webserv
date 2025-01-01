@@ -72,7 +72,7 @@ Route::checkDuplicateDirectiveRoute(const string &line)
 }
 
 int
-Route::parseRouteConfig(const string &line, istringstream &stream)
+Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel)
 {
   string directiveName, path;
   istringstream routeStream (line);
@@ -89,6 +89,9 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	checkDuplicateDirectiveRoute(routeLine);
 	if (routeLine.find("location") != string::npos)
 		throw ConfigParserException("Error: invalid directive in route");
+	if (routeLine.find("{") != string::npos)
+		nestingLevel++;
+	else
 	if (routeLine.find("}") != string::npos)
 	{
 		if (getRoot().empty())
@@ -97,7 +100,8 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 			throw ConfigParserException("Error: allowed_methods directive missing in route");
   		if (getIndex().empty())
 			throw ConfigParserException("Error: index directive missing in route");
-		return (-1);
+		nestingLevel--;
+		return (1);
 	}
 	lineTreatment(routeLine);
 	if (routeLine.empty())

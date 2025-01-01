@@ -15,6 +15,8 @@ public:
   vector<Server> servers;
   void loadConfig (const string &config);
 
+private:
+	int nestingLevel;
 };
 
 #endif
