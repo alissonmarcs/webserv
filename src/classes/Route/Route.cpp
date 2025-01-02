@@ -38,6 +38,39 @@ Route::Route(const Route &src)
 	*this = src;
 }
 
+int
+Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel)
+{
+  parseLocation(line);
+  string routeLine;
+  while(getline(stream, routeLine))
+  {
+	if (routeLine.find("location") != string::npos)
+		throw ConfigParserException("Error: invalid directive in route");
+	if (routeLine.find("{") != string::npos)
+		nestingLevel++;
+	if (routeLine.find("}") != string::npos)
+	{
+		checkBasicDirectiveAreSet();
+		nestingLevel--;
+		return (1);
+	}
+	lineTreatment(routeLine);
+	if (routeLine.empty())
+		continue;
+
+	istringstream routeIss(routeLine);
+	string routeDirective, value, extraValue;
+	routeIss >> routeDirective >> value;
+
+	if (routeDirective != "allowed_methods" && routeIss >> extraValue)
+		throw ConfigParserException("Error: too many arguments in directive");
+	if (routeDirective != "{")
+		checkEmptyDirectiveValue(value);
+	setDirectiveValue(routeDirective, value, routeIss);
+  }
+  return (0);
+}
 void Route::initDirectiveStatus()
 {
 	directiveStatus["root"] = false;
@@ -63,6 +96,8 @@ Route::setDirectiveValue(const string &directive, const string &value, istringst
 			setAutoindex(true);
 		else if (value == "off")
 			setAutoindex(false);
+		else
+			throw ConfigParserException("Error: invalid value in autoindex directive");
 	}
 	else if (directive == "redirect")
 		setRedirect(value);
@@ -106,7 +141,6 @@ void Route::validDirective(const std::string &directive)
     {
 		return ;
 	}
-    std::cerr << "Invalid directive: " << directive << std::endl;
     throw std::invalid_argument("Invalid directive: " + directive);
 }
 
@@ -148,38 +182,4 @@ Route::checkBasicDirectiveAreSet()
 			throw ConfigParserException("Error: allowed_methods directive missing in route");
   	if (getIndex().empty())
 			throw ConfigParserException("Error: index directive missing in route");
-}
-
-int
-Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel)
-{
-  parseLocation(line);
-  string routeLine;
-  while(getline(stream, routeLine))
-  {
-	if (routeLine.find("location") != string::npos)
-		throw ConfigParserException("Error: invalid directive in route");
-	if (routeLine.find("{") != string::npos)
-		nestingLevel++;
-	if (routeLine.find("}") != string::npos)
-	{
-		checkBasicDirectiveAreSet();
-		nestingLevel--;
-		return (1);
-	}
-	lineTreatment(routeLine);
-	if (routeLine.empty())
-		continue;
-
-	istringstream routeIss(routeLine);
-	string routeDirective, value, extraValue;
-	routeIss >> routeDirective >> value;
-
-	if (routeDirective != "allowed_methods" && routeIss >> extraValue)
-		throw ConfigParserException("Error: too many arguments in directive");
-	if (routeDirective != "{")
-		checkEmptyDirectiveValue(value);
-	setDirectiveValue(routeDirective, value, routeIss);
-  }
-  return (0);
 }

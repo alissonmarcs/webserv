@@ -34,9 +34,9 @@ Server::parseServerConfig (const string &line, Server &server)
   string directiveName;
   serverStream >> directiveName;
 
-  validServerDirective(directiveName);
-
   lineTreatment(directiveName);
+
+  validServerDirective(directiveName);
   duplicateServerDirective(server, directiveName);
   if (directiveName == "host")
 	parseHost(serverStream, server);
@@ -154,8 +154,8 @@ parseLocation(istringstream &serverStream, Server &server)
 {
 	int directiveValue;
 
-	serverStream >> directiveValue;
-
+	if (!(serverStream >> directiveValue))
+		throw ConfigParserException("Error: invalid numeric value for listen");
 	server.validatePort (directiveValue);
 	server.setIsPortSet (true);
     server.setPort (static_cast<uint16_t>(directiveValue));
