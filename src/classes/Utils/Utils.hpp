@@ -88,5 +88,6 @@ void lowercase (string &str);
 
 void trimBraces (string &line);
 void lineTreatment (string &line);
+bool containsLetter(const string &str);
 
 #endif

@@ -11,6 +11,7 @@ Route::Route()
 	cgi_ext = "";
 	upload_store = "";
 	index = "";
+	initDirectiveStatus();
 }
 
 // Class assignment operator
@@ -171,9 +172,11 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 		continue;
 
 	istringstream routeIss(routeLine);
-	string routeDirective, value;
+	string routeDirective, value, extraValue;
 	routeIss >> routeDirective >> value;
 
+	if (routeDirective != "allowed_methods" && routeIss >> extraValue)
+		throw ConfigParserException("Error: too many arguments in directive");
 	if (routeDirective != "{")
 		checkEmptyDirectiveValue(value);
 	setDirectiveValue(routeDirective, value, routeIss);
