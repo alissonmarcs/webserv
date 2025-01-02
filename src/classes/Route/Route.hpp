@@ -25,6 +25,7 @@ class Route
 	string getCgiExt() const { return cgi_ext; }
 	string getUploadStore() const { return upload_store; }
 	string getIndex() const { return index; }
+	bool getDirectiveStatus(string directive) { return directiveStatus[directive]; }
 
 	// Setters
 	void setPath(string path) { this->path = path; }
@@ -36,12 +37,15 @@ class Route
 	void setCgiExt(string cgi_ext) { this->cgi_ext = cgi_ext; }
 	void setUploadStore(string upload_store) { this->upload_store = upload_store; }
 	void setIndex(string index) { this->index = index; }
+	void setDirectiveStatus(string directive, bool status) { directiveStatus[directive] = status; }
 
 	// Route parsing
 	int parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel);
 	void validDirective(const std::string &directive);
 	void checkDuplicateDirectiveRoute(const string &line);
 	void checkEmptyDirectiveValue(const string &value);
+	void setDirectiveValue(const string &directive, const string &value);
+	void parseLocation(const string &line);
 
   private:
 	string path;
@@ -53,6 +57,9 @@ class Route
 	string cgi_ext;
 	string upload_store;
 	string index;
+	map<string, bool> directiveStatus;
+
+	void initDirectiveStatus();
 };
 
 #endif // ROUTE_HPP

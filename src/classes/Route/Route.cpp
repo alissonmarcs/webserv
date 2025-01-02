@@ -27,6 +27,7 @@ Route &Route::operator=(const Route &rhs)
 		cgi_ext = rhs.cgi_ext;
 		upload_store = rhs.upload_store;
 		index = rhs.index;
+		directiveStatus = rhs.directiveStatus;
 	}
 	return (*this);
 }
@@ -34,6 +35,42 @@ Route &Route::operator=(const Route &rhs)
 Route::Route(const Route &src)
 {
 	*this = src;
+}
+
+void Route::initDirectiveStatus()
+{
+	directiveStatus["root"] = false;
+	directiveStatus["autoindex"] = false;
+	directiveStatus["allowed_methods"] = false;
+	directiveStatus["redirect"] = false;
+	directiveStatus["default_file"] = false;
+	directiveStatus["cgi_ext"] = false;
+	directiveStatus["upload_store"] = false;
+	directiveStatus["index"] = false;
+}
+
+void Route::setDirectiveValue(const string &directive, const string &value)
+{
+	validDirective(directive);
+	if (directive == "root")
+		setRoot(value);
+	else if (directive == "autoindex")
+	{
+		if (value == "on")
+			setAutoindex(true);
+		else if (value == "off")
+			setAutoindex(false);
+	}
+	else if (directive == "redirect")
+		setRedirect(value);
+	else if (directive == "default_file")
+		setDefaultFile(value);
+	else if (directive == "cgi_ext")
+		setCgiExt(value);
+	else if (directive == "upload_store")
+		setUploadStore(value);
+	else if (directive == "index")
+		setIndex(value);
 }
 
 
@@ -58,47 +95,38 @@ Route::checkEmptyDirectiveValue(const string &value)
 }
 
 void
-Route::checkDuplicateDirectiveRoute(const string &line)
+Route::checkDuplicateDirectiveRoute(const string &directive) {
+    if (getDirectiveStatus(directive)) {
+        throw ConfigParserException("Error: duplicate directive in route: " + directive);
+    }
+    setDirectiveStatus(directive, true);
+}
+
+void
+Route::parseLocation(const string &line)
 {
-	if (line.find("root") != string::npos && !getRoot().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("autoindex") != string::npos && getAutoindex() != true)
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("allowed_methods") != string::npos && !getAllowedMethods().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("redirect") != string::npos && !getRedirect().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("default_file") != string::npos && !getDefaultFile().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("cgi_ext") != string::npos && !getCgiExt().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("upload_store") != string::npos && !getUploadStore().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
-	else if (line.find("index") != string::npos && !getIndex().empty())
-		throw ConfigParserException("Error: duplicate directive in route");
+	string directiveName, path;
+	istringstream routeStream (line);
+
+	routeStream >> directiveName >> path;
+	if (directiveName != "location")
+		throw ConfigParserException("Error: invalid directive in route");
+	lineTreatment(path);
+	trimBraces(path);
+	setPath(path);
 }
 
 int
 Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel)
 {
-  string directiveName, path;
-  istringstream routeStream (line);
-
-  routeStream >> directiveName >> path;
-  if (directiveName != "location")
-	throw ConfigParserException("Error: invalid directive in route");
-  lineTreatment(path);
-  trimBraces(path);
-  setPath(path);
+  parseLocation(line);
   string routeLine;
   while(getline(stream, routeLine))
   {
-	checkDuplicateDirectiveRoute(routeLine);
 	if (routeLine.find("location") != string::npos)
 		throw ConfigParserException("Error: invalid directive in route");
 	if (routeLine.find("{") != string::npos)
 		nestingLevel++;
-	else
 	if (routeLine.find("}") != string::npos)
 	{
 		if (getRoot().empty())
@@ -118,20 +146,11 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 	string routeDirective, value;
 	routeIss >> routeDirective >> value;
 
-	validDirective(routeDirective);
 	if (routeDirective != "{")
 		checkEmptyDirectiveValue(value);
-	if (routeDirective == "root")
-		setRoot(value);
-	else if (routeDirective == "autoindex")
-	{
-		lineTreatment(value);
-		if (value == "on")
-			setAutoindex(true);
-		else if (value == "off")
-			setAutoindex(false);
-	}
-	else if (routeDirective == "allowed_methods")
+	checkDuplicateDirectiveRoute(routeDirective);
+	setDirectiveValue(routeDirective, value);
+	if (routeDirective == "allowed_methods")
 	{
 		lineTreatment(value);
 		setAllowedMethods(value);
@@ -143,28 +162,9 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 				break;
 			lineTreatment(value);
 			setAllowedMethods(value);
-		}
- 	}
-	else if (routeDirective == "index")
-	{
-		lineTreatment(value);
-		setIndex(value);
-		while(routeIss >> value)
-		{
-			if (value == ";")
-				break;
-			lineTreatment(value);
-			setIndex(value);
+			directiveStatus["allowed_methods"] = true;
 		}
 	}
-	else if (routeDirective == "redirect")
-		setRedirect(value);
-	else if (routeDirective == "default_file")
-		setDefaultFile(value);
-	else if (routeDirective == "cgi_ext")
-		setCgiExt(value);
-	else if (routeDirective == "upload_store")
-		setUploadStore(value);
   }
   return (0);
 }
