@@ -49,9 +49,11 @@ void Route::initDirectiveStatus()
 	directiveStatus["index"] = false;
 }
 
-void Route::setDirectiveValue(const string &directive, const string &value)
+void 
+Route::setDirectiveValue(const string &directive, const string &value, istringstream &routeIss)
 {
 	validDirective(directive);
+	checkDuplicateDirectiveRoute(directive);
 	if (directive == "root")
 		setRoot(value);
 	else if (directive == "autoindex")
@@ -71,6 +73,26 @@ void Route::setDirectiveValue(const string &directive, const string &value)
 		setUploadStore(value);
 	else if (directive == "index")
 		setIndex(value);
+	else if (directive == "allowed_methods")
+	{
+		vector<string> methods;
+
+		if (value != "GET" && value != "POST" && value != "DELETE" && value != "PUT")
+			throw ConfigParserException("Error: invalid method in allowed_methods directive");
+		methods.push_back(value);
+
+		string method;
+		while (routeIss >> method)
+		{
+			if (method != "GET" && method != "POST" && method != "DELETE" && method != "PUT")
+				throw ConfigParserException("Error: invalid method in allowed_methods directive");
+			if (find(methods.begin(), methods.end(), method) != methods.end())
+				throw ConfigParserException("Error: duplicate method in allowed_methods directive");
+			methods.push_back(method);
+		}
+		for (size_t i = 0; i < methods.size(); i++)
+			setAllowedMethods(methods[i]);
+	}
 }
 
 
@@ -116,6 +138,17 @@ Route::parseLocation(const string &line)
 	setPath(path);
 }
 
+void
+Route::checkBasicDirectiveAreSet()
+{
+	if (getRoot().empty())
+			throw ConfigParserException("Error: root directive missing in route");
+  	if (getAllowedMethods().empty())
+			throw ConfigParserException("Error: allowed_methods directive missing in route");
+  	if (getIndex().empty())
+			throw ConfigParserException("Error: index directive missing in route");
+}
+
 int
 Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel)
 {
@@ -129,12 +162,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 		nestingLevel++;
 	if (routeLine.find("}") != string::npos)
 	{
-		if (getRoot().empty())
-			throw ConfigParserException("Error: root directive missing in route");
-  		if (getAllowedMethods().empty())
-			throw ConfigParserException("Error: allowed_methods directive missing in route");
-  		if (getIndex().empty())
-			throw ConfigParserException("Error: index directive missing in route");
+		checkBasicDirectiveAreSet();
 		nestingLevel--;
 		return (1);
 	}
@@ -148,23 +176,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 
 	if (routeDirective != "{")
 		checkEmptyDirectiveValue(value);
-	checkDuplicateDirectiveRoute(routeDirective);
-	setDirectiveValue(routeDirective, value);
-	if (routeDirective == "allowed_methods")
-	{
-		lineTreatment(value);
-		setAllowedMethods(value);
-		while(routeIss >> value)
-		{
-			if (value != "GET" && value != "POST" && value != "DELETE")
-				throw ConfigParserException("Error: invalid method in allowed_methods");
-			if (value == ";")
-				break;
-			lineTreatment(value);
-			setAllowedMethods(value);
-			directiveStatus["allowed_methods"] = true;
-		}
-	}
+	setDirectiveValue(routeDirective, value, routeIss);
   }
   return (0);
 }

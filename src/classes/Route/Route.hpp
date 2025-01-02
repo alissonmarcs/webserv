@@ -44,8 +44,9 @@ class Route
 	void validDirective(const std::string &directive);
 	void checkDuplicateDirectiveRoute(const string &line);
 	void checkEmptyDirectiveValue(const string &value);
-	void setDirectiveValue(const string &directive, const string &value);
+	void setDirectiveValue(const string &directive, const string &value, istringstream &routeIss);
 	void parseLocation(const string &line);
+	void checkBasicDirectiveAreSet();
 
   private:
 	string path;

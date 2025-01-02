@@ -37,6 +37,7 @@ enum file_status
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <algorithm>
 #include <iostream>
 #include <list>
 #include <map>
