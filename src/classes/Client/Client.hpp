@@ -21,9 +21,10 @@ public:
   void readRequest ();
   bool parseRequestLine(string & request);
   bool parseHeaders(string & request);
-  bool parseBody(string & request);
+  void parseBody(string & request);
   void printHeaders();
   bool isChunked ();
+  void printBody();
 
 private:
   /* Connection */
@@ -36,7 +37,7 @@ private:
   bool is_request_parsing_done;
   string method, target_resource, version;
   map<string, string> request_headers;
-  vector <unsigned char> body;
+  vector <char> body;
 
 };
 

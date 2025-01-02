@@ -2,6 +2,7 @@
 #include <sstream>
 
 bool isValidMethod(string & method);
+void printRequest (string & request);
 
 void
 Client::readRequest ()
@@ -24,13 +25,58 @@ Client::readRequest ()
         error_code = 400;
         return ;
     }
-    if (request_headers.count("content-Length") == 0 && !isChunked())
-        is_request_parsing_done = true;
-    // else if (parseBody(request) == false)
+    // if (request_headers.count("content-length") || isChunked())
     // {
-    //     error_code = 400;
-    //     return ;
+    //     parseBody(request);
+    //     printBody();
     // }
+    // parseBody(request);
+    printHeaders();
+    printRequest(request);
+    // printBody();
+
+}
+
+void
+printRequest (string & request)
+{
+    cout << "\t\t\n\n--- REQUEST ---\n\n";
+    cout << request;
+    cout << "\t\t\n--- END REQUEST ---\n" << endl;
+}
+
+void
+Client::printBody()
+{
+    cout << "\t\t\n\n--- BODY ---\n\n";
+    for (size_t i = 0; i < body.size(); i++)
+    {
+        char tmp = body[i];
+        cout << tmp;
+    }
+    cout << "\t\t\n--- END BODY ---\n" << endl;
+}
+
+void
+Client::parseBody(string & request)
+{
+    if (request_headers.count("content-length"))
+    {
+        int content_length = atoi(request_headers["content-length"].c_str());
+        if (content_length < 0)
+        {
+            error_code = 400;
+            return ;
+        }
+        else
+        {
+            for (int i = 0; i < content_length; i++)
+            {
+                char c = request[i];
+                body.push_back(c);
+            }
+        }
+    }
 }
 
 bool
@@ -156,7 +202,10 @@ Client::parseHeaders(string & request)
 void
 Client::printHeaders()
 {
+    cout << "\t\t\n\n--- HEADERS ---\n\n";
     map<string, string>::iterator it = request_headers.begin();
     for (; it != request_headers.end(); it++)
         cout << it->first << ": " << it->second << endl;
+    cout << "\t\t\n--- END HEADERS ---\n\n";
+
 }
