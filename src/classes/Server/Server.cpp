@@ -64,6 +64,8 @@ Server::checkServerValues(Server &server)
 		throw ConfigParserException("Error: missing server_name directive");
 	if (server.routes.empty())
 		throw ConfigParserException("Error: missing location directive");
+	if (server.getClientMaxBodySize() == 0)
+		throw ConfigParserException("Error: missing client_max_body_size directive");
 }
 
 void
@@ -82,10 +84,13 @@ Server::parseServerConfig (const string &line, Server &server)
     }
   else if (directiveName == "listen")
     {
-      u_int16_t directiveValue;
+      int directiveValue;
 
-      serverStream >> directiveValue;
-      server.setPort (directiveValue);
+	  serverStream >> directiveValue;
+
+	  if (directiveValue < 0 || directiveValue > 65535)
+		throw ConfigParserException("Error: invalid port number");
+      server.setPort (static_cast<uint16_t>(directiveValue));
     }
   else if (directiveName == "server_name")
     {
