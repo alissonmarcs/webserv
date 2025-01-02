@@ -23,7 +23,6 @@
 #define NON_FATAL_ERROR(msg) non_fatal_error (msg, __FILE__, __LINE__)
 #define LOGGER(client, msg) logger(client, msg, __FILE__, __LINE__)
 
-using namespace std;
 
 enum file_status
 {
@@ -54,9 +53,11 @@ enum file_status
 #include <unistd.h>
 #include <vector>
 #include <wchar.h>
-#include "Error.hpp"
 
 using namespace std;
+
+#include "Error.hpp"
+
 
 class ServerManager;
 class Server;
