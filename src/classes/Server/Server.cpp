@@ -1,12 +1,8 @@
 #include "Server.hpp"
 
-Server::Server ()
+Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>())
 {
-  host = "";
-  port = 0;
-  server_name = "";
-  client_max_body_size = 0;
-  routes = vector<Route>();
+  error_pages = map<int, string>();
   memset (&adress, 0, sizeof (adress));
 }
 
@@ -69,6 +65,13 @@ Server::checkServerValues(Server &server)
 }
 
 void
+Server::validatePort (int directiveValue)
+{
+  if (directiveValue < 0 || directiveValue > 65535)
+		throw ConfigParserException("Error: invalid port number");
+}
+
+void
 Server::parseServerConfig (const string &line, Server &server)
 {
   istringstream serverStream (line);
@@ -88,8 +91,7 @@ Server::parseServerConfig (const string &line, Server &server)
 
 	  serverStream >> directiveValue;
 
-	  if (directiveValue < 0 || directiveValue > 65535)
-		throw ConfigParserException("Error: invalid port number");
+	  validatePort (directiveValue);
       server.setPort (static_cast<uint16_t>(directiveValue));
     }
   else if (directiveName == "server_name")
@@ -115,70 +117,11 @@ Server::parseServerConfig (const string &line, Server &server)
     }
 }
 
-int
-Server::getServerFd ()
-{
-  return (server_fd);
-}
-
-uint16_t
-Server::getPort ()
-{
-  return (port);
-}
-
-void
-Server::setPort (uint16_t port)
-{
-  this->port = port;
-}
-
-string
-Server::getHost ()
-{
-  return (host);
-}
-
-void
-Server::setHost (string host)
-{
-  this->host = host;
-  if (!isValidIp(host))
-	throw ConfigParserException("Error: invalid ip address");
-}
-
-void
-Server::setServerName (string server_name)
-{
-  this->server_name = server_name;
-}
-
-string
-Server::getServerName ()
-{
-  return (server_name);
-}
-
-void
-Server::setClientMaxBodySize (size_t client_max_body_size)
-{
-  this->client_max_body_size = client_max_body_size;
-}
-
-size_t
-Server::getClientMaxBodySize ()
-{
-  return (client_max_body_size);
-}
-
 void
 Server::addRoute (Route route)
 {
+	for (vector<Route>::iterator it = routes.begin(); it != routes.end(); it++)
+		if (it->getPath() == route.getPath())
+			throw ConfigParserException("Error: duplicate location directive");
   routes.push_back (route);
-}
-
-vector<Route>
-Server::getRoutes ()
-{
-  return (routes);
 }
