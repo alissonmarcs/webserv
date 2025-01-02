@@ -196,8 +196,14 @@ parseErrorPages(istringstream &serverStream, Server &server)
 void
 parseClientMaxBodySize(istringstream &serverStream, Server &server)
 {
-	size_t directiveValue;
+    size_t directiveValue;
+    string remaining;
 
-	serverStream >> directiveValue;
-	server.setClientMaxBodySize(directiveValue);
+    if (!(serverStream >> directiveValue)) {
+        throw ConfigParserException("Error: invalid numeric value for client_max_body_size");
+    }
+    if (serverStream >> remaining) {
+        throw ConfigParserException("Error: unexpected characters in client_max_body_size directive");
+    }
+    server.setClientMaxBodySize(directiveValue);
 }
