@@ -10,7 +10,7 @@ Route::Route()
 	default_file = "";
 	cgi_ext = "";
 	upload_store = "";
-	indexFiles 	= vector<string>();
+	index = "";
 }
 
 // Class assignment operator
@@ -26,7 +26,7 @@ Route &Route::operator=(const Route &rhs)
 		default_file = rhs.default_file;
 		cgi_ext = rhs.cgi_ext;
 		upload_store = rhs.upload_store;
-		indexFiles = rhs.indexFiles;
+		index = rhs.index;
 	}
 	return (*this);
 }

@@ -24,7 +24,7 @@ class Route
 	string getDefaultFile() const { return default_file; }
 	string getCgiExt() const { return cgi_ext; }
 	string getUploadStore() const { return upload_store; }
-	vector<string> getIndex() const { return indexFiles; }
+	string getIndex() const { return index; }
 
 	// Setters
 	void setPath(string path) { this->path = path; }
@@ -35,7 +35,7 @@ class Route
 	void setDefaultFile(string default_file) { this->default_file = default_file; }
 	void setCgiExt(string cgi_ext) { this->cgi_ext = cgi_ext; }
 	void setUploadStore(string upload_store) { this->upload_store = upload_store; }
-	void setIndex(string index) { this->indexFiles.push_back(index); }
+	void setIndex(string index) { this->index = index; }
 
 	// Route parsing
 	int parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel);
@@ -52,7 +52,7 @@ class Route
 	string default_file;
 	string cgi_ext;
 	string upload_store;
-	vector<string> indexFiles;
+	string index;
 };
 
 #endif // ROUTE_HPP
