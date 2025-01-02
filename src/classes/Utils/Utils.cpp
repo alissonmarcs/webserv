@@ -19,9 +19,7 @@ isValidIp (string ip)
   struct sockaddr_in adress;
 
   memset (&adress, 0, sizeof (adress));
-  if (inet_pton (AF_INET, ip.c_str (), &adress.sin_addr) == 1)
-    return (true);
-  return (false);
+  return (inet_pton (AF_INET, ip.c_str (), &adress.sin_addr) != 0);
 }
 
 string

@@ -31,10 +31,11 @@ public:
 
   /* Setters */
   void setPort (uint16_t port) { this->port = port; }
-  void setHost (string host) { this->host = host; }
+  void setHost (string host) { isValidIp(host) ? this->host = host : throw ConfigParserException("Error: invalid host"); }
   void setServerName (string server_name) { this->server_name = server_name; }
   void setClientMaxBodySize (size_t client_max_body_size) { this->client_max_body_size = client_max_body_size; }
-  
+  void setIsPortSet (bool isPortSet) { this->isPortSet = isPortSet; }
+
   /* Getters */
   uint16_t getPort () const { return port; }
   string getHost () const { return host; }
@@ -43,6 +44,7 @@ public:
   vector<Route> getRoutes () const { return routes; }
   int getServerFd () const { return server_fd; }
   struct sockaddr_in getAdress () const { return adress; }
+  bool getIsPortSet () const { return isPortSet; }
 
   void parseServerConfig (const string &line, Server &server);
   void validServerDirective (const string &directive);
@@ -60,6 +62,7 @@ private:
   vector<Route> routes;
   int server_fd;
   struct sockaddr_in adress;
+  bool isPortSet;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>())
+Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>()), isPortSet (false)
 {
   error_pages = map<int, string>();
   memset (&adress, 0, sizeof (adress));
@@ -41,12 +41,16 @@ Server::init ()
 void
 Server::validServerDirective (const string &directive)
 {
-  if (directive == "host" || directive == "listen" || directive == "server_name" || directive == "error_page" || 
-  		directive == "client_max_body_size" || directive == "location" || directive == "return" || directive == "server" ||
-		directive == "}" || directive == "{")
-	return ;
-  std::cerr << "Invalid directive: " << directive << std::endl;
-  throw std::invalid_argument("Invalid directive: " + directive);
+	static const char *validDirectives[] = {
+		"host", "listen", "server_name", "error_page",
+		"client_max_body_size", "location", "}",
+		"{", "return", "server"
+		};
+
+	for (size_t i = 0; i < sizeof(validDirectives) / sizeof(validDirectives[0]); i++)
+		if (directive == validDirectives[i])
+			return;
+	throw ConfigParserException("Error: invalid directive in server");
 }
 
 void
@@ -54,7 +58,7 @@ Server::checkServerValues(Server &server)
 {
 	if (server.getHost().empty())
 		throw ConfigParserException("Error: missing host directive");
-	if (server.getPort() == 0)
+	if (server.getIsPortSet() == false)
 		throw ConfigParserException("Error: missing listen directive");
 	if (server.getServerName().empty())
 		throw ConfigParserException("Error: missing server_name directive");
@@ -92,6 +96,7 @@ Server::parseServerConfig (const string &line, Server &server)
 	  serverStream >> directiveValue;
 
 	  validatePort (directiveValue);
+	  setIsPortSet (true);
       server.setPort (static_cast<uint16_t>(directiveValue));
     }
   else if (directiveName == "server_name")
