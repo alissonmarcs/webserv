@@ -75,5 +75,6 @@ bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
 void trimBraces (string &line);
 void lineTreatment (string &line);
+bool containsLetter(const string &str);
 
 #endif

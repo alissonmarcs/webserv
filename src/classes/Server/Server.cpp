@@ -1,9 +1,19 @@
 #include "Server.hpp"
 
+void parseHost(istringstream &serverStream, Server &server);
+void parseLocation(istringstream &serverStream, Server &server);
+void parseServerName(istringstream &serverStream, Server &server);
+void parseErrorPages(istringstream &serverStream, Server &server);
+void parseClientMaxBodySize(istringstream &serverStream, Server &server);
+void duplicateServerDirective(Server &server, const string &directive);
+void initServerDirectiveStatus(Server &server);
+
 Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>()), isPortSet (false)
 {
   error_pages = map<int, string>();
   memset (&adress, 0, sizeof (adress));
+  initServerDirectiveStatus(*this);
+  errorPagesMap = map<int, string>();
 }
 
 Server::Server (const Server &src) 
@@ -16,6 +26,29 @@ Server::Server (const Server &src)
 		}
 
 Server::~Server () {}
+
+void
+Server::parseServerConfig (const string &line, Server &server)
+{
+  istringstream serverStream (line);
+  string directiveName;
+  serverStream >> directiveName;
+
+  validServerDirective(directiveName);
+
+  lineTreatment(directiveName);
+  duplicateServerDirective(server, directiveName);
+  if (directiveName == "host")
+	parseHost(serverStream, server);
+  else if (directiveName == "listen")
+    parseLocation(serverStream, server);
+  else if (directiveName == "server_name")
+    parseServerName(serverStream, server);
+  else if (directiveName == "error_page")
+    parseErrorPages(serverStream, server);
+  else if (directiveName == "client_max_body_size")
+    parseClientMaxBodySize(serverStream, server);
+}
 
 void
 Server::init ()
@@ -67,7 +100,6 @@ Server::checkServerValues(Server &server)
 	if (server.getClientMaxBodySize() == 0)
 		throw ConfigParserException("Error: missing client_max_body_size directive");
 }
-
 void
 Server::validatePort (int directiveValue)
 {
@@ -76,51 +108,37 @@ Server::validatePort (int directiveValue)
 }
 
 void
-Server::parseServerConfig (const string &line, Server &server)
+initServerDirectiveStatus(Server &server)
 {
-  istringstream serverStream (line);
-  string directiveName, directiveValue;
-  serverStream >> directiveName;
+	static const char *validDirectives[] = {
+		"host", "listen", "server_name",
+		"client_max_body_size", "location", "}",
+		"{", "server"
+		};
 
-  validServerDirective(directiveName);
-  lineTreatment(directiveValue);
-  if (directiveName == "host")
-    {
-      serverStream >> directiveValue;
-      server.setHost (directiveValue);
-    }
-  else if (directiveName == "listen")
-    {
-      int directiveValue;
-
-	  serverStream >> directiveValue;
-
-	  validatePort (directiveValue);
-	  setIsPortSet (true);
-      server.setPort (static_cast<uint16_t>(directiveValue));
-    }
-  else if (directiveName == "server_name")
-    {
-      serverStream >> directiveValue;
-      server.setServerName (directiveValue);
-    }
-  else if (directiveName == "error_page")
-    {
-      int code;
-      string path;
-
-      serverStream >> code >> path;
-	  lineTreatment(path);
-      server.error_pages[code] = path;
-    }
-  else if (directiveName == "client_max_body_size")
-    {
-      size_t directiveValue;
-
-      serverStream >> directiveValue;
-      server.setClientMaxBodySize (directiveValue);
-    }
+	for (size_t i = 0; i < sizeof(validDirectives) / sizeof(validDirectives[0]); i++)
+		server.directiveStatus[validDirectives[i]] = false;
 }
+
+void
+duplicateErrorPageDirective(Server &server, const string &errorFile, int errorCode)
+{
+	for (map<int, string>::iterator it = server.errorPagesMap.begin(); it != server.errorPagesMap.end(); it++)
+		if (it->first == errorCode)
+			throw ConfigParserException("Error: duplicate error_page directive");
+	server.errorPagesMap[errorCode] = errorFile;
+}
+
+void
+duplicateServerDirective(Server &server, const string &directive)
+{
+	if (directive == "error_page")
+		return ;
+	if (server.directiveStatus[directive])
+		throw ConfigParserException("Error: duplicate directive in server: " + directive);
+	server.directiveStatus[directive] = true;
+}
+
 
 void
 Server::addRoute (Route route)
@@ -129,4 +147,57 @@ Server::addRoute (Route route)
 		if (it->getPath() == route.getPath())
 			throw ConfigParserException("Error: duplicate location directive");
   routes.push_back (route);
+}
+
+void
+parseLocation(istringstream &serverStream, Server &server)
+{
+	int directiveValue;
+
+	serverStream >> directiveValue;
+
+	server.validatePort (directiveValue);
+	server.setIsPortSet (true);
+    server.setPort (static_cast<uint16_t>(directiveValue));
+}
+
+void
+parseHost(istringstream &serverStream, Server &server)
+{
+	string host;
+
+	serverStream >> host;
+	lineTreatment(host);
+	server.setHost(host);
+}
+
+void
+parseServerName(istringstream &serverStream, Server &server)
+{
+	string server_name;
+
+	serverStream >> server_name;
+	lineTreatment(server_name);
+	server.setServerName(server_name);
+}
+
+void
+parseErrorPages(istringstream &serverStream, Server &server)
+{
+	int errorCode;
+	string errorFile;
+
+	serverStream >> errorCode >> errorFile;
+	lineTreatment(errorFile);
+	duplicateErrorPageDirective(server, errorFile, errorCode);
+	server.error_pages[errorCode] = errorFile;
+}
+
+void
+parseClientMaxBodySize(istringstream &serverStream, Server &server)
+{
+	size_t directiveValue;
+
+	serverStream >> directiveValue;
+	server.setClientMaxBodySize(directiveValue);
 }

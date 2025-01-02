@@ -11,6 +11,7 @@ Route::Route()
 	cgi_ext = "";
 	upload_store = "";
 	index = "";
+	initDirectiveStatus();
 }
 
 // Class assignment operator

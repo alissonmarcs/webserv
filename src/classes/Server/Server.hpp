@@ -23,6 +23,9 @@ public:
         error_pages = other.error_pages;
         client_max_body_size = other.client_max_body_size;
 		routes = other.routes;
+		server_fd = other.server_fd;
+		adress = other.adress;
+		isPortSet = other.isPortSet;
       }
     return (*this);
   }
@@ -53,6 +56,12 @@ public:
   void addRoute (Route route);
 
   map<int, string> error_pages;
+
+  //checking for duplicate directives
+  map<string, bool> directiveStatus;
+
+  //checking for duplicated error pages
+  map<int , string> errorPagesMap;
 
 private:
   string host;

@@ -93,6 +93,15 @@ trimBraces (string &line)
 	line = line.substr (0, pos);
 }
 
+bool
+containsLetter(const string &str)
+{
+  for (size_t i = 0; i < str.size(); i++)
+	if (isalpha(str[i]))
+	  return (true);
+  return (false);
+}
+
 // print server info
 void
 printServerInfo (ServerManager &Manager)
