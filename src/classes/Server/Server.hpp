@@ -44,6 +44,7 @@ public:
 
   void parseServerConfig (const string &line, Server &server);
   void validServerDirective (const string &directive);
+  void checkServerValues(Server &server);
 
   map<int, string> error_pages;
 

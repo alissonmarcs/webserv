@@ -3,8 +3,10 @@
 Server::Server ()
 {
   host = "";
+  port = 0;
   server_name = "";
   client_max_body_size = 0;
+  routes = vector<Route>();
   memset (&adress, 0, sizeof (adress));
 }
 
@@ -43,10 +45,25 @@ Server::init ()
 void
 Server::validServerDirective (const string &directive)
 {
-  if (directive == "host" || directive == "listen" || directive == "server_name" || directive == "error_page" || directive == "client_max_body_size")
+  if (directive == "host" || directive == "listen" || directive == "server_name" || directive == "error_page" || 
+  		directive == "client_max_body_size" || directive == "location" || directive == "return" || directive == "server" ||
+		directive == "}" || directive == "{")
 	return ;
   std::cerr << "Invalid directive: " << directive << std::endl;
   throw std::invalid_argument("Invalid directive: " + directive);
+}
+
+void
+Server::checkServerValues(Server &server)
+{
+	if (server.getHost().empty())
+		throw ConfigParserException("Error: missing host directive");
+	if (server.getPort() == 0)
+		throw ConfigParserException("Error: missing listen directive");
+	if (server.getServerName().empty())
+		throw ConfigParserException("Error: missing server_name directive");
+	if (server.routes.empty())
+		throw ConfigParserException("Error: missing location directive");
 }
 
 void

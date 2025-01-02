@@ -39,6 +39,7 @@ enum file_status
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <algorithm>
 #include <iostream>
 #include <list>
 #include <map>
@@ -85,6 +86,7 @@ void trim2 (string &str);
 string removeComments (string &line);
 void lowercase (string &str);
 
+void trimBraces (string &line);
 void lineTreatment (string &line);
 
 #endif

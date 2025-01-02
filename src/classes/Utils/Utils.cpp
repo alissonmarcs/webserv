@@ -115,6 +115,14 @@ lineTreatment (string &line)
   removeComments (line);
 }
 
+void
+trimBraces (string &line)
+{
+  size_t pos = line.find ("{");
+  if (pos != string::npos)
+	line = line.substr (0, pos);
+}
+
 // print server info
 void
 printServerInfo (ServerManager &Manager)
@@ -164,5 +172,6 @@ printRoutesInfo(Server &server)
 		cout << PINK << "Default file: " << GREEN << routes[i].getDefaultFile() << RESET << "\n";
 		cout << PINK << "Cgi ext: " << GREEN << routes[i].getCgiExt() << RESET << "\n";
 		cout << PINK << "Upload store: " << GREEN << routes[i].getUploadStore() << RESET << "\n";
+		cout << PINK << "Index files : " << routes[i].getIndex() << "\n";
 	}
 }

@@ -10,6 +10,7 @@ Route::Route()
 	default_file = "";
 	cgi_ext = "";
 	upload_store = "";
+	index = "";
 }
 
 // Class assignment operator
@@ -25,6 +26,8 @@ Route &Route::operator=(const Route &rhs)
 		default_file = rhs.default_file;
 		cgi_ext = rhs.cgi_ext;
 		upload_store = rhs.upload_store;
+		index = rhs.index;
+		directiveStatus = rhs.directiveStatus;
 	}
 	return (*this);
 }
@@ -34,13 +37,71 @@ Route::Route(const Route &src)
 	*this = src;
 }
 
+void Route::initDirectiveStatus()
+{
+	directiveStatus["root"] = false;
+	directiveStatus["autoindex"] = false;
+	directiveStatus["allowed_methods"] = false;
+	directiveStatus["redirect"] = false;
+	directiveStatus["default_file"] = false;
+	directiveStatus["cgi_ext"] = false;
+	directiveStatus["upload_store"] = false;
+	directiveStatus["index"] = false;
+}
+
+void 
+Route::setDirectiveValue(const string &directive, const string &value, istringstream &routeIss)
+{
+	validDirective(directive);
+	checkDuplicateDirectiveRoute(directive);
+	if (directive == "root")
+		setRoot(value);
+	else if (directive == "autoindex")
+	{
+		if (value == "on")
+			setAutoindex(true);
+		else if (value == "off")
+			setAutoindex(false);
+	}
+	else if (directive == "redirect")
+		setRedirect(value);
+	else if (directive == "default_file")
+		setDefaultFile(value);
+	else if (directive == "cgi_ext")
+		setCgiExt(value);
+	else if (directive == "upload_store")
+		setUploadStore(value);
+	else if (directive == "index")
+		setIndex(value);
+	else if (directive == "allowed_methods")
+	{
+		vector<string> methods;
+
+		if (value != "GET" && value != "POST" && value != "DELETE" && value != "PUT")
+			throw ConfigParserException("Error: invalid method in allowed_methods directive");
+		methods.push_back(value);
+
+		string method;
+		while (routeIss >> method)
+		{
+			if (method != "GET" && method != "POST" && method != "DELETE" && method != "PUT")
+				throw ConfigParserException("Error: invalid method in allowed_methods directive");
+			if (find(methods.begin(), methods.end(), method) != methods.end())
+				throw ConfigParserException("Error: duplicate method in allowed_methods directive");
+			methods.push_back(method);
+		}
+		for (size_t i = 0; i < methods.size(); i++)
+			setAllowedMethods(methods[i]);
+	}
+}
+
 
 void Route::validDirective(const std::string &directive)
 {
     if (directive == "root" || directive == "autoindex" || directive == "allowed_methods" || 
         directive == "redirect" || directive == "default_file" || directive == "cgi_ext" || 
         directive == "upload_store" || directive == "index" || directive == "client_max_body_size" || 
-		directive == "error_page" || directive == "return")
+		directive == "error_page" || directive == "return" || directive == "}" || directive == "{")
     {
 		return ;
 	}
@@ -48,24 +109,63 @@ void Route::validDirective(const std::string &directive)
     throw std::invalid_argument("Invalid directive: " + directive);
 }
 
-int
-Route::parseRouteConfig(const string &line, istringstream &stream)
+void
+Route::checkEmptyDirectiveValue(const string &value)
 {
-  string directiveName, path;
-  istringstream routeStream (line);
+	if (value.empty())
+		throw ConfigParserException("Error: empty value in directive");
+}
 
-  routeStream >> directiveName >> path;
-  if (directiveName != "location")
-	throw ConfigParserException("Error: invalid directive in route");
-  lineTreatment(path);
-  setPath(path);
+void
+Route::checkDuplicateDirectiveRoute(const string &directive) {
+    if (getDirectiveStatus(directive)) {
+        throw ConfigParserException("Error: duplicate directive in route: " + directive);
+    }
+    setDirectiveStatus(directive, true);
+}
+
+void
+Route::parseLocation(const string &line)
+{
+	string directiveName, path;
+	istringstream routeStream (line);
+
+	routeStream >> directiveName >> path;
+	if (directiveName != "location")
+		throw ConfigParserException("Error: invalid directive in route");
+	lineTreatment(path);
+	trimBraces(path);
+	setPath(path);
+}
+
+void
+Route::checkBasicDirectiveAreSet()
+{
+	if (getRoot().empty())
+			throw ConfigParserException("Error: root directive missing in route");
+  	if (getAllowedMethods().empty())
+			throw ConfigParserException("Error: allowed_methods directive missing in route");
+  	if (getIndex().empty())
+			throw ConfigParserException("Error: index directive missing in route");
+}
+
+int
+Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel)
+{
+  parseLocation(line);
   string routeLine;
   while(getline(stream, routeLine))
   {
 	if (routeLine.find("location") != string::npos)
 		throw ConfigParserException("Error: invalid directive in route");
+	if (routeLine.find("{") != string::npos)
+		nestingLevel++;
 	if (routeLine.find("}") != string::npos)
-		return (-1);
+	{
+		checkBasicDirectiveAreSet();
+		nestingLevel--;
+		return (1);
+	}
 	lineTreatment(routeLine);
 	if (routeLine.empty())
 		continue;
@@ -74,39 +174,9 @@ Route::parseRouteConfig(const string &line, istringstream &stream)
 	string routeDirective, value;
 	routeIss >> routeDirective >> value;
 
-	validDirective(routeDirective);
-	if (routeDirective == "root")
-		setRoot(value);
-	else if (routeDirective == "autoindex")
-	{
-		lineTreatment(value);
-		if (value == "on")
-			setAutoindex(true);
-		else if (value == "off")
-			setAutoindex(false);
-	}
-	else if (routeDirective == "allowed_methods")
-	{
-		lineTreatment(value);
-		setAllowedMethods(value);
-		while(routeIss >> value)
-		{
-			if (value != "GET" && value != "POST" && value != "DELETE")
-				throw ConfigParserException("Error: invalid method in allowed_methods");
-			if (value == ";")
-				break;
-			lineTreatment(value);
-			setAllowedMethods(value);
-		}
- 	}
-	else if (routeDirective == "redirect")
-		setRedirect(value);
-	else if (routeDirective == "default_file")
-		setDefaultFile(value);
-	else if (routeDirective == "cgi_ext")
-		setCgiExt(value);
-	else if (routeDirective == "upload_store")
-		setUploadStore(value);
+	if (routeDirective != "{")
+		checkEmptyDirectiveValue(value);
+	setDirectiveValue(routeDirective, value, routeIss);
   }
   return (0);
 }
