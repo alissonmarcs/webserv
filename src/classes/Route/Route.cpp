@@ -119,7 +119,8 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 	routeIss >> routeDirective >> value;
 
 	validDirective(routeDirective);
-	checkEmptyDirectiveValue(value);
+	if (routeDirective != "{")
+		checkEmptyDirectiveValue(value);
 	if (routeDirective == "root")
 		setRoot(value);
 	else if (routeDirective == "autoindex")
