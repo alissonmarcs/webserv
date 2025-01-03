@@ -20,23 +20,9 @@ Client::readRequest ()
     }
     buffer[ret] = '\0';
     string request (buffer, ret);
-    if (parseRequestLine (request) == false || parseHeaders (request) == false)
-    {
-        error_code = 400;
-        return ;
-    }
-    if (request_headers.count("content-length") || isChunked())
-    {
-        parseBody(request);
-        printBody();
-        printRequestBytes(request);
-    }
-    printHeaders ();
-    printRequest (request);
-
-    cout << "request size: " << request.size() << endl;
-    cout << "content-length: " << request_headers["content-length"] << endl;
-
+    parseRequestLine(request);
+    parseHeaders(request);
+    parseBody(request);
 }
 
 void
@@ -77,19 +63,21 @@ Client::parseBody(string & request)
 {
     if (request_headers.count("content-length"))
     {
-        int content_length = atoi(request_headers["content-length"].c_str());
-        if (content_length < 0)
+        size_t content_length = atoi(request_headers["content-length"].c_str());
+        if (content_length < 0 || content_length > 1000000 || content_length != request.size())
         {
             error_code = 400;
             return ;
         }
-        else
+        body = request;
+        is_request_parsing_done = true;
+    }
+    else if (request_headers.count("transfer-encoding"))
+    {
+        if (request_headers["transfer-encoding"] != "chunked")
         {
-            for (int i = 0; i < content_length; i++)
-            {
-                unsigned char c = request[i];
-                body.push_back(c);
-            }
+            error_code = 501;
+            return ;
         }
     }
 }
@@ -153,40 +141,53 @@ isValidMethod(string & method)
 }
 
 bool
-Client::parseRequestLine(string & request)
+isFormatValid (string & request)
 {
-    if (!method.empty())
-        return (true);
-
     size_t end_headers = request.find("\r\n\r\n");
     size_t end_request_line = request.find("\r\n"); 
 
-    if (end_headers == string::npos || request.find("Host:") == string::npos)
+    if (end_headers == string::npos)
         return (false);
     if (request.find("\n\r") != end_headers + 1)
         return (false);
     if (isalpha(request[0]) == false)
         return (false);
-
     for (size_t i = 0; i < end_request_line ; i++)
     {
         if ((request[i] == '\r' && request[i + 1] == '\r') || (request[i] == '\n' && request[i + 1] == '\n') || (request[i] == ' ' && request[i + 1] == ' '))
             return (false);
     }
-    
-    istringstream iss(request.substr(0, end_request_line));
-    iss >> method >> target_resource >> version;
-    if (isValidMethod(method) == false || target_resource.empty() || version.empty() || version != "HTTP/1.1")
-        return (false);
-    request.erase(0, end_request_line + 2);
     return (true);
 }
 
-bool
+void
+Client::parseRequestLine(string & request)
+{
+    if (method.empty() == false)
+        return ;
+    if (isFormatValid(request) == false)
+    {
+        error_code = 400;
+        return ;
+    }
+    
+    size_t end_request_line = request.find("\r\n");
+    istringstream extractor(request.substr(0, end_request_line));
+    
+    extractor >> method >> target_resource >> version;
+    if (isValidMethod(method) == false || target_resource.empty() || version.empty() || version != "HTTP/1.1")
+    {
+        error_code = 400;
+        return ;
+    }
+    request.erase(0, end_request_line + 2);
+}
+
+void
 Client::parseHeaders(string & request)
 {
     if (request_headers.size() > 0)
-        return (true);
+        return ;
 
     const size_t end_headers = request.find("\r\n\r\n");
     size_t end_request_line, double_dot;
@@ -197,7 +198,10 @@ Client::parseHeaders(string & request)
         end_request_line = request.find("\r\n", start);
         double_dot = request.find(":", start);
         if (double_dot == string::npos || double_dot > end_request_line)
-            return (false);
+        {
+            error_code = 400;
+            return ;
+        }
         name = request.substr(start, double_dot - start);
         double_dot += 1;
         value = request.substr(double_dot , end_request_line - double_dot);
@@ -206,12 +210,14 @@ Client::parseHeaders(string & request)
         lowercase(name);
         lowercase(value);
         if (isValidToken(name) == false || isValidHeaderValue(value) == false)
-            return (false);
+        {
+            error_code = 400;
+            return ;
+        }
         request_headers[name] = value;
         start = end_request_line + 2;
     }
     request.erase(0, end_headers + 4);
-    return (true);
 }
 
 void

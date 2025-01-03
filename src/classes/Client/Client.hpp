@@ -19,8 +19,8 @@ public:
   bool getIsParsingDone () { return (is_request_parsing_done); }
   
   void readRequest ();
-  bool parseRequestLine(string & request);
-  bool parseHeaders(string & request);
+  void parseRequestLine(string & request);
+  void parseHeaders(string & request);
   void parseBody(string & request);
   void printHeaders();
   bool isChunked ();
@@ -35,9 +35,8 @@ private:
 
   /* Request */
   bool is_request_parsing_done;
-  string method, target_resource, version;
+  string method, target_resource, version, body;
   map<string, string> request_headers;
-  vector <unsigned char> body;
 
 };
 
