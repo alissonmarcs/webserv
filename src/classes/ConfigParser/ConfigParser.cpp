@@ -28,11 +28,7 @@ ConfigParser::ConfigParser (const string &config)
 		else if (lineStream.find ("}") != string::npos)
 			endServerBlock(activeServer, serverFound);
 		if (activeServer && lineStream.find("location") != string::npos)
-		{
-			Route route;
-			route.parseRouteConfig(lineStream, stream, nestingLevel);
-			activeServer->addRoute(route);
-		}
+			processLocation(activeServer, lineStream, stream);
 		else if (nestingLevel == 1)
 			activeServer->parseServerConfig (lineStream, *activeServer);
 	}
