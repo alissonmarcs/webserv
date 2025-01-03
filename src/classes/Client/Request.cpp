@@ -63,8 +63,8 @@ Client::parseBody(string & request)
 {
     if (request_headers.count("content-length"))
     {
-        size_t content_length = atoi(request_headers["content-length"].c_str());
-        if (content_length < 0 || content_length > 1000000 || content_length != request.size())
+        size_t content_length = atoll(request_headers["content-length"].c_str());
+        if (content_length > 1000000 || content_length != request.size())
         {
             error_code = 400;
             return ;
