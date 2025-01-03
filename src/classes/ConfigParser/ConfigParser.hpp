@@ -15,9 +15,9 @@ public:
   vector<Server> servers;
   void loadConfig (const string &config);
 
-  //void startServerBlock(Server*& activeServer);
-  //void endServerBlock(Server*& activeServer, bool& serverFound);
-  //void processLocation(Server*& activeServer, const string& lineStream, istringstream& stream);
+  void startServerBlock(Server*& activeServer);
+  void endServerBlock(Server*& activeServer, bool& serverFound);
+  void processLocation(Server*& activeServer, const string& lineStream, istringstream& stream);
 
 private:
 	int nestingLevel;

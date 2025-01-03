@@ -29,25 +29,9 @@ ConfigParser::ConfigParser (const string &config)
 				throw ConfigParserException("Error: missing server directive");
 		}
 		if (serverFound && lineStream.find ("{") != string::npos)
-		{
-			nestingLevel++;
-			if (nestingLevel == 1)
-				activeServer = new Server ();
-		}
+			startServerBlock(activeServer);
 		else if (lineStream.find ("}") != string::npos)
-		{
-			nestingLevel--;
-			if (nestingLevel == 0)
-			{
-				activeServer->checkServerValues(*activeServer);
-				servers.push_back (*activeServer);
-				delete activeServer;
-				activeServer = NULL;
-				serverFound = false;
-			}
-		}
-		if (nestingLevel < 0)
-			throw ConfigParserException ("Error: brackets mismatch");
+			endServerBlock(activeServer, serverFound);
 		if (activeServer && lineStream.find("location") != string::npos)
 		{
 			Route route;
@@ -66,4 +50,37 @@ ConfigParser::operator= (const ConfigParser &rhs)
 {
 	(void)rhs;
 	return (*this);
+}
+
+void
+ConfigParser::startServerBlock(Server*& activeServer)
+{
+	nestingLevel++;
+	if (nestingLevel == 1)
+		activeServer = new Server ();
+}
+
+void
+ConfigParser::endServerBlock(Server*& activeServer, bool& serverFound)
+{
+	nestingLevel--;
+	if (nestingLevel == 0)
+	{
+		activeServer->checkServerValues(*activeServer);
+		servers.push_back (*activeServer);
+		delete activeServer;
+		activeServer = NULL;
+		serverFound = false;
+	}
+}
+
+void
+ConfigParser::processLocation(Server*& activeServer, const string& lineStream, istringstream& stream)
+{
+	Route route;
+	route.parseRouteConfig(lineStream, stream, nestingLevel);
+	activeServer->addRoute(route);
+
+	stream.clear();
+	stream.seekg(0, ios::cur);
 }
