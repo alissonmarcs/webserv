@@ -1,5 +1,5 @@
 NAME		= webserv
-WFLAGS 		= -Wall -Werror -Wextra -g3
+WFLAGS 		= -Wall -Werror -Wextra
 CPPFLAGS	= -std=c++98 
 DEBUG_FLAGS =
 
@@ -19,8 +19,8 @@ ifdef REMOVE_W_FLAGS
 	WFLAGS =
 endif
 
-ifdef DEBUG
-		DEBUG_FLAGS :=  -gdwarf-4 -O0 -Wunused-macros 
+ifdef DEBUG_CLANG
+		DEBUG_FLAGS := -gdwarf-4 -O0 -Wunused-macros -g3 -fno-omit-frame-pointer -fno-inline -fno-elide-constructors -fno-limit-debug-info
 endif
 
 ifdef REMOVE_STD
