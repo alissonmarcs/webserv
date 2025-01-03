@@ -22,12 +22,7 @@ ConfigParser::ConfigParser (const string &config)
 		if (serverFound && firstWord == "server")
 			throw ConfigParserException("Error: server directive inside server block");
 		if (nestingLevel == 0 && !serverFound)
-		{
-			if (lineStream.find("server") != string::npos)
-				serverFound = true;
-			else
-				throw ConfigParserException("Error: missing server directive");
-		}
+			thereIsServerDirective(lineStream, serverFound);
 		if (serverFound && lineStream.find ("{") != string::npos)
 			startServerBlock(activeServer);
 		else if (lineStream.find ("}") != string::npos)
@@ -83,4 +78,13 @@ ConfigParser::processLocation(Server*& activeServer, const string& lineStream, i
 
 	stream.clear();
 	stream.seekg(0, ios::cur);
+}
+
+void
+ConfigParser::thereIsServerDirective(const string& lineStream, bool& serverFound)
+{
+	if (lineStream.find("server") != string::npos)
+				serverFound = true;
+	else
+		throw ConfigParserException("Error: missing server directive");
 }
