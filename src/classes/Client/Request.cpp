@@ -3,12 +3,12 @@
 
 bool isValidMethod(string & method);
 void printRequest (string & request);
+void printRequestBytes (string & request);
 
 void
 Client::readRequest ()
 {
     char buffer[BUFFER_SIZE];
-    string request;
     int ret;
     
     ret = recv (client_fd, buffer, BUFFER_SIZE, 0);
@@ -19,21 +19,23 @@ Client::readRequest ()
         return ;
     }
     buffer[ret] = '\0';
-    request = buffer;
+    string request (buffer, ret);
     if (parseRequestLine (request) == false || parseHeaders (request) == false)
     {
         error_code = 400;
         return ;
     }
-    // if (request_headers.count("content-length") || isChunked())
-    // {
-    //     parseBody(request);
-    //     printBody();
-    // }
-    // parseBody(request);
-    printHeaders();
-    printRequest(request);
-    // printBody();
+    if (request_headers.count("content-length") || isChunked())
+    {
+        parseBody(request);
+        printBody();
+        printRequestBytes(request);
+    }
+    printHeaders ();
+    printRequest (request);
+
+    cout << "request size: " << request.size() << endl;
+    cout << "content-length: " << request_headers["content-length"] << endl;
 
 }
 
@@ -46,13 +48,26 @@ printRequest (string & request)
 }
 
 void
+printRequestBytes (string & request)
+{
+    cout << "\t\t\n\n--- REQUEST BYTES ---\n\n";
+    for (size_t i = 0; i < request.size(); i++)
+    {
+        int tmp = request[i];
+        cout << tmp << " ";
+    }
+    cout << "\t\t\n--- END REQUEST ---\n" << endl;
+}
+
+void
 Client::printBody()
 {
+    cout << "Body size: " << body.size() << endl;
     cout << "\t\t\n\n--- BODY ---\n\n";
     for (size_t i = 0; i < body.size(); i++)
     {
-        char tmp = body[i];
-        cout << tmp;
+        int tmp = body[i];
+        cout << tmp << " ";
     }
     cout << "\t\t\n--- END BODY ---\n" << endl;
 }
@@ -72,7 +87,7 @@ Client::parseBody(string & request)
         {
             for (int i = 0; i < content_length; i++)
             {
-                char c = request[i];
+                unsigned char c = request[i];
                 body.push_back(c);
             }
         }

@@ -37,7 +37,7 @@ private:
   bool is_request_parsing_done;
   string method, target_resource, version;
   map<string, string> request_headers;
-  vector <char> body;
+  vector <unsigned char> body;
 
 };
 
