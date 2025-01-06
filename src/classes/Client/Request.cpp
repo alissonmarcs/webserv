@@ -204,7 +204,7 @@ Client::parseHeaders(string & request)
     {
         end_request_line = request.find("\r\n", start);
         double_dot = request.find(":", start);
-        if (double_dot == string::npos || double_dot > end_request_line)
+        if (double_dot == string::npos || double_dot > end_request_line || request[double_dot - 1] == ' ')
         {
             error_code = 400;
             return ;
