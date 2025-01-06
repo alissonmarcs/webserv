@@ -134,9 +134,14 @@ Client::parseRequestLine(string & request)
     istringstream extractor(request.substr(0, end_request_line));
     
     extractor >> method >> target_resource >> version;
-    if (isValidMethod(method) == false || target_resource.empty() || version.empty() || version != "HTTP/1.1")
+    if (isValidMethod(method) == false || target_resource.empty() || version.empty())
     {
         error_code = 400;
+        return ;
+    }
+    if (version != "HTTP/1.1")
+    {
+        error_code = 505;
         return ;
     }
     request.erase(0, end_request_line + 2);
