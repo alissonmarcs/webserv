@@ -4,6 +4,12 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 
+enum
+{
+  REQUEST_ENTIRE_READ,
+  REQUEST_PARTIAL_READ
+};
+
 class Server;
 
 class Client
@@ -27,10 +33,10 @@ public:
   void printRequest();
   int isInvalidBody (string & request);
   void removeChunkedDelimiters();
-  void printRequest(string & request);
 
 private:
   /* Connection */
+  short reading_state;
   int client_fd;
   struct sockaddr_in adress;
   Server *server_owner;
