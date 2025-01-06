@@ -58,22 +58,6 @@ Client::parseBody(string & request)
 }
 
 bool
-Client::isChunked ()
-{
-    bool have_transfer_encoding = request_headers.count("transfer-encoding");
-    bool is_chunked = (have_transfer_encoding && request_headers["transfer-encoding"] == "chunked");
-
-    if (have_transfer_encoding && is_chunked)
-        return (true);
-    if (have_transfer_encoding && !is_chunked)
-    {
-        error_code = 501;
-        return (false);
-    }
-    return (false);
-}
-
-bool
 isValidToken (string & token)
 {
     static const char special_bytes[] = {'!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~'};
