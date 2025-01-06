@@ -23,8 +23,10 @@ Client::readRequest ()
     string request (buffer, ret);
     printRequest(request);
     parseRequestLine(request);
-    parseHeaders(request);
-    parseBody(request);
+    if (error_code == 0)
+        parseHeaders(request);
+    if (error_code == 0)
+        parseBody(request);
 }
 
 void
