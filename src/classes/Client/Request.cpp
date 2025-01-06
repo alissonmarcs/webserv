@@ -3,8 +3,7 @@
 
 bool isValidMethod(string & method);
 void printRequest (string & request);
-bool
-ChunkedBodyEnded(string & request);
+bool ChunkedBodyEnded(string & request);
 
 void
 Client::readRequest ()
@@ -20,79 +19,72 @@ Client::readRequest ()
         return ;
     }
     buffer[ret] = '\0';
-    string request (buffer, ret);
-    printRequest(request);
-    parseRequestLine(request);
+    raw_request = string (buffer, ret);
+    printRequest();
+    parseRequestLine();
     if (error_code == 0)
-        parseHeaders(request);
+        parseHeaders();
     if (error_code == 0)
-        parseBody(request);
+        parseBody();
 }
 
 void
-printRequest (string & request)
+Client::printRequest ()
 {
     cout << BOLD "\nRequest:\n" RESET BROWN;
-    cout << request;
+    cout << raw_request;
     cout << RESET << endl;
 }
 
-bool
-Client::isValidBody(string & request)
+int
+Client::isInvalidBody(string & request)
 {
     bool content_length = request_headers.count("content-length");
     bool transfer_encoding = request_headers.count("transfer-encoding");
     bool body = request.size() > 0;
 
     if (content_length && transfer_encoding)
-        return (false);
+        return (400);
     else if (!body && (content_length || transfer_encoding))
-        return (false);
+        return (400);
     else if (body && !content_length && !transfer_encoding)
-        return (false);
-    return (true);
+        return (400);
+    else if (transfer_encoding && request_headers["transfer-encoding"] != "chunked")
+        return (501);
+    else if (transfer_encoding)
+        is_chunked = true;
+    return (0);
 }
 
 void
-Client::parseBody(string & request)
+Client::parseBody()
 {
-    bool content_length = request_headers.count("content-length");
-    bool transfer_encoding = request_headers.count("transfer-encoding");
-
-    if (!isValidBody(request))
-    {
-        error_code = 400;
+    if ((error_code = isInvalidBody(raw_request)))
         return ;
-    }
-    if (content_length)
-    {
-        size_t content_length = atoll(request_headers["content-length"].c_str());
-        if (content_length > 1000000 || content_length != request.size())
-        {
-            error_code = 400;
-            return ;
-        }
-        body = request;
-        is_request_parsing_done = true;
-    }
-    else if (transfer_encoding)
-    {
-        if (request_headers["transfer-encoding"] != "chunked")
-        {
-            error_code = 501;
-            return ;
-        }
-        if (ChunkedBodyEnded(request))
-        {
-            body = request;
-            is_request_parsing_done = true;
-            cout << body << endl;
-        }
-    }
+    if (is_chunked)
+        parseChunkedBody();
+    else
+        parseSizedBody();
+}
+
+void
+Client::parseChunkedBody ()
+{
+}
+
+void
+Client::parseSizedBody()
+{
+}
+
+void
+Client::removeChunkedDelimiters ()
+{
+    
 }
 
 bool
-ChunkedBodyEnded(string & request)
+haveLastChunk(string & request)
 {
     size_t start_index = request.size() - 5;
 
@@ -165,18 +157,18 @@ isFormatValid (string & request)
 }
 
 void
-Client::parseRequestLine(string & request)
+Client::parseRequestLine()
 {
     if (method.empty() == false)
         return ;
-    if (isFormatValid(request) == false)
+    if (isFormatValid(raw_request) == false)
     {
         error_code = 400;
         return ;
     }
     
-    size_t end_request_line = request.find("\r\n");
-    istringstream extractor(request.substr(0, end_request_line));
+    size_t end_request_line = raw_request.find("\r\n");
+    istringstream extractor(raw_request.substr(0, end_request_line));
     
     extractor >> method >> target_resource >> version;
     if (isValidMethod(method) == false || target_resource.empty() || version.empty())
@@ -189,31 +181,31 @@ Client::parseRequestLine(string & request)
         error_code = 505;
         return ;
     }
-    request.erase(0, end_request_line + 2);
+    raw_request.erase(0, end_request_line + 2);
 }
 
 void
-Client::parseHeaders(string & request)
+Client::parseHeaders()
 {
     if (request_headers.size() > 0)
         return ;
 
-    const size_t end_headers = request.find("\r\n\r\n");
+    const size_t end_headers = raw_request.find("\r\n\r\n");
     size_t end_request_line, double_dot;
     string name, value;
 
     for (size_t start = 0; start < end_headers; )
     {
-        end_request_line = request.find("\r\n", start);
-        double_dot = request.find(":", start);
-        if (double_dot == string::npos || double_dot > end_request_line || request[double_dot - 1] == ' ')
+        end_request_line = raw_request.find("\r\n", start);
+        double_dot = raw_request.find(":", start);
+        if (double_dot == string::npos || double_dot > end_request_line || raw_request[double_dot - 1] == ' ')
         {
             error_code = 400;
             return ;
         }
-        name = request.substr(start, double_dot - start);
+        name = raw_request.substr(start, double_dot - start);
         double_dot += 1;
-        value = request.substr(double_dot , end_request_line - double_dot);
+        value = raw_request.substr(double_dot , end_request_line - double_dot);
         trim2(name);
         trim2(value);
         lowercase(name);
@@ -226,5 +218,5 @@ Client::parseHeaders(string & request)
         request_headers[name] = value;
         start = end_request_line + 2;
     }
-    request.erase(0, end_headers + 4);
+    raw_request.erase(0, end_headers + 4);
 }

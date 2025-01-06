@@ -19,10 +19,15 @@ public:
   bool getIsParsingDone () { return (is_request_parsing_done); }
   
   void readRequest ();
-  void parseRequestLine(string & request);
-  void parseHeaders(string & request);
-  void parseBody(string & request);
-  bool isValidBody (string & request);
+  void parseRequestLine();
+  void parseHeaders();
+  void parseBody();
+  void parseSizedBody();
+  void parseChunkedBody();
+  void printRequest();
+  int isInvalidBody (string & request);
+  void removeChunkedDelimiters();
+  void printRequest(string & request);
 
 private:
   /* Connection */
@@ -32,8 +37,8 @@ private:
   short error_code;
 
   /* Request */
-  bool is_request_parsing_done;
-  string method, target_resource, version, body;
+  bool is_request_parsing_done, is_chunked;
+  string raw_request, method, target_resource, version, body;
   map<string, string> request_headers;
 
 };
