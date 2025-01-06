@@ -3,7 +3,6 @@
 
 bool isValidMethod(string & method);
 void printRequest (string & request);
-void printRequestBytes (string & request);
 
 void
 Client::readRequest ()
@@ -20,6 +19,7 @@ Client::readRequest ()
     }
     buffer[ret] = '\0';
     string request (buffer, ret);
+    printRequest(request);
     parseRequestLine(request);
     parseHeaders(request);
     parseBody(request);
@@ -28,34 +28,9 @@ Client::readRequest ()
 void
 printRequest (string & request)
 {
-    cout << "\t\t\n\n--- REQUEST ---\n\n";
+    cout << BOLD "\nRequest:\n" RESET BROWN;
     cout << request;
-    cout << "\t\t\n--- END REQUEST ---\n" << endl;
-}
-
-void
-printRequestBytes (string & request)
-{
-    cout << "\t\t\n\n--- REQUEST BYTES ---\n\n";
-    for (size_t i = 0; i < request.size(); i++)
-    {
-        int tmp = request[i];
-        cout << tmp << " ";
-    }
-    cout << "\t\t\n--- END REQUEST ---\n" << endl;
-}
-
-void
-Client::printBody()
-{
-    cout << "Body size: " << body.size() << endl;
-    cout << "\t\t\n\n--- BODY ---\n\n";
-    for (size_t i = 0; i < body.size(); i++)
-    {
-        int tmp = body[i];
-        cout << tmp << " ";
-    }
-    cout << "\t\t\n--- END BODY ---\n" << endl;
+    cout << RESET << endl;
 }
 
 void
@@ -218,15 +193,4 @@ Client::parseHeaders(string & request)
         start = end_request_line + 2;
     }
     request.erase(0, end_headers + 4);
-}
-
-void
-Client::printHeaders()
-{
-    cout << "\t\t\n\n--- HEADERS ---\n\n";
-    map<string, string>::iterator it = request_headers.begin();
-    for (; it != request_headers.end(); it++)
-        cout << it->first << ": " << it->second << endl;
-    cout << "\t\t\n--- END HEADERS ---\n\n";
-
 }
