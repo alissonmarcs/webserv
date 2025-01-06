@@ -22,9 +22,6 @@ public:
   void parseRequestLine(string & request);
   void parseHeaders(string & request);
   void parseBody(string & request);
-  void printHeaders();
-  bool isChunked ();
-  void printBody();
 
 private:
   /* Connection */
