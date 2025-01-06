@@ -3,6 +3,8 @@
 
 bool isValidMethod(string & method);
 void printRequest (string & request);
+bool
+ChunkedBodyEnded(string & request);
 
 void
 Client::readRequest ()
@@ -33,10 +35,34 @@ printRequest (string & request)
     cout << RESET << endl;
 }
 
+bool
+Client::isValidBody(string & request)
+{
+    bool content_length = request_headers.count("content-length");
+    bool transfer_encoding = request_headers.count("transfer-encoding");
+    bool body = request.size() > 0;
+
+    if (content_length && transfer_encoding)
+        return (false);
+    else if (!body && (content_length || transfer_encoding))
+        return (false);
+    else if (body && !content_length && !transfer_encoding)
+        return (false);
+    return (true);
+}
+
 void
 Client::parseBody(string & request)
 {
-    if (request_headers.count("content-length"))
+    bool content_length = request_headers.count("content-length");
+    bool transfer_encoding = request_headers.count("transfer-encoding");
+
+    if (!isValidBody(request))
+    {
+        error_code = 400;
+        return ;
+    }
+    if (content_length)
     {
         size_t content_length = atoll(request_headers["content-length"].c_str());
         if (content_length > 1000000 || content_length != request.size())
@@ -47,14 +73,31 @@ Client::parseBody(string & request)
         body = request;
         is_request_parsing_done = true;
     }
-    else if (request_headers.count("transfer-encoding"))
+    else if (transfer_encoding)
     {
         if (request_headers["transfer-encoding"] != "chunked")
         {
             error_code = 501;
             return ;
         }
+        if (ChunkedBodyEnded(request))
+        {
+            body = request;
+            is_request_parsing_done = true;
+            cout << body << endl;
+        }
     }
+}
+
+bool
+ChunkedBodyEnded(string & request)
+{
+    size_t start_index = request.size() - 5;
+
+    size_t result = request.find("0\r\n\r\n", start_index);
+    if (result == string::npos)
+        return (false);
+    return (true);
 }
 
 bool

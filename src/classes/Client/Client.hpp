@@ -22,6 +22,7 @@ public:
   void parseRequestLine(string & request);
   void parseHeaders(string & request);
   void parseBody(string & request);
+  bool isValidBody (string & request);
 
 private:
   /* Connection */
