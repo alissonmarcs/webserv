@@ -23,6 +23,10 @@ ifdef DEBUG_CLANG
 		DEBUG_FLAGS := -gdwarf-4 -O0 -Wunused-macros -g3 -fno-omit-frame-pointer -fno-inline -fno-elide-constructors -fno-limit-debug-info
 endif
 
+ifdef DEBUG_GCC
+		DEBUG_FLAGS := -g3 -O0 -Wunused-macros -fno-omit-frame-pointer -fno-inline -fno-elide-constructors
+endif
+
 ifdef REMOVE_STD
 		CPPFLAGS := 
 endif
