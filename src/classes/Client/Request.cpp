@@ -12,20 +12,23 @@ Client::readRequest ()
     int ret;
     
     ret = recv (client_fd, buffer, BUFFER_SIZE, 0);
+    buffer[ret] = '\0';
     if (ret < 0)
     {
         LOGGER (getClientIp(&adress).c_str(), strerror (errno));
         error_code = 500;
         return ;
     }
-    buffer[ret] = '\0';
-    raw_request = string (buffer, ret);
-    printRequest();
-    parseRequestLine();
-    if (error_code == 0)
-        parseHeaders();
-    if (error_code == 0)
-        parseBody();
+    raw_request += string (buffer, ret);
+    if (ret < BUFFER_SIZE)
+    {
+        printRequest();
+        parseRequestLine();
+        if (error_code == 0)
+            parseHeaders();
+        if (error_code == 0)
+            parseBody();
+    }
 }
 
 void
@@ -42,7 +45,12 @@ Client::isInvalidBody(string & request)
     bool content_length = request_headers.count("content-length");
     bool transfer_encoding = request_headers.count("transfer-encoding");
     bool body = request.size() > 0;
+    size_t content_length_value;
 
+    if (content_length)
+        content_length_value = atoi(request_headers["content-length"].c_str());
+    if (content_length && content_length_value != request.size())
+        return (400);
     if (content_length && transfer_encoding)
         return (400);
     else if (!body && (content_length || transfer_encoding))
