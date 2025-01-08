@@ -17,6 +17,8 @@ public:
   struct sockaddr_in * getAdress () { return (&adress); }
   short getErrorCode () { return (error_code); }
   bool getIsParsingDone () { return (is_request_parsing_done); }
+  long getLastReadTime () { return (last_read_time); }
+  int getClientFd () { return (client_fd); }
   
   void readRequest ();
   void parseRequestLine();
@@ -27,9 +29,11 @@ public:
   void printRequest();
   int isInvalidBody (string & request);
   void removeChunkedDelimiters();
+  void initParsing();
 
 private:
   /* Connection */
+  long last_read_time;
   int client_fd;
   struct sockaddr_in adress;
   Server *server_owner;

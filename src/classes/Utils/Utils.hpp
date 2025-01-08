@@ -51,6 +51,7 @@ enum file_status
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <vector>
 #include <wchar.h>
@@ -89,5 +90,6 @@ void lowercase (string &str);
 void trimBraces (string &line);
 void lineTreatment (string &line);
 bool containsLetter(const string &str);
+long	get_time(void);
 
 #endif

@@ -88,19 +88,56 @@ ServerManager::mainLoop ()
                   clients.erase (events[i].data.fd);
                 }
               else if (events[i].events & EPOLLIN)
-                {
-                  clients[events[i].data.fd].readRequest ();
-                  if (clients[events[i].data.fd].getErrorCode () != 0)
-                    {
-                      LOGGER (getClientIp(clients[events[i].data.fd].getAdress()).c_str(), "bad request, closing connection"); 
-                      cout << "Error code: " << clients[events[i].data.fd].getErrorCode() << endl;
-                      if (close (events[i].data.fd) == -1)
-                        FATAL_ERROR ("close()");
-                      clients.erase (events[i].data.fd);
-                    }
-                }
+                handleClient(clients[events[i].data.fd]);
             }
         }
+        checkSlowClients();
+    }
+}
+
+void
+ServerManager::handleClient (Client &client)
+{
+  client.readRequest();
+  if (client.getErrorCode() != 0)
+    {
+      LOGGER (getClientIp(client.getAdress()).c_str(), "bad request, closing connection");
+      cout << "Error code: " << client.getErrorCode() << endl;
+      if (close(client.getClientFd()) == -1)
+        FATAL_ERROR ("close()");
+      clients.erase(client.getClientFd());
+    }
+}
+
+void
+ServerManager::checkSlowClients ()
+{
+  long current_time, diff;
+  map<int, Client>::iterator start = clients.begin ();
+  map<int, Client>::iterator end = clients.end ();
+
+  for (; start != end; start++)
+    {
+      Client &client = start->second;
+
+      if (client.getLastReadTime() == 0 || start->second.getIsParsingDone())
+        continue;
+      current_time = get_time ();
+      diff = current_time - client.getLastReadTime ();
+      if (current_time - client.getLastReadTime () > 4000)
+      {
+          client.initParsing();
+          if (client.getErrorCode() != 0)
+          {
+            LOGGER (getClientIp(client.getAdress()).c_str(), "bad request, closing connection");
+            cout << "Error code: " << client.getErrorCode() << endl;
+            if (close(client.getClientFd()) == -1)
+              FATAL_ERROR ("close()");
+            clients.erase(client.getClientFd());
+            start = clients.begin();
+            end = clients.end();
+          }
+      }
     }
 }
 

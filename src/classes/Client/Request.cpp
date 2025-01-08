@@ -20,15 +20,21 @@ Client::readRequest ()
         return ;
     }
     raw_request += string (buffer, ret);
+    last_read_time = get_time ();
     if (ret < BUFFER_SIZE)
-    {
+        initParsing();
+}
+
+void
+Client::initParsing()
+{
+    if (method.empty())
         printRequest();
-        parseRequestLine();
-        if (error_code == 0)
-            parseHeaders();
-        if (error_code == 0)
-            parseBody();
-    }
+    parseRequestLine();
+    if (error_code == 0)
+        parseHeaders();
+    if (error_code == 0)
+        parseBody();
 }
 
 void
@@ -83,6 +89,9 @@ Client::parseChunkedBody ()
 void
 Client::parseSizedBody()
 {
+    body = raw_request;
+    raw_request.clear();
+    is_request_parsing_done = true;
 }
 
 void
