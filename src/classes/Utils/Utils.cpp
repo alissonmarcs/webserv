@@ -6,11 +6,24 @@
 #include <cstring>
 
 void
-error (const char *msg, const char *file, long line)
+fatal_error (const char *msg, const char *file, long line)
 {
   std::fprintf (stderr, "Fatal error: %s in %s:%ld: %s\n", msg, file, line,
                 std::strerror (errno));
   std::exit (EXIT_FAILURE);
+}
+
+void
+non_fatal_error (const char *msg, const char *file, long line)
+{
+  std::fprintf (stderr, "Non fatal error: %s in %s:%ld: %s\n", msg, file, line,
+                std::strerror (errno));
+}
+
+void
+logger (const char *client, const char * msg, const char *file, long line)
+{
+  cout << "[" << file << ":" << line << "] [Client " << client << "]: " << msg << endl;
 }
 
 bool
@@ -55,6 +68,21 @@ removeSemicolon (string &line)
   size_t pos = line.find (";");
   if (pos != string::npos)
     line = line.substr (0, pos);
+}
+
+void
+lowercase (string &str)
+{
+  for (size_t i = 0; i < str.size (); i++)
+    str[i] = tolower (str[i]);
+}
+
+void
+trim2 (std::string &str)
+{
+  const char *whiteSpace = " \t\n\r\f\v";
+  str.erase (str.find_last_not_of (whiteSpace) + 1);
+  str.erase (0, str.find_first_not_of (whiteSpace));
 }
 
 string

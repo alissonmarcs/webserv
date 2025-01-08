@@ -16,11 +16,13 @@
 #define RESET "\033[0m"
 #define INVERSE "\033[7m"
 
+#define BUFFER_SIZE 50
 #define QUEUED_CONNECTIONS 300
 #define MAX_EPOLL_EVENTS 300
-#define FATAL_ERROR(msg) error (msg, __FILE__, __LINE__)
+#define FATAL_ERROR(msg) fatal_error (msg, __FILE__, __LINE__)
+#define NON_FATAL_ERROR(msg) non_fatal_error (msg, __FILE__, __LINE__)
+#define LOGGER(client, msg) logger(client, msg, __FILE__, __LINE__)
 
-using namespace std;
 
 enum file_status
 {
@@ -52,9 +54,11 @@ enum file_status
 #include <unistd.h>
 #include <vector>
 #include <wchar.h>
-#include "Error.hpp"
 
 using namespace std;
+
+#include "Error.hpp"
+
 
 class ServerManager;
 class Server;
@@ -65,14 +69,23 @@ bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
 string readFileAsString (const string &path);
 void printServerInfo (ServerManager &Manager);
-void error (const char *msg, const char *file, long line);
+void fatal_error (const char *msg, const char *file, long line);
+void non_fatal_error (const char *msg, const char *file, long line);
 void printRoutesInfo(Server &server);
+void logger (const char *client, const char * msg, const char *file, long line);
 
 
 int processInput (std::string path);
 bool validateConfigFile (int argc, char **argv);
 bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
+
+void removeSemicolon (string &line);
+string trim (const string &str);
+void trim2 (string &str);
+string removeComments (string &line);
+void lowercase (string &str);
+
 void trimBraces (string &line);
 void lineTreatment (string &line);
 bool containsLetter(const string &str);
