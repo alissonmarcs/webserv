@@ -56,7 +56,7 @@ Client::isInvalidBody(string & request)
     else if (!body && (content_length || transfer_encoding))
         return (400);
     else if (body && !content_length && !transfer_encoding)
-        return (400);
+        return (411);
     else if (transfer_encoding && request_headers["transfer-encoding"] != "chunked")
         return (501);
     if (transfer_encoding)
