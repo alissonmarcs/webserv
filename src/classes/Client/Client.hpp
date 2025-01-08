@@ -4,12 +4,6 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 
-enum
-{
-  REQUEST_ENTIRE_READ,
-  REQUEST_PARTIAL_READ
-};
-
 class Server;
 
 class Client
@@ -36,7 +30,6 @@ public:
 
 private:
   /* Connection */
-  short reading_state;
   int client_fd;
   struct sockaddr_in adress;
   Server *server_owner;
