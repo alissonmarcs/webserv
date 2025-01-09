@@ -5,3 +5,4 @@ bin
 objs
 compile_commands.json
 .vscode
+tmp
