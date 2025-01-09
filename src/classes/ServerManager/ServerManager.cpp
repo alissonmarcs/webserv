@@ -58,7 +58,33 @@ ServerManager::acceptClient (Server *owner)
   ev.data.fd = client_fd;
   if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1)
     FATAL_ERROR ("epoll_ctl");
-  LOGGER (getClientIp(&client_addr).c_str(), "connected");
+  cout << getIpString(&client_addr) << " connected\n";
+}
+
+void
+ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
+{
+  Server * server;
+  Client * client;
+
+  for (int i = 0; i < ready_fds; i++)
+    {
+      if ((server = isServer (events[i].data.fd)))
+        acceptClient (server);
+      else
+        {
+          client = &clients[events[i].data.fd];
+          if (events[i].events & EPOLLRDHUP)
+            {
+              cout << getIpString(client->getAdress()) << " close connection\n";
+              if (close (events[i].data.fd) == -1)
+                FATAL_ERROR ("close()");
+              clients.erase (events[i].data.fd);
+            }
+          else if (events[i].events & EPOLLIN)
+            handleClient(clients[events[i].data.fd]);
+        }
+    }
 }
 
 void
@@ -75,38 +101,35 @@ ServerManager::mainLoop ()
       ready_fds = epoll_wait (epoll_fd, events, MAX_EPOLL_EVENTS, 300);
       if (ready_fds == -1)
         FATAL_ERROR ("epoll_wait");
-      for (int i = 0; i < ready_fds; i++)
-        {
-          if ((server = isServer (events[i].data.fd)))
-            acceptClient (server);
-          else
-            {
-              if (events[i].events & EPOLLRDHUP)
-                {
-                  LOGGER (getClientIp(clients[events[i].data.fd].getAdress()).c_str(), "closed connection");
-                  if (close (events[i].data.fd) == -1)
-                    FATAL_ERROR ("close()");
-                  clients.erase (events[i].data.fd);
-                }
-              else if (events[i].events & EPOLLIN)
-                handleClient(clients[events[i].data.fd]);
-            }
-        }
+      checkIOEvents (ready_fds, events);
+      checkTimeout ();
+      cout.flush();
+    }
+}
 
-        for (start = clients.begin(), end = clients.end(); start != end; start++)
-        {
-          time_t current_time = time(NULL) - start->second.getLastReadTime();
+void
+ServerManager::checkTimeout ()
+{
+  time_t current_time, client_time;
+  Client * client;
+  map<int, Client>::iterator start = clients.begin ();
+  map<int, Client>::iterator end = clients.end ();
 
-          if (start->second.getLastReadTime() != 0 && current_time > 60)
-          {
-            LOGGER (getClientIp(start->second.getAdress()).c_str(), "timeout, closing connection");
-            if (close(start->second.getClientFd()) == -1)
-              FATAL_ERROR ("close()");
-            clients.erase(start);
-            start = clients.begin();
-            end = clients.end();
-            continue;
-          }
+  for (; start != end; start++)
+    {
+      client = &start->second;
+      current_time = time (NULL);
+      client_time = client->getLastReadTime ();
+      if (client_time == 0)
+        continue ;
+      else if (current_time - client_time > 60)
+        {
+          cout << getIpString(client->getAdress()) << " timeout, closing connection\n";
+          if (close (client->getClientFd ()) == -1)
+            FATAL_ERROR ("close()");
+          clients.erase (start);
+          start = clients.begin ();
+          end = clients.end ();
         }
     }
 }
@@ -117,43 +140,10 @@ ServerManager::handleClient (Client &client)
   client.readRequest();
   if (client.getErrorCode() != 0)
     {
-      LOGGER (getClientIp(client.getAdress()).c_str(), "bad request, closing connection");
-      cout << "Error code: " << client.getErrorCode() << endl;
+      cout << getIpString(client.getAdress()) << " sends a bad request, closing connection. " << "Error code: " << client.getErrorCode() << "\n";
       if (close(client.getClientFd()) == -1)
         FATAL_ERROR ("close()");
       clients.erase(client.getClientFd());
-    }
-}
-
-void
-ServerManager::checkSlowClients ()
-{
-  long current_time, diff;
-  map<int, Client>::iterator start = clients.begin ();
-  map<int, Client>::iterator end = clients.end ();
-
-  for (; start != end; start++)
-    {
-      Client &client = start->second;
-
-      if (client.getLastReadTime() == 0 || start->second.getIsParsingDone())
-        continue;
-      current_time = get_time ();
-      diff = current_time - client.getLastReadTime ();
-      if (current_time - client.getLastReadTime () > 4000)
-      {
-          client.initParsing();
-          if (client.getErrorCode() != 0)
-          {
-            LOGGER (getClientIp(client.getAdress()).c_str(), "bad request, closing connection");
-            cout << "Error code: " << client.getErrorCode() << endl;
-            if (close(client.getClientFd()) == -1)
-              FATAL_ERROR ("close()");
-            clients.erase(client.getClientFd());
-            start = clients.begin();
-            end = clients.end();
-          }
-      }
     }
 }
 

@@ -8,11 +8,10 @@ bool ChunkedBodyEnded(string & request);
 void
 Client::readRequest ()
 {
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     int ret;
-    
+
     ret = recv (client_fd, buffer, BUFFER_SIZE, 0);
-    buffer[ret] = '\0';
     if (ret < 0)
     {
         LOGGER (getClientIp(&adress).c_str(), strerror (errno));
@@ -21,8 +20,7 @@ Client::readRequest ()
     }
     raw_request += string (buffer, ret);
     last_read = time(NULL);
-    if (ret > 0)
-        initParsing();
+    initParsing();
 }
 
 void
@@ -44,7 +42,7 @@ Client::printRequest ()
 {
     cout << BOLD "\nRequest:\n" RESET BROWN;
     cout << raw_request;
-    cout << RESET << endl;
+    cout << RESET;
 }
 
 int

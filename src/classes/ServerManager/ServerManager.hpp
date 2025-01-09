@@ -25,8 +25,10 @@ public:
   void addEmptyServer (void);
   vector<Server> &getServersRef ();
 
-  void checkSlowClients ();
   void handleClient (Client & client);
+
+  void checkIOEvents (int ready_fds, struct epoll_event *events);
+  void checkTimeout ();
 
 private:
   int epoll_fd;
