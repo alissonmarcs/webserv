@@ -82,8 +82,7 @@ bool isValidIp (string ip);
 string getClientIp (struct sockaddr_in *client_addr);
 
 void removeSemicolon (string &line);
-string trim (const string &str);
-void trim2 (string &str);
+void trim (string &str);
 string removeComments (string &line);
 void lowercase (string &str);
 
