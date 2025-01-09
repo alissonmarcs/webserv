@@ -67,6 +67,7 @@ ServerManager::mainLoop ()
   struct epoll_event events[MAX_EPOLL_EVENTS];
   int ready_fds;
   Server *server;
+  map<int, Client>::iterator start, end;
 
   while (1)
     {
@@ -91,7 +92,22 @@ ServerManager::mainLoop ()
                 handleClient(clients[events[i].data.fd]);
             }
         }
-        checkSlowClients();
+
+        for (start = clients.begin(), end = clients.end(); start != end; start++)
+        {
+          time_t current_time = time(NULL) - start->second.getLastReadTime();
+
+          if (start->second.getLastReadTime() != 0 && current_time > 60)
+          {
+            LOGGER (getClientIp(start->second.getAdress()).c_str(), "timeout, closing connection");
+            if (close(start->second.getClientFd()) == -1)
+              FATAL_ERROR ("close()");
+            clients.erase(start);
+            start = clients.begin();
+            end = clients.end();
+            continue;
+          }
+        }
     }
 }
 

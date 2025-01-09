@@ -20,20 +20,22 @@ Client::readRequest ()
         return ;
     }
     raw_request += string (buffer, ret);
-    last_read_time = get_time ();
-    if (ret < BUFFER_SIZE)
+    last_read = time(NULL);
+    if (ret > 0)
         initParsing();
 }
 
 void
 Client::initParsing()
 {
-    if (method.empty())
+    if (method.empty() && raw_request.find("\r\n\r\n") != string::npos)
+    {
         printRequest();
-    parseRequestLine();
-    if (error_code == 0)
-        parseHeaders();
-    if (error_code == 0)
+        parseRequestLine();
+        if (error_code == 0)
+            parseHeaders();
+    }
+    if ((request_headers.count("content-length") || request_headers.count("transfer-encoding")) && error_code == 0)
         parseBody();
 }
 
@@ -73,8 +75,6 @@ Client::isInvalidBody(string & request)
 void
 Client::parseBody()
 {
-    if ((error_code = isInvalidBody(raw_request)))
-        return ;
     if (is_chunked)
         parseChunkedBody();
     else
@@ -89,9 +89,17 @@ Client::parseChunkedBody ()
 void
 Client::parseSizedBody()
 {
-    body = raw_request;
+    const size_t len = atoi(request_headers["content-length"].c_str());
+
+    body += raw_request;
     raw_request.clear();
-    is_request_parsing_done = true;
+    if (body.size() > len)
+    {
+        error_code = 400;
+        return ;
+    }
+    if (body.size() == len)
+        is_request_parsing_done = true;
 }
 
 void
@@ -223,8 +231,8 @@ Client::parseHeaders()
         name = raw_request.substr(start, double_dot - start);
         double_dot += 1;
         value = raw_request.substr(double_dot , end_request_line - double_dot);
-        trim2(name);
-        trim2(value);
+        trim(name);
+        trim(value);
         lowercase(name);
         lowercase(value);
         if (isValidToken(name) == false || isValidHeaderValue(value) == false)
@@ -235,5 +243,7 @@ Client::parseHeaders()
         request_headers[name] = value;
         start = end_request_line + 2;
     }
+    if (request_headers.count("transfer-encoding") && request_headers["transfer-encoding"] == "chunked")
+        is_chunked = true;
     raw_request.erase(0, end_headers + 4);
 }
