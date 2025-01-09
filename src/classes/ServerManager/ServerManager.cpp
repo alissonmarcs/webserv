@@ -92,8 +92,6 @@ ServerManager::mainLoop ()
 {
   struct epoll_event events[MAX_EPOLL_EVENTS];
   int ready_fds;
-  Server *server;
-  map<int, Client>::iterator start, end;
 
   while (1)
     {

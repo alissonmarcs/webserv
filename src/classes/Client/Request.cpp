@@ -1,10 +1,6 @@
 #include "Client.hpp"
 #include <sstream>
 
-bool isValidMethod(string & method);
-void printRequest (string & request);
-bool ChunkedBodyEnded(string & request);
-
 void
 Client::readRequest ()
 {
@@ -20,11 +16,11 @@ Client::readRequest ()
     }
     raw_request += string (buffer, ret);
     last_read = time(NULL);
-    initParsing();
+    parseRequest ();
 }
 
 void
-Client::initParsing()
+Client::parseRequest ()
 {
     if (method.empty() && raw_request.find("\r\n\r\n") != string::npos)
     {
@@ -33,7 +29,7 @@ Client::initParsing()
         if (error_code == 0)
             parseHeaders();
     }
-    if ((request_headers.count("content-length") || request_headers.count("transfer-encoding")) && error_code == 0)
+    if ((is_sized || is_chunked) && error_code == 0)
         parseBody();
 }
 
@@ -43,31 +39,6 @@ Client::printRequest ()
     cout << BOLD "\nRequest:\n" RESET BROWN;
     cout << raw_request;
     cout << RESET;
-}
-
-int
-Client::isInvalidBody(string & request)
-{
-    bool content_length = request_headers.count("content-length");
-    bool transfer_encoding = request_headers.count("transfer-encoding");
-    bool body = request.size() > 0;
-    size_t content_length_value;
-
-    if (content_length)
-        content_length_value = atoi(request_headers["content-length"].c_str());
-    if (content_length && content_length_value != request.size())
-        return (400);
-    if (content_length && transfer_encoding)
-        return (400);
-    else if (!body && (content_length || transfer_encoding))
-        return (400);
-    else if (body && !content_length && !transfer_encoding)
-        return (411);
-    else if (transfer_encoding && request_headers["transfer-encoding"] != "chunked")
-        return (501);
-    if (transfer_encoding)
-        is_chunked = true;
-    return (0);
 }
 
 void
@@ -100,25 +71,8 @@ Client::parseSizedBody()
         is_request_parsing_done = true;
 }
 
-void
-Client::removeChunkedDelimiters ()
-{
-    
-}
-
 bool
-haveLastChunk(string & request)
-{
-    size_t start_index = request.size() - 5;
-
-    size_t result = request.find("0\r\n\r\n", start_index);
-    if (result == string::npos)
-        return (false);
-    return (true);
-}
-
-bool
-isValidToken (string & token)
+isValidHeaderName (string & token)
 {
     static const char special_bytes[] = {'!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~'};
     const size_t special_bytes_size = sizeof(special_bytes) / sizeof(special_bytes[0]);
@@ -210,9 +164,6 @@ Client::parseRequestLine()
 void
 Client::parseHeaders()
 {
-    if (request_headers.size() > 0)
-        return ;
-
     const size_t end_headers = raw_request.find("\r\n\r\n");
     size_t end_request_line, double_dot;
     string name, value;
@@ -233,7 +184,7 @@ Client::parseHeaders()
         trim(value);
         lowercase(name);
         lowercase(value);
-        if (isValidToken(name) == false || isValidHeaderValue(value) == false)
+        if (isValidHeaderName(name) == false || isValidHeaderValue(value) == false)
         {
             error_code = 400;
             return ;
@@ -241,7 +192,12 @@ Client::parseHeaders()
         request_headers[name] = value;
         start = end_request_line + 2;
     }
-    if (request_headers.count("transfer-encoding") && request_headers["transfer-encoding"] == "chunked")
-        is_chunked = true;
+    is_sized = request_headers.count("content-length");
+    is_chunked = request_headers.count("transfer-encoding");
+    if (is_sized && is_chunked)
+    {
+        error_code = 400;
+        return ;
+    }
     raw_request.erase(0, end_headers + 4);
 }

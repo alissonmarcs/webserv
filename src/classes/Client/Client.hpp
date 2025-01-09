@@ -29,9 +29,7 @@ public:
   void parseSizedBody();
   void parseChunkedBody();
   void printRequest();
-  int isInvalidBody (string & request);
-  void removeChunkedDelimiters();
-  void initParsing();
+  void parseRequest();
 
 private:
   /* Connection */
@@ -42,7 +40,7 @@ private:
   short error_code;
 
   /* Request */
-  bool is_request_parsing_done, is_chunked;
+  bool is_request_parsing_done, is_chunked, is_sized;
   string raw_request, method, target_resource, version, body;
   map<string, string> request_headers;
 
