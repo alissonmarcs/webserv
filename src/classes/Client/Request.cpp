@@ -53,6 +53,40 @@ Client::parseBody()
 void
 Client::parseChunkedBody ()
 {
+    body += raw_request;
+    raw_request.clear();
+    size_t start, end, size, size_index = 0;
+
+    end = body.find("0\r\n\r\n");
+    if (end != string::npos)
+    {
+        cout << "body before:\n" << body << endl;
+        while (1) 
+        {
+            start = body.find("\r\n", size_index);
+            stringstream ss(body.substr(size_index, start - size_index));
+
+            ss << hex;
+            ss >> size;
+
+            if (size == 0)
+            {
+                body.erase(start);
+                is_request_parsing_done = true;
+                break;
+            }
+
+            body.erase(size_index, (start - size_index) + 2);
+            if (body[size] != '\r' || body[size + 1] != '\n')
+            {
+                error_code = 400;
+                return ;
+            }
+            body.erase(size, 2);
+            size_index = size;
+        }
+        cout << "body after: " << body << endl;
+    }
 }
 
 void
