@@ -118,9 +118,8 @@ ServerManager::checkTimeout ()
       client = &start->second;
       current_time = time (NULL);
       client_time = client->getLastReadTime ();
-      if (client_time == 0)
-        continue ;
-      else if (current_time - client_time > 60)
+
+      if (current_time - client_time > 60)
         {
           cout << getIpString(client->getAdress()) << " timeout, closing connection\n";
           if (close (client->getClientFd ()) == -1)
