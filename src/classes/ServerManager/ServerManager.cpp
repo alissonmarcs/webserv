@@ -41,13 +41,11 @@ ServerManager::isServer (int fd)
 void
 ServerManager::acceptClient (Server *owner)
 {
-  struct epoll_event ev;
-  struct sockaddr_in client_addr;
+  struct epoll_event ev = {};
+  struct sockaddr_in client_addr = {};
   socklen_t client_addr_len = sizeof (client_addr);
   int client_fd, server_fd;
 
-  memset (&client_addr, 0, sizeof (client_addr));
-  memset (&ev, 0, sizeof (ev));
   server_fd = owner->getServerFd ();
   client_fd
       = accept (server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
@@ -90,12 +88,11 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::mainLoop ()
 {
-  struct epoll_event events[MAX_EPOLL_EVENTS];
+  struct epoll_event events[MAX_EPOLL_EVENTS] = {};
   int ready_fds;
 
   while (1)
     {
-      memset (&events, 0, sizeof (events));
       ready_fds = epoll_wait (epoll_fd, events, MAX_EPOLL_EVENTS, 300);
       if (ready_fds == -1)
         FATAL_ERROR ("epoll_wait");
