@@ -138,7 +138,7 @@ ServerManager::handleClient (Client &client)
   client.readRequest();
   if (client.getErrorCode() != 0)
     {
-      cout << getIpString(client.getAdress()) << " sends a bad request, closing connection. " << "Error code: " << client.getErrorCode() << "\n";
+      cout << '\n' << getIpString(client.getAdress()) << " sends a bad request, closing connection. " << "Error code: " << client.getErrorCode() << "\n";
       if (close(client.getClientFd()) == -1)
         FATAL_ERROR ("close()");
       clients.erase(client.getClientFd());
