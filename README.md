@@ -7,3 +7,4 @@
 | `docker-compose restart` | Restart all containers              |
 | `docker-compose logs`    | Show logs                           |
 | `docker ps`    | list running containers with their id         |
+| `docker exec -it container_id /bin/bash` | open an shell in the container |
