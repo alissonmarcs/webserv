@@ -52,7 +52,7 @@ ServerManager::acceptClient (Server *owner)
   if (client_fd == -1)
     FATAL_ERROR ("accept");
   clients[client_fd] = Client (client_fd, client_addr, owner);
-  ev.events = EPOLLRDHUP | EPOLLIN;
+  ev.events = EPOLLRDHUP | EPOLLIN | EPOLLOUT;
   ev.data.fd = client_fd;
   if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1)
     FATAL_ERROR ("epoll_ctl");
@@ -80,7 +80,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
               clients.erase (events[i].data.fd);
             }
           else if (events[i].events & EPOLLIN)
-            handleClient(clients[events[i].data.fd]);
+            readFromClient(clients[events[i].data.fd]);
         }
     }
 }
@@ -129,7 +129,7 @@ ServerManager::checkTimeout ()
 }
 
 void
-ServerManager::handleClient (Client &client)
+ServerManager::readFromClient (Client &client)
 {
   client.readRequest();
   if (client.getErrorCode() != 0)
