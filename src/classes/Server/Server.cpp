@@ -10,7 +10,17 @@ void initServerDirectiveStatus(Server &server);
 
 Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>()), isPortSet (false)
 {
-  error_pages = map<int, string>();
+  error_pages[BAD_REQUEST] = BAD_REQUEST_HTML;
+  error_pages[UNAUTHORIZED] = UNAUTHORIZED_HTML;
+  error_pages[FORBIDDEN] = FORBIDDEN_HTML;
+  error_pages[NOT_FOUND] = NOT_FOUND_HTML;
+  error_pages[METHOD_NOT_ALLOWED] = METHOD_NOT_ALLOWED_HTML;
+  error_pages[REQUEST_TIMEOUT] = REQUEST_TIMEOUT_HTML;
+  error_pages[PAYLOAD_TOO_LARGE] = PAYLOAD_TOO_LARGE_HTML;
+  error_pages[INTERNAL_SERVER_ERROR] = INTERNAL_SERVER_ERROR_HTML;
+  error_pages[NOT_IMPLEMENTED] = NOT_IMPLEMENTED_HTML;
+  error_pages[HTTP_VERSION_NOT_SUPPORTED] = HTTP_VERSION_NOT_SUPPORTED_HTML;
+
   memset (&adress, 0, sizeof (adress));
   initServerDirectiveStatus(*this);
   errorPagesMap = map<int, string>();
