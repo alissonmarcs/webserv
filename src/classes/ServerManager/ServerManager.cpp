@@ -81,8 +81,18 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
             }
           else if (events[i].events & EPOLLIN)
             readFromClient(clients[events[i].data.fd]);
+          else if (events[i].events & EPOLLOUT && (client->isParsingDone() || client->getErrorCode() != 0))
+          {
+            client->buildResponse();
+            sendResponse(client);
+          }
         }
     }
+}
+
+void
+ServerManager::sendResponse (Client *client)
+{
 }
 
 void

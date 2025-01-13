@@ -37,7 +37,8 @@ main (int argc, char **argv)
     {
       std::cerr << RED << e.what () << RESET << std::endl;
     }
-  Manager.initServers ();
-  Manager.mainLoop (); 
+  printServerInfo(Manager);
+  // Manager.initServers ();
+  // Manager.mainLoop (); 
   return (0);
 }

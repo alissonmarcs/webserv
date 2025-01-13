@@ -16,13 +16,15 @@ public:
 
   struct sockaddr_in * getAdress () { return (&adress); }
   short getErrorCode () { return (error_code); }
-  bool getIsParsingDone () { return (is_request_parsing_done); }
+  bool isParsingDone () { return (is_request_parsing_done); }
   time_t getLastReadTime () { return (last_read); }
   int getClientFd () { return (client_fd); }
   string & getBody () { return (body); }
   map<string, string> & getRequestHeaders () { return (request_headers); }
   
   void readRequest ();
+  void buildResponse();
+
   void parseRequestLine();
   void parseHeaders();
   void parseBody();
@@ -44,6 +46,8 @@ private:
   string raw_request, method, target_resource, version, body;
   map<string, string> request_headers;
 
+  /* Response */
+  string response;
 };
 
 #endif

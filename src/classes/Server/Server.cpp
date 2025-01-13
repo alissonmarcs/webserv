@@ -185,12 +185,17 @@ void
 parseErrorPages(istringstream &serverStream, Server &server)
 {
 	int errorCode;
-	string errorFile;
+	string file;
+	stringstream content;
 
-	serverStream >> errorCode >> errorFile;
-	lineTreatment(errorFile);
-	duplicateErrorPageDirective(server, errorFile, errorCode);
-	server.error_pages[errorCode] = errorFile;
+	serverStream >> errorCode >> file;
+	lineTreatment(file);
+	duplicateErrorPageDirective(server, file, errorCode);
+	ifstream fileStream(file.c_str());
+	if (!fileStream.is_open())
+		throw ConfigParserException("Error: file in error_page directive does not exist");
+	content << fileStream.rdbuf();
+	server.error_pages[errorCode] = content.str();
 }
 
 void

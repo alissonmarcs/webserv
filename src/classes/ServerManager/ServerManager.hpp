@@ -26,6 +26,7 @@ public:
   vector<Server> &getServersRef ();
 
   void readFromClient (Client & client);
+  void sendResponse (Client * client);
 
   void checkIOEvents (int ready_fds, struct epoll_event *events);
   void checkTimeout ();
