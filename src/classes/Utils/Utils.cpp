@@ -85,17 +85,6 @@ trim (std::string &str)
   str.erase (0, str.find_first_not_of (whiteSpace));
 }
 
-// string
-// trim (const string &str)
-// {
-//   size_t untilFirstChar = str.find_first_not_of (" \t");
-//   size_t untilLastChar = str.find_last_not_of (" \t");
-//   return (
-//       (untilFirstChar == string::npos || untilLastChar == string::npos)
-//           ? ""
-//           : str.substr (untilFirstChar, untilLastChar - untilFirstChar + 1));
-// }
-
 string
 removeComments (string &line)
 {
