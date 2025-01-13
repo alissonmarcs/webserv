@@ -80,7 +80,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
               clients.erase (events[i].data.fd);
             }
           else if (events[i].events & EPOLLIN)
-            readFromClient(clients[events[i].data.fd]);
+            client->readRequest();
           else if (events[i].events & EPOLLOUT && (client->isParsingDone() || client->getErrorCode() != 0))
           {
             client->buildResponse();
@@ -93,6 +93,13 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::sendResponse (Client *client)
 {
+  if (send (client->getClientFd (), client->getResponse ().c_str (),
+            client->getResponse ().size (), 0)
+      == -1)
+    FATAL_ERROR ("send");
+  if (close (client->getClientFd ()) == -1)
+    FATAL_ERROR ("close()");
+  clients.erase (client->getClientFd ());
 }
 
 void
@@ -119,6 +126,7 @@ ServerManager::checkTimeout ()
   Client * client;
   map<int, Client>::iterator start = clients.begin ();
   map<int, Client>::iterator end = clients.end ();
+  struct epoll_event ev;
 
   for (; start != end; start++)
     {
@@ -128,12 +136,13 @@ ServerManager::checkTimeout ()
 
       if (current_time - client_time > 60)
         {
-          cout << getIpString(client->getAdress()) << " timeout, closing connection\n";
-          if (close (client->getClientFd ()) == -1)
-            FATAL_ERROR ("close()");
-          clients.erase (start);
-          start = clients.begin ();
-          end = clients.end ();
+          cout << getIpString(client->getAdress()) << " timeout, sending response and closing connection\n";
+          client->setErrorCode(408);
+          memset (&ev, 0, sizeof (ev));
+          ev.events = EPOLLOUT | EPOLLRDHUP;
+          ev.data.fd = client->getClientFd ();
+          if (epoll_ctl (epoll_fd, EPOLL_CTL_MOD, client->getClientFd (), &ev) == -1)
+            FATAL_ERROR ("epoll_ctl");
         }
     }
 }

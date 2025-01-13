@@ -14,6 +14,7 @@ public:
   ~Client ();
   Client (const Client &src);
 
+  /* getters*/
   struct sockaddr_in * getAdress () { return (&adress); }
   short getErrorCode () { return (error_code); }
   bool isParsingDone () { return (is_request_parsing_done); }
@@ -21,6 +22,10 @@ public:
   int getClientFd () { return (client_fd); }
   string & getBody () { return (body); }
   map<string, string> & getRequestHeaders () { return (request_headers); }
+
+  /* setters */
+  void setErrorCode (short code) { error_code = code; }
+  string & getResponse () { return (response); }
   
   void readRequest ();
   void buildResponse();
@@ -32,6 +37,8 @@ public:
   void parseChunkedBody();
   void printRequest();
   void parseRequest();
+
+  void buildError();
 
 private:
   /* Connection */
