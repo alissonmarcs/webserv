@@ -169,6 +169,7 @@ printRoutesInfo(Server &server)
 		cout << PINK << "Cgi ext: " << GREEN << routes[i].getCgiExt() << RESET << "\n";
 		cout << PINK << "Upload store: " << GREEN << routes[i].getUploadStore() << RESET << "\n";
 		cout << PINK << "Index files : " << routes[i].getIndex() << "\n";
+    cout << PINK << "Folder to search inside : " << routes[i].getFolderToSearchInside() << "\n";
 	}
 }
 

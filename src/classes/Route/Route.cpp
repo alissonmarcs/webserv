@@ -29,6 +29,7 @@ Route &Route::operator=(const Route &rhs)
 		upload_store = rhs.upload_store;
 		index = rhs.index;
 		directiveStatus = rhs.directiveStatus;
+		folder_to_search_inside = rhs.folder_to_search_inside;
 	}
 	return (*this);
 }
@@ -53,6 +54,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 	{
 		checkBasicDirectiveAreSet();
 		nestingLevel--;
+  		folder_to_search_inside = root + path;
 		return (1);
 	}
 	lineTreatment(routeLine);

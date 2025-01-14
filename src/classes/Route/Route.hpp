@@ -26,6 +26,7 @@ class Route
 	string getUploadStore() const { return upload_store; }
 	string getIndex() const { return index; }
 	bool getDirectiveStatus(string directive) { return directiveStatus[directive]; }
+	string getFolderToSearchInside() { return folder_to_search_inside; }
 
 	// Setters
 	void setPath(string path) { this->path = path; }
@@ -38,6 +39,7 @@ class Route
 	void setUploadStore(string upload_store) { this->upload_store = upload_store; }
 	void setIndex(string index) { if (index != "") this->index = index; }
 	void setDirectiveStatus(string directive, bool status) { directiveStatus[directive] = status; }
+	void setFolderToSearchInside(string folder) { folder_to_search_inside = folder; }
 
 	// Route parsing
 	int parseRouteConfig(const string &line, istringstream &stream, int &nestingLevel);
@@ -49,6 +51,7 @@ class Route
 	void checkBasicDirectiveAreSet();
 
   private:
+	string folder_to_search_inside;
 	string path;
 	string root;
 	bool autoindex;
