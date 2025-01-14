@@ -50,7 +50,7 @@ private:
 
   /* Request */
   bool is_request_parsing_done, is_chunked, is_sized;
-  string raw_request, method, target_resource, version, body;
+  string raw_request, method, target_resource, query_params, version, body;
   map<string, string> request_headers;
 
   /* Response */

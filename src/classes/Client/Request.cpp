@@ -192,6 +192,14 @@ Client::parseRequestLine()
         error_code = 505;
         return ;
     }
+
+    size_t query_index = target_resource.find("?");
+    if (query_index != string::npos)
+    {
+        query_params = target_resource.substr(query_index + 1);
+        target_resource.erase(query_index);
+    }
+
     raw_request.erase(0, end_request_line + 2);
 }
 
