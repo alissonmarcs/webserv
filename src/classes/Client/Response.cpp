@@ -3,7 +3,7 @@
 void
 Client::buildResponse()
 {
-    if (status_code)
+    if (haveError ())
         buildError ();
 }
 
