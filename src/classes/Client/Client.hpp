@@ -39,6 +39,7 @@ public:
   void parseRequest();
 
   void buildError();
+  bool haveError();
 
 private:
   /* Connection */

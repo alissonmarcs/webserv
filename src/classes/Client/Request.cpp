@@ -243,3 +243,15 @@ Client::parseHeaders()
     }
     raw_request.erase(0, end_headers + 4);
 }
+
+bool
+Client::haveError()
+{
+    if (status_code == BAD_REQUEST || status_code == REQUEST_TIMEOUT
+    || status_code == PAYLOAD_TOO_LARGE || status_code == HTTP_VERSION_NOT_SUPPORTED
+    || status_code == INTERNAL_SERVER_ERROR || status_code == NOT_IMPLEMENTED
+    || status_code == UNAUTHORIZED || status_code == FORBIDDEN
+    || status_code == NOT_FOUND)
+        return (true);
+    return (false);
+}
