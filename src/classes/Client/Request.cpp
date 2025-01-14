@@ -11,7 +11,7 @@ Client::readRequest ()
     if (ret < 0)
     {
         LOGGER (getClientIp(&adress).c_str(), strerror (errno));
-        error_code = 500;
+        status_code = 500;
         return ;
     }
     raw_request += string (buffer, ret);
@@ -26,10 +26,10 @@ Client::parseRequest ()
     {
         printRequest();
         parseRequestLine();
-        if (error_code == 0)
+        if (status_code == 0)
             parseHeaders();
     }
-    if ((is_sized || is_chunked) && error_code == 0)
+    if ((is_sized || is_chunked) && status_code == 0)
         parseBody();
 }
 
@@ -79,7 +79,7 @@ Client::parseChunkedBody ()
             body.erase(size_index, (start - size_index) + 2);
             if (body[size] != '\r' || body[size + 1] != '\n')
             {
-                error_code = 400;
+                status_code = 400;
                 return ;
             }
             body.erase(size, 2);
@@ -98,7 +98,7 @@ Client::parseSizedBody()
     raw_request.clear();
     if (body.size() > len)
     {
-        error_code = 400;
+        status_code = 400;
         return ;
     }
     if (body.size() == len)
@@ -174,7 +174,7 @@ Client::parseRequestLine()
         return ;
     if (isFormatValid(raw_request) == false)
     {
-        error_code = 400;
+        status_code = 400;
         return ;
     }
     
@@ -184,12 +184,12 @@ Client::parseRequestLine()
     extractor >> method >> target_resource >> version;
     if (isValidMethod(method) == false || target_resource.empty() || version.empty())
     {
-        error_code = 400;
+        status_code = 400;
         return ;
     }
     if (version != "HTTP/1.1")
     {
-        error_code = 505;
+        status_code = 505;
         return ;
     }
 
@@ -216,7 +216,7 @@ Client::parseHeaders()
         double_dot = raw_request.find(":", start);
         if (double_dot == string::npos || double_dot > end_request_line || raw_request[double_dot - 1] == ' ')
         {
-            error_code = 400;
+            status_code = 400;
             return ;
         }
         name = raw_request.substr(start, double_dot - start);
@@ -228,7 +228,7 @@ Client::parseHeaders()
         lowercase(value);
         if (isValidHeaderName(name) == false || isValidHeaderValue(value) == false)
         {
-            error_code = 400;
+            status_code = 400;
             return ;
         }
         request_headers[name] = value;
@@ -238,7 +238,7 @@ Client::parseHeaders()
     is_chunked = request_headers.count("transfer-encoding");
     if (is_sized && is_chunked)
     {
-        error_code = 400;
+        status_code = 400;
         return ;
     }
     raw_request.erase(0, end_headers + 4);

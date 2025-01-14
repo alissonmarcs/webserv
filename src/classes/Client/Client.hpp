@@ -16,7 +16,7 @@ public:
 
   /* getters*/
   struct sockaddr_in * getAdress () { return (&adress); }
-  short getErrorCode () { return (error_code); }
+  short getStatusCode () { return (status_code); }
   bool isParsingDone () { return (is_request_parsing_done); }
   time_t getLastReadTime () { return (last_read); }
   int getClientFd () { return (client_fd); }
@@ -24,7 +24,7 @@ public:
   map<string, string> & getRequestHeaders () { return (request_headers); }
 
   /* setters */
-  void setErrorCode (short code) { error_code = code; }
+  void setStatusCode (short code) { status_code = code; }
   string & getResponse () { return (response); }
   
   void readRequest ();
@@ -46,7 +46,7 @@ private:
   int client_fd;
   struct sockaddr_in adress;
   Server *server_owner;
-  short error_code;
+  short status_code;
 
   /* Request */
   bool is_request_parsing_done, is_chunked, is_sized;

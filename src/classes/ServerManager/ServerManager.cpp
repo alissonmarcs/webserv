@@ -81,7 +81,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
             }
           else if (events[i].events & EPOLLIN)
             client->readRequest();
-          else if (events[i].events & EPOLLOUT && (client->isParsingDone() || client->getErrorCode() != 0))
+          else if (events[i].events & EPOLLOUT && (client->isParsingDone() || client->getStatusCode() != 0))
           {
             client->buildResponse();
             sendResponse(client);
@@ -137,7 +137,7 @@ ServerManager::checkTimeout ()
       if (current_time - client_time > 60)
         {
           cout << getIpString(client->getAdress()) << " timeout, sending response and closing connection\n";
-          client->setErrorCode(408);
+          client->setStatusCode(408);
           memset (&ev, 0, sizeof (ev));
           ev.events = EPOLLOUT | EPOLLRDHUP;
           ev.data.fd = client->getClientFd ();
@@ -151,9 +151,9 @@ void
 ServerManager::readFromClient (Client &client)
 {
   client.readRequest();
-  if (client.getErrorCode() != 0)
+  if (client.getStatusCode() != 0)
     {
-      cout << '\n' << getIpString(client.getAdress()) << " sends a bad request, closing connection. " << "Error code: " << client.getErrorCode() << "\n";
+      cout << '\n' << getIpString(client.getAdress()) << " sends a bad request, closing connection. " << "Error code: " << client.getStatusCode() << "\n";
       if (close(client.getClientFd()) == -1)
         FATAL_ERROR ("close()");
       clients.erase(client.getClientFd());

@@ -186,16 +186,16 @@ const char* getIpString(const struct sockaddr_in * addr)
     return inet_ntoa(addr->sin_addr);
 }
 
-string to_string (short error_code)
+string to_string (short status_code)
 {
   stringstream ss;
-  ss << error_code;
+  ss << status_code;
   return ss.str ();
 }
 
-const char * getStatusText(short error_code)
+const char * getStatusText(short status_code)
 {
-  switch (error_code)
+  switch (status_code)
     {
     case 200:
       return "OK";
