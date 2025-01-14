@@ -236,3 +236,13 @@ const char * getStatusText(short error_code)
       return "Unknown";
     }
 }
+
+const char * getCurrentHttpDate()
+{
+  static char buf[1000] = {0};
+
+  time_t now = time(0);
+  struct tm tm = *gmtime(&now);
+  strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
+  return buf;
+}

@@ -93,6 +93,7 @@ long	get_time(void);
 const char* getIpString(const struct sockaddr_in * addr);
 string to_string (short error_code);
 const char * getStatusText (short error_code);
+const char * getCurrentHttpDate ();
 
 
 #endif
