@@ -31,6 +31,8 @@ Client::parseRequest ()
     }
     if ((is_sized || is_chunked) && status_code == 0)
         parseBody();
+    else
+        is_request_parsing_done = true;
 }
 
 void

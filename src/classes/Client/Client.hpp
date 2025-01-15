@@ -41,6 +41,9 @@ public:
   void buildError();
   bool haveError();
 
+  Route * get_route ();
+  void http_get ();
+
 private:
   /* Connection */
   time_t last_read;

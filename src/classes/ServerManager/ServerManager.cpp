@@ -81,7 +81,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
             }
           else if (events[i].events & EPOLLIN)
             client->readRequest();
-          else if (events[i].events & EPOLLOUT && (client->isParsingDone() || client->getStatusCode() != 0))
+          else if (events[i].events & EPOLLOUT && (client->isParsingDone()))
           {
             client->buildResponse();
             sendResponse(client);
@@ -93,6 +93,9 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::sendResponse (Client *client)
 {
+  // cout << BOLD "Response:\n" RESET;
+  // cout << client->getResponse() << endl;
+
   if (send (client->getClientFd (), client->getResponse ().c_str (),
             client->getResponse ().size (), 0)
       == -1)

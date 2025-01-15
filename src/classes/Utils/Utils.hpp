@@ -127,6 +127,6 @@ const char* getIpString(const struct sockaddr_in * addr);
 string to_string (short status_code);
 const char * getStatusText (short status_code);
 const char * getCurrentHttpDate ();
-
+string to_string (size_t status_code);
 
 #endif

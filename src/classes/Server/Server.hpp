@@ -44,7 +44,7 @@ public:
   string getHost () const { return host; }
   string getServerName () const { return server_name; }
   size_t getClientMaxBodySize () const { return client_max_body_size; }
-  vector<Route> getRoutes () const { return routes; }
+  vector<Route> & getRoutes () { return routes; }
   int getServerFd () const { return server_fd; }
   struct sockaddr_in getAdress () const { return adress; }
   bool getIsPortSet () const { return isPortSet; }

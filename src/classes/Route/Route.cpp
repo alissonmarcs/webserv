@@ -54,7 +54,10 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 	{
 		checkBasicDirectiveAreSet();
 		nestingLevel--;
-  		folder_to_search_inside = root + path;
+		if (path == "/")
+			folder_to_search_inside = root;
+		else
+  			folder_to_search_inside = root + path;
 		return (1);
 	}
 	lineTreatment(routeLine);
