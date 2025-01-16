@@ -16,7 +16,7 @@ class Route
 	Route &operator=(const Route &rhs);
 
 	// Getters
-	string getPath() const { return path; }
+	string & getPath() { return path; }
 	string getRoot() const { return root; }
 	bool getAutoindex() const { return autoindex; }
 	std::vector<string> getAllowedMethods() const { return allowed_methods; }

@@ -254,3 +254,14 @@ const char * getCurrentHttpDate()
   strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
   return buf;
 }
+
+size_t getDifferIndex(string &one, string &two)
+{
+  size_t i = 0;
+  size_t size = one.size() < two.size() ? one.size() : two.size();
+
+  for (; i < size; i++)
+    if (one[i] != two[i])
+      return (i);
+  return (i);
+}

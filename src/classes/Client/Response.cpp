@@ -23,7 +23,7 @@ void
 Client::http_get ()
 {
     Route * route = get_route ();
-    string file_name = route->getFolderToSearchInside() + target_resource;
+    string file_name = route->getRoot() + target_resource;
     struct stat file_stat;
 
     file_name.insert(0, ".");
@@ -51,12 +51,21 @@ Route *
 Client::get_route()
 {
     vector<Route> & routes = server_owner->getRoutes();
-    size_t size = routes.size();
+    Route * route = NULL;
+    size_t size = routes.size(), index_start = 0, index_differ = 0;
 
     for (size_t i = 0; i < size; i++)
     {
-        if (target_resource.find(routes[i].getPath()) != string::npos)
-            return (&routes[i]);
+        if ((index_start = target_resource.find(routes[i].getPath())) != string::npos)
+        {
+            size_t index_differ_tmp = getDifferIndex(target_resource, routes[i].getPath());
+
+            if (index_differ_tmp > index_differ)
+            {
+                index_differ = index_differ_tmp;
+                route = &routes[i];
+            }
+        }
     }
-    return (NULL);
+    return (route);
 }
