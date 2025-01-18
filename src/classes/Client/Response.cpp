@@ -9,6 +9,7 @@ Client::buildResponse()
         status_code = NOT_FOUND;
     else if (method == "GET")
         http_get ();
+    
     if (haveError())
         buildError();
 }
@@ -28,24 +29,23 @@ Client::buildError()
 void
 Client::http_get ()
 {
-    string file_name = route->getRoot() + target_resource;
+    static_file_name = route->getRoot() + target_resource;
     struct stat file_stat = {};
 
-    if (stat(file_name.c_str(), &file_stat) == -1)
+    if (stat(static_file_name.c_str(), &file_stat) == -1)
     {
-        cout << "file not found: " << file_name << endl;
-        perror ("stat");
         status_code = NOT_FOUND;
         return ;
     }
 
-    ifstream file(file_name.c_str());
+    ifstream file(static_file_name.c_str());
     stringstream content;
 
     content << file.rdbuf ();
     response = "HTTP/1.1 200 OK\r\n";
     response += "Content-Length: " + to_string (content.str ().size ()) + "\r\n";
-    response += "Content-tpye: text/html\r\n\r\n";
+    response += findContentType ();
+    response += "\r\n";
     response += content.str ();
 }
 
@@ -68,4 +68,34 @@ Client::findRoute ()
             }
         }
     }
+}
+
+string
+Client::findContentType()
+{
+    size_t dot = static_file_name.rfind('.');
+    string ext;
+
+    if (dot == string::npos)
+        return "Content-type: text/plain\r\n";
+    ext = static_file_name.substr(dot + 1);
+    if (ext == "html" || ext == "htm")
+        return "Content-type: text/html\r\n";
+    if (ext == "css")
+        return "Content-type: text/css\r\n";
+    if (ext == "js")
+        return "Content-type: text/javascript\r\n";
+    if (ext == "jpg" || ext == "jpeg")
+        return "Content-type: image/jpeg\r\n";
+    if (ext == "png")
+        return "Content-type: image/png\r\n";
+    if (ext == "gif")
+        return "Content-type: image/gif\r\n";
+    if (ext == "ico")
+        return "Content-type: image/x-icon\r\n";
+    if (ext == "mp3")
+        return "Content-type: audio/mpeg\r\n";
+    if (ext == "mp4")
+        return "Content-type: video/mp4\r\n";
+    return "Content-type: text/plain\r\n";
 }

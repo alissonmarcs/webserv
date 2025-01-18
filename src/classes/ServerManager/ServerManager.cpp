@@ -47,8 +47,7 @@ ServerManager::acceptClient (Server *owner)
   int client_fd, server_fd;
 
   server_fd = owner->getServerFd ();
-  client_fd
-      = accept (server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
+  client_fd = accept (server_fd, (struct sockaddr *)&client_addr, &client_addr_len);
   if (client_fd == -1)
     FATAL_ERROR ("accept");
   clients[client_fd] = Client (client_fd, client_addr, owner);
@@ -56,7 +55,7 @@ ServerManager::acceptClient (Server *owner)
   ev.data.fd = client_fd;
   if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, client_fd, &ev) == -1)
     FATAL_ERROR ("epoll_ctl");
-  cout << getIpString(&client_addr) << " connected\n";
+  cout << clients[client_fd].getIpString() << " connected\n";
 }
 
 void
@@ -74,7 +73,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
           client = &clients[events[i].data.fd];
           if (events[i].events & EPOLLRDHUP)
             {
-              cout << getIpString(client->getAdress()) << " close connection\n";
+              cout << client->getIpString() << " close connection\n";
               if (close (events[i].data.fd) == -1)
                 FATAL_ERROR ("close()");
               clients.erase (events[i].data.fd);
@@ -139,7 +138,7 @@ ServerManager::checkTimeout ()
 
       if (current_time - client_time > 60)
         {
-          cout << getIpString(client->getAdress()) << " timeout, sending response and closing connection\n";
+          cout << client->getIpString() << " timeout, sending response and closing connection\n";
           client->setStatusCode(408);
           memset (&ev, 0, sizeof (ev));
           ev.events = EPOLLOUT | EPOLLRDHUP;
@@ -156,7 +155,7 @@ ServerManager::readFromClient (Client &client)
   client.readRequest();
   if (client.getStatusCode() != 0)
     {
-      cout << '\n' << getIpString(client.getAdress()) << " sends a bad request, closing connection. " << "Error code: " << client.getStatusCode() << "\n";
+      cout << '\n' << client.getIpString() << " sends a bad request, closing connection. " << "Error code: " << client.getStatusCode() << "\n";
       if (close(client.getClientFd()) == -1)
         FATAL_ERROR ("close()");
       clients.erase(client.getClientFd());

@@ -123,7 +123,6 @@ void trimBraces (string &line);
 void lineTreatment (string &line);
 bool containsLetter(const string &str);
 long	get_time(void);
-const char* getIpString(const struct sockaddr_in * addr);
 string to_string (short status_code);
 const char * getStatusText (short status_code);
 const char * getCurrentHttpDate ();

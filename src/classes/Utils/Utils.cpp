@@ -181,11 +181,6 @@ long	get_time(void)
 	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
-const char* getIpString(const struct sockaddr_in * addr)
-{
-    return inet_ntoa(addr->sin_addr);
-}
-
 string to_string (short status_code)
 {
   stringstream ss;

@@ -22,6 +22,7 @@ public:
   int getClientFd () { return (client_fd); }
   string & getBody () { return (body); }
   map<string, string> & getRequestHeaders () { return (request_headers); }
+  const char * getIpString () { return inet_ntoa(adress.sin_addr); }
 
   /* setters */
   void setStatusCode (short code) { status_code = code; }
@@ -43,6 +44,7 @@ public:
 
   void findRoute ();
   void http_get ();
+  string findContentType ();
 
 private:
   /* Connection */
@@ -59,7 +61,7 @@ private:
 
   /* Response */
   Route * route;
-  string response;
+  string response, static_file_name;
 };
 
 #endif
