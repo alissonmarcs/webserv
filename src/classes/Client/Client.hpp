@@ -45,6 +45,7 @@ public:
   void findRoute ();
   void http_get ();
   string findContentType ();
+  void RouteValidation ();
 
 private:
   /* Connection */

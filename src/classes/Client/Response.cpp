@@ -5,13 +5,28 @@ Client::buildResponse()
 {
     findRoute ();
 
-    if (route == NULL)
-        status_code = NOT_FOUND;
-    else if (method == "GET")
+    RouteValidation ();
+    if (method == "GET")
         http_get ();
     
     if (haveError())
         buildError();
+}
+
+void
+Client::RouteValidation ()
+{
+    if (route == NULL)
+    {
+        status_code = NOT_FOUND;
+        return ;
+    }
+
+    if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
+    {
+        status_code = METHOD_NOT_ALLOWED;
+        return ;
+    }
 }
 
 void
