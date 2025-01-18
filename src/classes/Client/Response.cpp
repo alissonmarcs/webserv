@@ -5,8 +5,10 @@ Client::buildResponse()
 {
     findRoute ();
 
-    RouteValidation ();
-    if (method == "GET")
+    if (route == NULL)
+        status_code = NOT_FOUND;
+    // RouteValidation ();
+    else if (method == "GET")
         http_get ();
     
     if (haveError())
