@@ -41,7 +41,7 @@ public:
   void buildError();
   bool haveError();
 
-  Route * get_route ();
+  void findRoute ();
   void http_get ();
 
 private:
@@ -58,6 +58,7 @@ private:
   map<string, string> request_headers;
 
   /* Response */
+  Route * route;
   string response;
 };
 

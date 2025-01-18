@@ -3,8 +3,14 @@
 void
 Client::buildResponse()
 {
-    if (method == "GET")
+    findRoute ();
+
+    if (route == NULL)
+        status_code = NOT_FOUND;
+    else if (method == "GET")
         http_get ();
+    if (haveError())
+        buildError();
 }
 
 void
@@ -22,13 +28,12 @@ Client::buildError()
 void
 Client::http_get ()
 {
-    Route * route = get_route ();
     string file_name = route->getRoot() + target_resource;
-    struct stat file_stat;
+    struct stat file_stat = {};
 
-    file_name.insert(0, ".");
     if (stat(file_name.c_str(), &file_stat) == -1)
     {
+        cout << "file not found: " << file_name << endl;
         perror ("stat");
         status_code = NOT_FOUND;
         return ;
@@ -36,36 +41,31 @@ Client::http_get ()
 
     ifstream file(file_name.c_str());
     stringstream content;
-    string content_str;
 
-    content << file.rdbuf();
-    content_str = content.str();
+    content << file.rdbuf ();
     response = "HTTP/1.1 200 OK\r\n";
-    response += "Content-Length: " + to_string (content_str.size()) + "\r\n";
+    response += "Content-Length: " + to_string (content.str ().size ()) + "\r\n";
     response += "Content-tpye: text/html\r\n\r\n";
-    response += content_str;
-    
+    response += content.str ();
 }
 
-Route *
-Client::get_route()
+void
+Client::findRoute ()
 {
     vector<Route> & routes = server_owner->getRoutes();
-    Route * route = NULL;
-    size_t size = routes.size(), index_start = 0, index_differ = 0;
+    size_t size = routes.size(), diff_index = 0;
 
     for (size_t i = 0; i < size; i++)
     {
-        if ((index_start = target_resource.find(routes[i].getPath())) != string::npos)
+        if (target_resource.find(routes[i].getPath()) == 0) 
         {
-            size_t index_differ_tmp = getDifferIndex(target_resource, routes[i].getPath());
+            size_t diff_index_tmp = getDifferIndex(target_resource, routes[i].getPath());
 
-            if (index_differ_tmp > index_differ)
+            if (diff_index_tmp > diff_index)
             {
-                index_differ = index_differ_tmp;
+                diff_index = diff_index_tmp;
                 route = &routes[i];
             }
         }
     }
-    return (route);
 }

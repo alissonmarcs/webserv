@@ -14,7 +14,7 @@ Client::readRequest ()
         status_code = 500;
         return ;
     }
-    raw_request += string (buffer, ret);
+    raw_request = string (buffer, ret);
     last_read = time(NULL);
     parseRequest ();
 }
@@ -249,11 +249,7 @@ Client::parseHeaders()
 bool
 Client::haveError()
 {
-    if (status_code == BAD_REQUEST || status_code == REQUEST_TIMEOUT
-    || status_code == PAYLOAD_TOO_LARGE || status_code == HTTP_VERSION_NOT_SUPPORTED
-    || status_code == INTERNAL_SERVER_ERROR || status_code == NOT_IMPLEMENTED
-    || status_code == UNAUTHORIZED || status_code == FORBIDDEN
-    || status_code == NOT_FOUND)
+    if (status_code >= 400 && status_code <= 599)
         return (true);
     return (false);
 }
