@@ -4,30 +4,39 @@ void
 Client::buildResponse()
 {
     findRoute ();
-
-    if (route == NULL)
-        status_code = NOT_FOUND;
-    // RouteValidation ();
-    else if (method == "GET")
-        http_get ();
-    
+    RouteValidation ();
     if (haveError())
         buildError();
+    else if (method == "GET")
+        http_get ();
 }
 
 void
 Client::RouteValidation ()
 {
-    if (route == NULL)
-    {
-        status_code = NOT_FOUND;
-        return ;
-    }
 
-    if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
-    {
+    if (route == NULL)
+        status_code = NOT_FOUND;
+    else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
         status_code = METHOD_NOT_ALLOWED;
-        return ;
+    else if (method == "GET")
+    {
+        static_file_name = route->getRoot() + target_resource;
+        struct stat info = {};
+
+        if (stat (static_file_name.c_str(), &info) == -1)
+            status_code = NOT_FOUND;
+        else if (S_ISREG (info.st_mode) && (access (static_file_name.c_str(), R_OK) == -1))
+            status_code = FORBIDDEN;
+        else if (S_ISDIR (info.st_mode))
+        {
+            static_file_name += route->getIndex();
+
+            if (stat (static_file_name.c_str(), &info) == -1 && route->getAutoindex() == false)
+                status_code = NOT_FOUND;
+            else if (S_ISREG (info.st_mode) && (access (static_file_name.c_str(), R_OK) == -1))
+                status_code = FORBIDDEN;
+        }
     }
 }
 
@@ -46,24 +55,25 @@ Client::buildError()
 void
 Client::http_get ()
 {
-    static_file_name = route->getRoot() + target_resource;
-    struct stat file_stat = {};
-
-    if (stat(static_file_name.c_str(), &file_stat) == -1)
+    if (route->getAutoindex() == true)
+        autoindex();
+    else
     {
-        status_code = NOT_FOUND;
-        return ;
+        ifstream file(static_file_name.c_str());
+        stringstream content;
+
+        content << file.rdbuf ();
+        response = "HTTP/1.1 200 OK\r\n";
+        response += "Content-Length: " + to_string (content.str ().size ()) + "\r\n";
+        response += findContentType ();
+        response += "\r\n";
+        response += content.str ();
     }
+}
 
-    ifstream file(static_file_name.c_str());
-    stringstream content;
-
-    content << file.rdbuf ();
-    response = "HTTP/1.1 200 OK\r\n";
-    response += "Content-Length: " + to_string (content.str ().size ()) + "\r\n";
-    response += findContentType ();
-    response += "\r\n";
-    response += content.str ();
+void
+Client::autoindex()
+{
 }
 
 void

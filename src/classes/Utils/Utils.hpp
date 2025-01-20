@@ -88,6 +88,7 @@ enum file_status
 #include <unistd.h>
 #include <vector>
 #include <wchar.h>
+#include <dirent.h>
 
 using namespace std;
 

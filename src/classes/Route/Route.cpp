@@ -5,7 +5,7 @@
 Route::Route()
 {
 	root = "";
-	autoindex = true;
+	autoindex = false;
 	redirect = "";
 	default_file = "";
 	cgi_ext = "";

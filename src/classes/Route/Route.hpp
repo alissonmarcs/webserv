@@ -19,7 +19,7 @@ class Route
 	string & getPath() { return path; }
 	string getRoot() const { return root; }
 	bool getAutoindex() const { return autoindex; }
-	std::vector<string> getAllowedMethods() const { return allowed_methods; }
+	std::vector<string> & getAllowedMethods() { return allowed_methods; }
 	string getRedirect() const { return redirect; }
 	string getDefaultFile() const { return default_file; }
 	string getCgiExt() const { return cgi_ext; }
