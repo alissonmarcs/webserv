@@ -185,6 +185,4 @@ Route::checkBasicDirectiveAreSet()
 			throw ConfigParserException("Error: root directive missing in route");
   	if (getAllowedMethods().empty())
 			throw ConfigParserException("Error: allowed_methods directive missing in route");
-  	if (getIndex().empty())
-			throw ConfigParserException("Error: index directive missing in route");
 }
