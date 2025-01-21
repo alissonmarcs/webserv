@@ -46,7 +46,9 @@ public:
   void http_get ();
   string findContentType ();
   void RouteValidation ();
+  
   void autoindex();
+  bool targetResourceIsDir();
 
 private:
   /* Connection */

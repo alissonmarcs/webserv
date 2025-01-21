@@ -55,7 +55,7 @@ Client::buildError()
 void
 Client::http_get ()
 {
-    if (route->getAutoindex() == true)
+    if (route->getAutoindex() == true && targetResourceIsDir())
         autoindex();
     else
     {
@@ -74,6 +74,43 @@ Client::http_get ()
 void
 Client::autoindex()
 {
+    string folder = route->getRoot() + target_resource;
+    response = "HTTP/1.1 200 OK\r\n";
+    DIR * dir = opendir (folder.c_str());
+    struct dirent * entry = NULL;
+
+    if (dir == NULL)
+    {
+        perror("opendir");
+        status_code = INTERNAL_SERVER_ERROR;
+        return;
+    }
+    body = "<html>\n";
+    body += "<head>\n";
+    body += "<title>Index of " + target_resource + "</title>\n";
+    body += "</head>\n";
+    body += "<body>\n";
+    body += "<h1>Index of " + target_resource + "</h1>\n";
+    body += "<hr>\n";
+    body += "<pre>\n";
+    entry = readdir (dir);
+    while (entry != NULL)
+    {
+        if (entry->d_type == DT_DIR)
+            body += "<a href=\"" + string(entry->d_name) + "/\">" + entry->d_name + "/</a>\n";
+        else
+            body += "<a href=\"" + string(entry->d_name) + "\">" + entry->d_name + "</a>\n";
+        entry = readdir (dir);
+    }
+    body += "</pre>\n";
+    body += "<hr>\n";
+    body += "</body>\n";
+    body += "</html>\n";
+    closedir (dir);
+    response += "Content-Length: " + to_string(body.size()) + "\r\n";
+    response += "Content-type: text/html\r\n";
+    response += "\r\n";
+    response += body;
 }
 
 void
@@ -95,6 +132,12 @@ Client::findRoute ()
             }
         }
     }
+}
+
+bool
+Client::targetResourceIsDir()
+{
+    return (target_resource[target_resource.size() - 1] == '/');
 }
 
 string
