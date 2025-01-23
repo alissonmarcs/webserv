@@ -4,6 +4,13 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 
+enum WHAT_RETURN
+{
+  INDEX,
+  AUTO_INDEX,
+  STATIC_FILE,
+};
+
 class Server;
 
 class Client
@@ -66,6 +73,9 @@ private:
   /* Response */
   Route * route;
   string response, static_file_name;
+  bool file_exists_and_is_readable, index_is_valid;
+  struct stat file_info;
+  WHAT_RETURN what_return;
 };
 
 #endif

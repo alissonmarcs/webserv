@@ -14,7 +14,6 @@ Client::buildResponse()
 void
 Client::RouteValidation ()
 {
-
     if (route == NULL)
         status_code = NOT_FOUND;
     else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
@@ -22,21 +21,41 @@ Client::RouteValidation ()
     else if (method == "GET")
     {
         static_file_name = route->getRoot() + target_resource;
-        struct stat info = {};
+        file_exists_and_is_readable = (access((static_file_name.c_str()), R_OK) != -1) ? true : false;
 
-        if (stat (static_file_name.c_str(), &info) == -1)
-            status_code = NOT_FOUND;
-        else if (S_ISREG (info.st_mode) && (access (static_file_name.c_str(), R_OK) == -1))
-            status_code = FORBIDDEN;
-        else if (S_ISDIR (info.st_mode))
+        if (file_exists_and_is_readable == false)
         {
-            static_file_name += route->getIndex();
-
-            if (stat (static_file_name.c_str(), &info) == -1 && route->getAutoindex() == false)
-                status_code = NOT_FOUND;
-            else if (S_ISREG (info.st_mode) && (access (static_file_name.c_str(), R_OK) == -1))
-                status_code = FORBIDDEN;
+            status_code = NOT_FOUND;
+            return;
         }
+        if (stat(static_file_name.c_str(), &file_info) == -1)
+        {
+            status_code = INTERNAL_SERVER_ERROR;
+            return;
+        }
+        if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == true && route->getIndex () != "")
+        {
+            string index = static_file_name + route->getIndex();
+
+            if (access(index.c_str(), R_OK) != -1)
+            {
+                static_file_name += route->getIndex();
+                index_is_valid = true;
+            }
+            else
+                index_is_valid = false;
+        }
+        else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () != "")
+        {
+            string index = static_file_name + route->getIndex();
+
+            if (access(index.c_str(), R_OK) != -1)
+                static_file_name += route->getIndex();
+            else
+                status_code = NOT_FOUND;
+        }
+        else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () == "")
+            status_code = FORBIDDEN;
     }
 }
 
@@ -55,7 +74,7 @@ Client::buildError()
 void
 Client::http_get ()
 {
-    if (route->getAutoindex() == true && targetResourceIsDir())
+    if (route->getAutoindex() && S_ISDIR(file_info.st_mode) && index_is_valid == false)
         autoindex();
     else
     {
@@ -68,6 +87,10 @@ Client::http_get ()
         response += findContentType ();
         response += "\r\n";
         response += content.str ();
+        file.close ();
+
+        cout << BOLD "Response:\n" RESET;
+        cout <<  response << endl;
     }
 }
 
