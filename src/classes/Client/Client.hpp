@@ -51,6 +51,7 @@ public:
 
   void findRoute ();
   void http_get ();
+  void http_get_error_handling ();
   string findContentType ();
   void RouteValidation ();
   

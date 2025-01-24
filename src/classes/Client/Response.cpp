@@ -19,44 +19,43 @@ Client::RouteValidation ()
     else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
         status_code = METHOD_NOT_ALLOWED;
     else if (method == "GET")
+        http_get_error_handling ();
+}
+
+void
+Client::http_get_error_handling ()
+{
+    static_file_name = route->getRoot() + target_resource;
+    file_exists_and_is_readable = (access((static_file_name.c_str()), R_OK) != -1) ? true : false;
+
+    if (file_exists_and_is_readable == false) { status_code = NOT_FOUND; return; }
+    if (stat(static_file_name.c_str(), &file_info) == -1) { status_code = INTERNAL_SERVER_ERROR; return; }
+
+    if (S_ISDIR(file_info.st_mode) && static_file_name[static_file_name.size() - 1] != '/')
+        static_file_name += "/";
+
+    if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == true && route->getIndex () != "")
     {
-        static_file_name = route->getRoot() + target_resource;
-        file_exists_and_is_readable = (access((static_file_name.c_str()), R_OK) != -1) ? true : false;
+        string index = static_file_name + route->getIndex();
 
-        if (file_exists_and_is_readable == false)
+        if (access(index.c_str(), R_OK) != -1)
         {
-            status_code = NOT_FOUND;
-            return;
+            static_file_name += route->getIndex();
+            index_is_valid = true;
         }
-        if (stat(static_file_name.c_str(), &file_info) == -1)
-        {
-            status_code = INTERNAL_SERVER_ERROR;
-            return;
-        }
-        if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == true && route->getIndex () != "")
-        {
-            string index = static_file_name + route->getIndex();
-
-            if (access(index.c_str(), R_OK) != -1)
-            {
-                static_file_name += route->getIndex();
-                index_is_valid = true;
-            }
-            else
-                index_is_valid = false;
-        }
-        else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () != "")
-        {
-            string index = static_file_name + route->getIndex();
-
-            if (access(index.c_str(), R_OK) != -1)
-                static_file_name += route->getIndex();
-            else
-                status_code = NOT_FOUND;
-        }
-        else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () == "")
-            status_code = FORBIDDEN;
+        else
+            index_is_valid = false;
     }
+    else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () != "")
+    {
+        string index = static_file_name + route->getIndex();
+        if (access(index.c_str(), R_OK) != -1)
+            static_file_name += route->getIndex();
+        else
+            status_code = NOT_FOUND;
+    }
+    else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () == "")
+        status_code = FORBIDDEN;
 }
 
 void
