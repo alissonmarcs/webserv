@@ -32,9 +32,8 @@ Client::http_get_error_handling ()
     if (stat(static_file_name.c_str(), &file_info) == -1) { status_code = INTERNAL_SERVER_ERROR; return; }
 
     if (S_ISDIR(file_info.st_mode) && static_file_name[static_file_name.size() - 1] != '/')
-        static_file_name += "/";
-
-    if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == true && route->getIndex () != "")
+        status_code = MOVED_PERMANENTLY;
+    else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == true && route->getIndex () != "")
     {
         string index = static_file_name + route->getIndex();
 
@@ -75,6 +74,12 @@ Client::http_get ()
 {
     if (route->getAutoindex() && S_ISDIR(file_info.st_mode) && index_is_valid == false)
         autoindex();
+    else if (status_code == MOVED_PERMANENTLY)
+    {
+        response = "HTTP/1.1 301 Moved Permanently\r\n";
+        response += "Location: " + target_resource + "/\r\n";
+        response += "\r\n";
+    }
     else
     {
         ifstream file(static_file_name.c_str());
