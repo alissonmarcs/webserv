@@ -24,7 +24,7 @@ Client::parseRequest ()
 {
     if (method.empty() && raw_request.find("\r\n\r\n") != string::npos)
     {
-        printRequest();
+        // printRequest();
         parseRequestLine();
         if (status_code == 0)
             parseHeaders();

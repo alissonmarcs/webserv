@@ -54,6 +54,11 @@ public:
   void http_get_error_handling ();
   string findContentType ();
   void RouteValidation ();
+
+  void http_post ();
+  void handleUpload (map<string, string>::iterator content_type);
+  string getUploadedFileName ();
+  string getBoundary ();
   
   void autoindex();
   bool targetResourceIsDir();

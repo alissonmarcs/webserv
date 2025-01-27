@@ -9,6 +9,49 @@ Client::buildResponse()
         buildError();
     else if (method == "GET")
         http_get ();
+    else if (method == "POST")
+        http_post ();
+}
+
+void
+Client::http_post()
+{
+    map<string, string>::iterator content_type = request_headers.find("content-type");
+
+    if (content_type != request_headers.end() && content_type->second.find ("multipart/form-data") != string::npos)
+        handleUpload(content_type);
+}
+
+void
+Client::handleUpload(map<string, string>::iterator content_type)
+{
+    string folder = route->getRoot() + route->getUploadStore();
+    string file_name = getUploadedFileName();
+
+    if (file_name.empty())
+    {
+        status_code = BAD_REQUEST;
+        return;
+    }
+
+    size_t start = body.find ("\r\n\r\n");
+}
+
+string
+Client::getBoundary ()
+{
+
+}
+
+string
+Client::getUploadedFileName()
+{
+    size_t start = body.find("filename=\"");
+    size_t end = body.find("\"", start + 10);
+
+    if (start == string::npos || end == string::npos)
+        return ("");
+    return (body.substr(start + 10, end - start - 10));
 }
 
 void
