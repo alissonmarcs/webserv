@@ -73,6 +73,7 @@ bool isFile (const string & content)
 vector<string> *
 Client::splitMultipart(string boundary)
 {
+    string last_boundary = boundary + "--";
     vector<string> * parts = new vector<string>;
     size_t start = 0, end = 0;
 
@@ -83,6 +84,8 @@ Client::splitMultipart(string boundary)
         end = body.find(boundary, start);
         if (start == string::npos || end == string::npos)
             break;
+        if (strncmp (last_boundary.data (), body.data () + end, last_boundary.size()) == 0)
+            end -= 2;
         parts->push_back(body.substr(start, end - start));
     }
     return parts;
