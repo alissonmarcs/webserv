@@ -46,8 +46,10 @@ Client::handleUpload(map<string, string>::iterator content_type)
                 status_code = INTERNAL_SERVER_ERROR;
                 return;
             }
-            size_t start = body.find("\r\n\r\n") + 4;
-            file.write(body.data() + start, body.size() - start);
+
+            size_t tmp = start->find("\r\n\r\n") + 4;
+
+            file.write(start->data() + tmp, start->size() - tmp);
             
             if (file.fail())
             {
