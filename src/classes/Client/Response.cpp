@@ -49,7 +49,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
 
             size_t tmp = start->find("\r\n\r\n") + 4;
 
-            file.write(start->data() + tmp, start->size() - tmp);
+            file.write (start->data() + tmp, start->size() - tmp);
             
             if (file.fail())
             {
@@ -75,13 +75,14 @@ Client::splitMultipart(string boundary)
 {
     string last_boundary = boundary + "--";
     vector<string> * parts = new vector<string>;
-    size_t start, end;
+    size_t start = 0, end = 0;
 
     while (1)
     {
         start = body.find(boundary, end);
         start += boundary.size();
         end = body.find(boundary, start);
+
         if (start == string::npos || end == string::npos)
             break;
         if (strncmp (last_boundary.data (), body.data () + end, last_boundary.size()) == 0)
