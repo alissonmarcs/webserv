@@ -75,7 +75,7 @@ Client::splitMultipart(string boundary)
 {
     string last_boundary = boundary + "--";
     vector<string> * parts = new vector<string>;
-    size_t start = 0, end = 0;
+    size_t start, end;
 
     while (1)
     {
