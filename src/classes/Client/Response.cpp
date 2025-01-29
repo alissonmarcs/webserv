@@ -1,5 +1,8 @@
 #include "Client.hpp"
 
+bool isFile (const string & content);
+string getFileName(const string & content);
+
 void
 Client::buildResponse()
 {
@@ -18,40 +21,88 @@ Client::http_post()
 {
     map<string, string>::iterator content_type = request_headers.find("content-type");
 
-    if (content_type != request_headers.end() && content_type->second.find ("multipart/form-data") != string::npos)
+    if (content_type != request_headers.end() && content_type->second.find ("multipart/form-data") != string::npos && body.find("filename=\"") != string::npos)
         handleUpload(content_type);
 }
 
 void
 Client::handleUpload(map<string, string>::iterator content_type)
 {
-    string folder = route->getRoot() + route->getUploadStore();
-    string file_name = getUploadedFileName();
+    string boundary = getBoundary(content_type->second);
+    vector<string> * parts = splitMultipart (boundary);
+    vector<string>::iterator start, end;
 
-    if (file_name.empty())
+    start = parts->begin();
+    end = parts->end();
+    while (start != end)
     {
-        status_code = BAD_REQUEST;
-        return;
+        if (isFile(*start))
+        {
+            string file_name = getFileName(*start);
+
+            ofstream file ((route->getRoot() + route->getUploadStore() + file_name).c_str());
+            if (file.is_open() == false)
+            {
+                status_code = INTERNAL_SERVER_ERROR;
+                return;
+            }
+            size_t start = body.find("\r\n\r\n") + 4;
+            file.write(body.data() + start, body.size() - start);
+            
+            if (file.fail())
+            {
+                status_code = INTERNAL_SERVER_ERROR;
+                return;
+            }
+            file.close();
+        }
+        start++;
     }
+    delete parts;
+}
 
-    size_t start = body.find ("\r\n\r\n");
+bool isFile (const string & content)
+{
+    if (content.find("filename=\"") == string::npos)
+        return (false);
+    return (true);
+}
+
+vector<string> *
+Client::splitMultipart(string boundary)
+{
+    vector<string> * parts = new vector<string>;
+    size_t start = 0, end = 0;
+
+    while (1)
+    {
+        start = body.find(boundary, end);
+        start += boundary.size();
+        end = body.find(boundary, start);
+        if (start == string::npos || end == string::npos)
+            break;
+        parts->push_back(body.substr(start, end - start));
+    }
+    return parts;
 }
 
 string
-Client::getBoundary ()
+Client::getBoundary (string content_type)
 {
+    size_t start = content_type.find("boundary=");
 
-}
-
-string
-Client::getUploadedFileName()
-{
-    size_t start = body.find("filename=\"");
-    size_t end = body.find("\"", start + 10);
-
-    if (start == string::npos || end == string::npos)
+    if (start == string::npos)
         return ("");
-    return (body.substr(start + 10, end - start - 10));
+    return ("--" + content_type.substr(start + 9));
+}
+
+string
+getFileName(const string & content)
+{
+    size_t start = content.find("filename=\"") + 10;
+    size_t end = content.find("\"", start);
+
+    return (content.substr(start, end - start));
 }
 
 void

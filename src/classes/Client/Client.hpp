@@ -58,10 +58,11 @@ public:
   void http_post ();
   void handleUpload (map<string, string>::iterator content_type);
   string getUploadedFileName ();
-  string getBoundary ();
+  string getBoundary (string content_type);
   
   void autoindex();
   bool targetResourceIsDir();
+  vector <string> * splitMultipart(string boundary);
 
 private:
   /* Connection */
