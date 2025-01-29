@@ -85,7 +85,7 @@ Client::splitMultipart(string boundary)
 
         if (start == string::npos || end == string::npos)
             break;
-        if (strncmp (last_boundary.data (), body.data () + end, last_boundary.size()) == 0)
+        if (memcmp (last_boundary.data (), body.data () + end, last_boundary.size()) == 0)
             end -= 2;
         parts->push_back(body.substr(start, end - start));
     }
