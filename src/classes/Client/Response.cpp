@@ -14,6 +14,8 @@ Client::buildResponse()
         http_get ();
     else if (method == "POST")
         http_post ();
+    if (haveError())
+        buildError();
 }
 
 void
@@ -38,9 +40,15 @@ Client::handleUpload(map<string, string>::iterator content_type)
     {
         if (isFile(*start))
         {
-            string file_name = getFileName(*start);
+            if (access (route->getUploadStore().c_str(), X_OK) == -1)
+            {
+                status_code = CONFLIT;
+                return;
+            }
 
-            ofstream file ((route->getUploadStore() + file_name).c_str());
+            string file_name = route->getUploadStore() + getFileName(*start);
+            ofstream file (file_name.c_str());
+
             if (file.is_open() == false)
             {
                 status_code = INTERNAL_SERVER_ERROR;
@@ -61,6 +69,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
         start++;
     }
     delete parts;
+    response = "HTTP/1.1 200 OK\r\n";
 }
 
 bool isFile (const string & content)
