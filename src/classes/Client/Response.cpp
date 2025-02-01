@@ -40,7 +40,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
         {
             string file_name = getFileName(*start);
 
-            ofstream file ((route->getRoot() + route->getUploadStore() + file_name).c_str());
+            ofstream file ((route->getUploadStore() + file_name).c_str());
             if (file.is_open() == false)
             {
                 status_code = INTERNAL_SERVER_ERROR;
