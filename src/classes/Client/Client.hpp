@@ -59,7 +59,9 @@ public:
   void handleUpload (map<string, string>::iterator content_type);
   string getUploadedFileName ();
   string getBoundary (string content_type);
-  
+
+  void http_delete ();
+
   void autoindex();
   bool targetResourceIsDir();
   vector <string> * splitMultipart(string boundary);

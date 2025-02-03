@@ -8,14 +8,32 @@ Client::buildResponse()
 {
     findRoute ();
     RouteValidation ();
+
     if (haveError())
         buildError();
+
     else if (method == "GET")
         http_get ();
     else if (method == "POST")
         http_post ();
+    else if (method == "DELETE")
+        http_delete ();
+
     if (haveError())
         buildError();
+}
+
+void
+Client::http_delete()
+{
+    string file = route->getRoot() + target_resource;
+
+    if (access (file.c_str(), F_OK) == -1)
+        status_code = NOT_FOUND;
+     else if (unlink (file.c_str()) == -1)
+        status_code = INTERNAL_SERVER_ERROR;
+    else
+        response = "HTTP/1.1 204 No Content\r\n\r\n";
 }
 
 void
