@@ -127,8 +127,6 @@ Client::RouteValidation ()
         status_code = NOT_FOUND;
     else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
         status_code = METHOD_NOT_ALLOWED;
-    else if (method == "GET")
-        http_get_error_handling ();
 }
 
 void
@@ -181,6 +179,14 @@ Client::buildError()
 void
 Client::http_get ()
 {
+    string file = route->getRoot() + target_resource;
+    bool folder = isFolder();
+
+    if (folder && !route->getIndex().empty())
+    {
+        
+        file += route->getIndex();
+    }
     if (route->getAutoindex() && S_ISDIR(file_info.st_mode) && index_is_valid == false)
         autoindex();
     else if (status_code == MOVED_PERMANENTLY)
