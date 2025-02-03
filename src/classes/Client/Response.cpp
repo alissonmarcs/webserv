@@ -51,8 +51,6 @@ Client::handleUpload(map<string, string>::iterator content_type)
             file_name += getFileName(*start);
             ofstream file (file_name.c_str());
 
-            cout << "File name: " << file_name << endl;
-
             if (file.is_open() == false)
             {
                 status_code = INTERNAL_SERVER_ERROR;
