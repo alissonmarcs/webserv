@@ -40,14 +40,18 @@ Client::handleUpload(map<string, string>::iterator content_type)
     {
         if (isFile(*start))
         {
-            if (access (route->getUploadStore().c_str(), X_OK) == -1)
+            string file_name = route->getRoot() + route->getUploadStore();
+
+            if (access (file_name.c_str(), X_OK) == -1)
             {
                 status_code = CONFLIT;
                 return;
             }
 
-            string file_name = route->getUploadStore() + getFileName(*start);
+            file_name += getFileName(*start);
             ofstream file (file_name.c_str());
+
+            cout << "File name: " << file_name << endl;
 
             if (file.is_open() == false)
             {
