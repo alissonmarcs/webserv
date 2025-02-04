@@ -4,8 +4,6 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 
-class Server;
-
 class Client
 {
 public:
