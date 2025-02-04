@@ -66,6 +66,11 @@ public:
   bool targetResourceIsDir();
   vector <string> * splitMultipart(string boundary);
 
+  bool isFolder ();
+  void handleFolder ();
+  void loadStaticFile ();
+  void redirectToFolderWithSlash ();
+
 private:
   /* Connection */
   time_t last_read;
