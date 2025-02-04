@@ -179,8 +179,15 @@ Client::handleFolder ()
     }
     if (S_ISREG (file_info.st_mode))
         loadStaticFile();
-    else if (S_ISDIR (file_info.st_mode))
+    else if (S_ISREG (file_info.st_mode) == false && route->getAutoindex() == true)
         autoindex();
+    else if (S_ISDIR (file_info.st_mode))
+    {
+        if (route->getAutoindex() == true)
+            autoindex();
+        else
+            status_code = FORBIDDEN;
+    }
     else
         status_code = NOT_FOUND;
 }
