@@ -149,46 +149,6 @@ Client::RouteValidation ()
         status_code = METHOD_NOT_ALLOWED;
 }
 
-void
-Client::http_get_error_handling ()
-{
-    static_file_name = route->getRoot() + target_resource;
-    file_exists_and_is_readable = (access((static_file_name.c_str()), R_OK) != -1) ? true : false;
-
-    if (file_exists_and_is_readable == false) { status_code = NOT_FOUND; return; }
-    if (stat(static_file_name.c_str(), &file_info) == -1) { status_code = INTERNAL_SERVER_ERROR; return; }
-
-    if (S_ISDIR(file_info.st_mode) && static_file_name[static_file_name.size() - 1] != '/')
-        status_code = MOVED_PERMANENTLY;
-    else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == true && route->getIndex () != "")
-    {
-        string index = static_file_name + route->getIndex();
-
-        if (access(index.c_str(), R_OK) != -1)
-        {
-            static_file_name += route->getIndex();
-            index_is_valid = true;
-        }
-        else
-            index_is_valid = false;
-    }
-    else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () != "")
-    {
-        string index = static_file_name + route->getIndex();
-        if (access(index.c_str(), R_OK) != -1)
-            static_file_name += route->getIndex();
-        else
-            status_code = NOT_FOUND;
-    }
-    else if (S_ISDIR(file_info.st_mode) && route->getAutoindex () == false && route->getIndex () == "")
-        status_code = FORBIDDEN;
-}
-
-bool
-Client::isFolder()
-{
-    return (target_resource[0] == '/' && target_resource[target_resource.size() - 1] == '/');
-}
 
 void
 Client::redirectToFolderWithSlash()
@@ -328,12 +288,6 @@ Client::findRoute ()
             }
         }
     }
-}
-
-bool
-Client::targetResourceIsDir()
-{
-    return (target_resource[target_resource.size() - 1] == '/');
 }
 
 string

@@ -4,13 +4,6 @@
 #include "Server.hpp"
 #include "Utils.hpp"
 
-enum WHAT_RETURN
-{
-  INDEX,
-  AUTO_INDEX,
-  STATIC_FILE,
-};
-
 class Server;
 
 class Client
@@ -51,22 +44,18 @@ public:
 
   void findRoute ();
   void http_get ();
-  void http_get_error_handling ();
   string findContentType ();
   void RouteValidation ();
 
   void http_post ();
   void handleUpload (map<string, string>::iterator content_type);
-  string getUploadedFileName ();
   string getBoundary (string content_type);
 
   void http_delete ();
 
   void autoindex();
-  bool targetResourceIsDir();
   vector <string> * splitMultipart(string boundary);
 
-  bool isFolder ();
   void handleFolder ();
   void loadStaticFile ();
   void redirectToFolderWithSlash ();
@@ -87,9 +76,7 @@ private:
   /* Response */
   Route * route;
   string response, static_file_name;
-  bool file_exists_and_is_readable, index_is_valid;
   struct stat file_info;
-  WHAT_RETURN what_return;
 };
 
 #endif
