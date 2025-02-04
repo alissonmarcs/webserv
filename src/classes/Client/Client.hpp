@@ -57,6 +57,7 @@ public:
   void handleFolder ();
   void loadStaticFile ();
   void redirectToFolderWithSlash ();
+  void locationRedirect ();
 
 private:
   /* Connection */

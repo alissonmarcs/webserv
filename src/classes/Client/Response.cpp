@@ -228,11 +228,25 @@ Client::buildError()
 }
 
 void
+Client::locationRedirect()
+{
+    response = "HTTP/1.1 301 Moved Permanently\r\n";
+    response += "Location: " + route->getRedirect() + "\r\n";
+    response += "\r\n";
+}
+
+void
 Client::http_get ()
 {
-    static_file_name = route->getRoot() + target_resource;
+    if (route->getRedirect() != "")
+    {
+        locationRedirect();
+        return;
+    }
 
+    static_file_name = route->getRoot() + target_resource;
     stat (static_file_name.c_str(), &file_info);
+
     if (S_ISDIR(file_info.st_mode))
         handleFolder();
     else
