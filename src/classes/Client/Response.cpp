@@ -164,6 +164,64 @@ Client::http_get_error_handling ()
         status_code = FORBIDDEN;
 }
 
+bool
+Client::isFolder()
+{
+    return (target_resource[0] == '/' && target_resource[target_resource.size() - 1] == '/');
+}
+
+void
+Client::redirectToFolderWithSlash()
+{
+    response = "HTTP/1.1 301 Moved Permanently\r\n";
+    response += "Location: " + target_resource + "/\r\n";
+    response += "\r\n";
+}
+
+void
+Client::handleFolder ()
+{
+    if (S_ISDIR (file_info.st_mode) && target_resource[target_resource.size() - 1] != '/')
+    {
+        redirectToFolderWithSlash ();
+        return;
+    }
+    if (route->getIndex() != "")
+    {
+        static_file_name += route->getIndex();
+        stat (static_file_name.c_str(), &file_info);
+    }
+    if (S_ISREG (file_info.st_mode))
+        loadStaticFile();
+    else if (S_ISDIR (file_info.st_mode))
+        autoindex();
+    else
+        status_code = NOT_FOUND;
+}
+
+void
+Client::loadStaticFile ()
+{
+    ifstream file(static_file_name.c_str());
+    stringstream content;
+
+    if (file.is_open() == false)
+    {
+        if (access(static_file_name.c_str(), F_OK) == -1)
+            status_code = NOT_FOUND;
+        else
+            status_code = FORBIDDEN;
+        return;
+    }
+    content << file.rdbuf ();
+    response = "HTTP/1.1 200 OK\r\n";
+    response += "Content-Length: " + to_string (content.str ().size ()) + "\r\n";
+    response += findContentType ();
+    response += "\r\n";
+    response += content.str ();
+    file.close ();
+}
+
 void
 Client::buildError()
 {
@@ -179,38 +237,13 @@ Client::buildError()
 void
 Client::http_get ()
 {
-    string file = route->getRoot() + target_resource;
-    bool folder = isFolder();
+    static_file_name = route->getRoot() + target_resource;
 
-    if (folder && !route->getIndex().empty())
-    {
-        
-        file += route->getIndex();
-    }
-    if (route->getAutoindex() && S_ISDIR(file_info.st_mode) && index_is_valid == false)
-        autoindex();
-    else if (status_code == MOVED_PERMANENTLY)
-    {
-        response = "HTTP/1.1 301 Moved Permanently\r\n";
-        response += "Location: " + target_resource + "/\r\n";
-        response += "\r\n";
-    }
+    stat (static_file_name.c_str(), &file_info);
+    if (S_ISDIR(file_info.st_mode))
+        handleFolder();
     else
-    {
-        ifstream file(static_file_name.c_str());
-        stringstream content;
-
-        content << file.rdbuf ();
-        response = "HTTP/1.1 200 OK\r\n";
-        response += "Content-Length: " + to_string (content.str ().size ()) + "\r\n";
-        response += findContentType ();
-        response += "\r\n";
-        response += content.str ();
-        file.close ();
-
-        cout << BOLD "Response:\n" RESET;
-        cout <<  response << endl;
-    }
+        loadStaticFile();
 }
 
 void
