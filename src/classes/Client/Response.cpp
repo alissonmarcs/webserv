@@ -28,9 +28,14 @@ Client::http_delete()
 {
     string file = route->getRoot() + target_resource;
 
+    if (target_resource.find("..") != string::npos)
+    {
+        status_code = FORBIDDEN;
+        return;
+    }
     if (access (file.c_str(), F_OK) == -1)
         status_code = NOT_FOUND;
-     else if (unlink (file.c_str()) == -1)
+    else if (unlink (file.c_str()) == -1)
         status_code = INTERNAL_SERVER_ERROR;
     else
         response = "HTTP/1.1 204 No Content\r\n\r\n";
