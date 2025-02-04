@@ -209,6 +209,7 @@ Client::handleFolder ()
     if (route->getIndex() != "")
     {
         static_file_name += route->getIndex();
+        memset (&file_info, 0, sizeof (file_info));
         stat (static_file_name.c_str(), &file_info);
     }
     if (S_ISREG (file_info.st_mode))
