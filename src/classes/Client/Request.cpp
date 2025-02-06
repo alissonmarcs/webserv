@@ -14,6 +14,13 @@ Client::readRequest ()
         status_code = 500;
         return ;
     }
+    if (ret >= BUFFER_SIZE / 2 && method.empty() && raw_request.find("\r\n\r\n") == string::npos)
+    {
+        cout << "aqui" << endl;
+        status_code = BAD_REQUEST;
+        is_request_parsing_done = true;
+        return;
+    }
     raw_request = string (buffer, ret);
     last_read = time(NULL);
     parseRequest ();
@@ -24,9 +31,8 @@ Client::parseRequest ()
 {
     if (method.empty() && raw_request.find("\r\n\r\n") != string::npos)
     {
-        // printRequest();
         parseRequestLine();
-        if (status_code == 0)
+        if (!haveError())
             parseHeaders();
     }
     if ((is_sized || is_chunked) && status_code == 0)

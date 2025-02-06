@@ -21,6 +21,7 @@ Server::Server () : host (""), port (0), server_name (""), client_max_body_size 
   error_pages[NOT_IMPLEMENTED] = NOT_IMPLEMENTED_HTML;
   error_pages[HTTP_VERSION_NOT_SUPPORTED] = HTTP_VERSION_NOT_SUPPORTED_HTML;
   error_pages[CONFLIT] = REQUEST_CONFLIT_HTML;
+  error_pages[UNSUPPORTED_MEDIA_TYPE] = UNSUPPORTED_MEDIA_TYPE_HTML;
 
   memset (&adress, 0, sizeof (adress));
   initServerDirectiveStatus(*this);

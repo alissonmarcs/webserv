@@ -78,9 +78,9 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
                 FATAL_ERROR ("close()");
               clients.erase (events[i].data.fd);
             }
-          else if (events[i].events & EPOLLIN)
+          else if (events[i].events & EPOLLIN && !client->isParsingDone())
             client->readRequest();
-          else if (events[i].events & EPOLLOUT && (client->isParsingDone()))
+          else if (events[i].events & EPOLLOUT && client->isParsingDone())
           {
             client->buildResponse();
             sendResponse(client);
@@ -92,13 +92,15 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::sendResponse (Client *client)
 {
-  // cout << BOLD "Response:\n" RESET;
-  // cout << client->getResponse() << endl;
 
   if (send (client->getClientFd (), client->getResponse ().c_str (),
             client->getResponse ().size (), 0)
       == -1)
     FATAL_ERROR ("send");
+
+  cout << BOLD "Response status code: " RESET;
+  cout << client->getStatusCode() << endl;
+ 
   if (close (client->getClientFd ()) == -1)
     FATAL_ERROR ("close()");
   clients.erase (client->getClientFd ());

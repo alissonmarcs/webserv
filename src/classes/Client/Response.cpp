@@ -6,12 +6,17 @@ string getFileName(const string & content);
 void
 Client::buildResponse()
 {
+    if (haveError())
+    {
+        buildError();
+        return ;
+    }
     findRoute ();
     RouteValidation ();
-
+   
     if (haveError())
         buildError();
-
+    
     else if (method == "GET")
         http_get ();
     else if (method == "POST")
@@ -46,7 +51,12 @@ Client::http_post()
 {
     map<string, string>::iterator content_type = request_headers.find("content-type");
 
-    if (content_type != request_headers.end() && content_type->second.find ("multipart/form-data") != string::npos && body.find("filename=\"") != string::npos)
+    if (content_type == request_headers.end() || content_type->second.find ("multipart/form-data") == string::npos)
+    {
+        cout << "AQUI" << endl;
+        status_code = UNSUPPORTED_MEDIA_TYPE;
+    }
+    else if (body.find("filename=\"") != string::npos)
         handleUpload(content_type);
 }
 
@@ -149,7 +159,9 @@ void
 Client::RouteValidation ()
 {
     if (route == NULL)
+    {
         status_code = NOT_FOUND;
+    }
     else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
         status_code = METHOD_NOT_ALLOWED;
 }
