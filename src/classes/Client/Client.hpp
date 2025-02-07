@@ -39,6 +39,7 @@ public:
 
   void buildError();
   bool haveError();
+  void setError(short status_code);
 
   void findRoute ();
   void http_get ();

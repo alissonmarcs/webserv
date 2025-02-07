@@ -20,11 +20,20 @@ Client::readRequest ()
 }
 
 void
+Client::setError(short status_code)
+{
+    if (this->status_code != 0)
+        return ;
+    this->status_code = status_code;
+    is_request_parsing_done = true;
+}
+
+void
 Client::parseRequest ()
 {
     size_t end_headers = raw_request.find("\r\n\r\n");
 
-    if (raw_request.size () >= 100000 && end_headers == string::npos)
+    if (raw_request.size () >= 400 && end_headers == string::npos)
     {
         status_code = BAD_REQUEST;
         is_request_parsing_done = true;
@@ -35,6 +44,12 @@ Client::parseRequest ()
         parseRequestLine();
         if (!haveError())
             parseHeaders();
+        
+        if (request_headers.size () == 0 || request_headers.count("host") == 0)
+        {
+            setError(BAD_REQUEST);
+            return ;
+        }
     }
     if ((is_sized || is_chunked) && !haveError())
         parseBody();
@@ -88,7 +103,7 @@ Client::parseChunkedBody ()
             body.erase(size_index, (start - size_index) + 2);
             if (body[size] != '\r' || body[size + 1] != '\n')
             {
-                status_code = 400;
+                setError(BAD_REQUEST);
                 return ;
             }
             body.erase(size, 2);
@@ -107,7 +122,7 @@ Client::parseSizedBody()
     raw_request.clear();
     if (body.size() > len)
     {
-        status_code = 400;
+        setError (BAD_REQUEST);
         return ;
     }
     if (body.size() == len)
@@ -183,7 +198,7 @@ Client::parseRequestLine()
         return ;
     if (isFormatValid(raw_request) == false)
     {
-        status_code = 400;
+        setError(BAD_REQUEST);
         return ;
     }
     
@@ -193,12 +208,12 @@ Client::parseRequestLine()
     extractor >> method >> target_resource >> version;
     if (isValidMethod(method) == false || target_resource.empty() || version.empty())
     {
-        status_code = 400;
+        setError(BAD_REQUEST);
         return ;
     }
     if (version != "HTTP/1.1")
     {
-        status_code = 505;
+        setError(HTTP_VERSION_NOT_SUPPORTED);
         return ;
     }
 
@@ -225,7 +240,7 @@ Client::parseHeaders()
         double_dot = raw_request.find(":", start);
         if (double_dot == string::npos || double_dot > end_request_line || raw_request[double_dot - 1] == ' ')
         {
-            status_code = 400;
+            setError(BAD_REQUEST);
             return ;
         }
         name = raw_request.substr(start, double_dot - start);
@@ -237,7 +252,7 @@ Client::parseHeaders()
         lowercase(value);
         if (isValidHeaderName(name) == false || isValidHeaderValue(value) == false)
         {
-            status_code = 400;
+            setError(BAD_REQUEST);
             return ;
         }
         request_headers[name] = value;
@@ -245,9 +260,9 @@ Client::parseHeaders()
     }
     is_sized = request_headers.count("content-length");
     is_chunked = request_headers.count("transfer-encoding");
-    if (is_sized && is_chunked)
+    if ((is_sized && is_chunked) || request_headers.count("host") == 0)
     {
-        status_code = 400;
+        setError(BAD_REQUEST);
         return ;
     }
     raw_request.erase(0, end_headers + 4);

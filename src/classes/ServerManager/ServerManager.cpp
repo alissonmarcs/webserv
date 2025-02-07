@@ -130,7 +130,6 @@ ServerManager::checkTimeout ()
   Client * client;
   map<int, Client>::iterator start = clients.begin ();
   map<int, Client>::iterator end = clients.end ();
-  struct epoll_event ev;
 
   for (; start != end; start++)
     {
@@ -138,15 +137,10 @@ ServerManager::checkTimeout ()
       current_time = time (NULL);
       client_time = client->getLastReadTime ();
 
-      if (current_time - client_time > 60)
+      if (current_time - client_time > 10)
         {
           cout << client->getIpString() << " timeout, sending response and closing connection\n";
-          client->setStatusCode(408);
-          memset (&ev, 0, sizeof (ev));
-          ev.events = EPOLLOUT | EPOLLRDHUP;
-          ev.data.fd = client->getClientFd ();
-          if (epoll_ctl (epoll_fd, EPOLL_CTL_MOD, client->getClientFd (), &ev) == -1)
-            FATAL_ERROR ("epoll_ctl");
+          client->setError(REQUEST_TIMEOUT);
         }
     }
 }
