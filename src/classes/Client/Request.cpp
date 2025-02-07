@@ -14,14 +14,7 @@ Client::readRequest ()
         status_code = 500;
         return ;
     }
-    if (ret >= BUFFER_SIZE / 2 && method.empty() && raw_request.find("\r\n\r\n") == string::npos)
-    {
-        cout << "aqui" << endl;
-        status_code = BAD_REQUEST;
-        is_request_parsing_done = true;
-        return;
-    }
-    raw_request = string (buffer, ret);
+    raw_request += string (buffer, ret);
     last_read = time(NULL);
     parseRequest ();
 }
@@ -29,15 +22,23 @@ Client::readRequest ()
 void
 Client::parseRequest ()
 {
-    if (method.empty() && raw_request.find("\r\n\r\n") != string::npos)
+    size_t end_headers = raw_request.find("\r\n\r\n");
+
+    if (raw_request.size () >= 100000 && end_headers == string::npos)
+    {
+        status_code = BAD_REQUEST;
+        is_request_parsing_done = true;
+        return ;
+    }
+    if (method.empty() && end_headers != string::npos)
     {
         parseRequestLine();
         if (!haveError())
             parseHeaders();
     }
-    if ((is_sized || is_chunked) && status_code == 0)
+    if ((is_sized || is_chunked) && !haveError())
         parseBody();
-    else
+    else if (!request_headers.empty())
         is_request_parsing_done = true;
 }
 
