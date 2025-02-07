@@ -5,11 +5,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "7000:7000"
-      - "8000:8000"
-      - "9000:9000"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./admin:/admin
-      - ./car:/car
       - ./moto:/moto
-      - ./cgi-bin:/cgi-bin/
+      - /nfs/homes/almarcos/tmp/.inputrc:/root/.inputrc
