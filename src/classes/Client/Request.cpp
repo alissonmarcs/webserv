@@ -35,8 +35,7 @@ Client::parseRequest ()
 
     if (raw_request.size () >= 400 && end_headers == string::npos)
     {
-        status_code = BAD_REQUEST;
-        is_request_parsing_done = true;
+        setError (BAD_REQUEST);
         return ;
     }
     if (method.empty() && end_headers != string::npos)
@@ -118,6 +117,13 @@ Client::parseSizedBody()
 {
     const size_t len = atoi(request_headers["content-length"].c_str());
 
+    if (len > HARD_MAX_BODY_SIZE)
+    {
+        setError(PAYLOAD_TOO_LARGE);
+        return ;
+    }
+    else if (server_owner->getClientMaxBodySize() < len)
+        status_code = PAYLOAD_TOO_LARGE;
     body += raw_request;
     raw_request.clear();
     if (body.size() > len)
