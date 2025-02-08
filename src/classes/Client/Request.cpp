@@ -33,7 +33,7 @@ Client::parseRequest ()
 {
     size_t end_headers = raw_request.find("\r\n\r\n");
 
-    if (raw_request.size () >= 400 && end_headers == string::npos)
+    if (method.empty () && raw_request.size () >= 400 && end_headers == string::npos)
     {
         setError (BAD_REQUEST);
         return ;
