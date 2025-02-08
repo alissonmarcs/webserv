@@ -74,7 +74,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
 
             if (access (file_name.c_str(), X_OK) == -1)
             {
-                status_code = CONFLIT;
+                setError(CONFLIT);
                 return;
             }
 
@@ -83,7 +83,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
 
             if (file.is_open() == false)
             {
-                status_code = INTERNAL_SERVER_ERROR;
+                setError(INTERNAL_SERVER_ERROR);
                 return;
             }
 
@@ -93,7 +93,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
             
             if (file.fail())
             {
-                status_code = INTERNAL_SERVER_ERROR;
+                setError(INTERNAL_SERVER_ERROR);
                 return;
             }
             file.close();
