@@ -52,10 +52,7 @@ Client::http_post()
     map<string, string>::iterator content_type = request_headers.find("content-type");
 
     if (content_type == request_headers.end() || content_type->second.find ("multipart/form-data") == string::npos)
-    {
-        cout << "AQUI" << endl;
-        status_code = UNSUPPORTED_MEDIA_TYPE;
-    }
+        setError(UNSUPPORTED_MEDIA_TYPE);
     else if (body.find("filename=\"") != string::npos)
         handleUpload(content_type);
 }
@@ -104,7 +101,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
         start++;
     }
     delete parts;
-    response = "HTTP/1.1 200 OK\r\n";
+    response = "HTTP/1.1 204 No Content\r\n";
 }
 
 bool isFile (const string & content)
