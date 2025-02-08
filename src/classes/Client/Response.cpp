@@ -35,13 +35,13 @@ Client::http_delete()
 
     if (target_resource.find("..") != string::npos)
     {
-        status_code = FORBIDDEN;
+        setError(FORBIDDEN);
         return;
     }
     if (access (file.c_str(), F_OK) == -1)
-        status_code = NOT_FOUND;
+        setError(NOT_FOUND);
     else if (unlink (file.c_str()) == -1)
-        status_code = INTERNAL_SERVER_ERROR;
+        setError(INTERNAL_SERVER_ERROR);
     else
         response = "HTTP/1.1 204 No Content\r\n\r\n";
 }
@@ -156,11 +156,9 @@ void
 Client::RouteValidation ()
 {
     if (route == NULL)
-    {
-        status_code = NOT_FOUND;
-    }
+        setError(NOT_FOUND);
     else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
-        status_code = METHOD_NOT_ALLOWED;
+        setError (METHOD_NOT_ALLOWED);
 }
 
 
@@ -195,10 +193,10 @@ Client::handleFolder ()
         if (route->getAutoindex() == true)
             autoindex();
         else
-            status_code = FORBIDDEN;
+            setError(FORBIDDEN);
     }
     else
-        status_code = NOT_FOUND;
+        setError(NOT_FOUND);
 }
 
 void
@@ -210,9 +208,9 @@ Client::loadStaticFile ()
     if (file.is_open() == false)
     {
         if (access(static_file_name.c_str(), F_OK) == -1)
-            status_code = NOT_FOUND;
+            setError(NOT_FOUND);
         else
-            status_code = FORBIDDEN;
+            setError(FORBIDDEN);
         return;
     }
     content << file.rdbuf ();
@@ -273,7 +271,7 @@ Client::autoindex()
     if (dir == NULL)
     {
         perror("opendir");
-        status_code = INTERNAL_SERVER_ERROR;
+        setError(INTERNAL_SERVER_ERROR);
         return;
     }
     body = "<html>\n";

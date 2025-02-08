@@ -11,7 +11,7 @@ Client::readRequest ()
     if (ret < 0)
     {
         LOGGER (getClientIp(&adress).c_str(), strerror (errno));
-        status_code = 500;
+        setError(INTERNAL_SERVER_ERROR);
         return ;
     }
     raw_request += string (buffer, ret);
