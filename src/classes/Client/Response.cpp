@@ -13,7 +13,7 @@ Client::buildResponse()
     }
     findRoute ();
     RouteValidation ();
-   
+
     if (haveError())
         buildError();
     
@@ -26,6 +26,7 @@ Client::buildResponse()
 
     if (haveError())
         buildError();
+    response_is_done = true;
 }
 
 void
@@ -305,6 +306,9 @@ Client::autoindex()
 void
 Client::findRoute ()
 {
+    if (route != NULL)
+        return ;
+
     vector<Route> & routes = server_owner->getRoutes();
     size_t size = routes.size(), diff_index = 0;
 

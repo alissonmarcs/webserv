@@ -7,11 +7,13 @@ Client::Client ()
 }
 
 Client::Client (int fd, struct sockaddr_in addr, Server *owner)
-    : last_read (time (NULL)), client_fd (fd), adress (addr),
+    : response_is_done (false), last_read (time (NULL)), client_fd (fd), adress (addr),
       server_owner (owner), status_code (0), is_request_parsing_done (false),
-      is_chunked (false), is_sized (false), route (NULL) 
+      is_chunked (false), is_sized (false), route (NULL), cgi_is_done (false)
 {
   memset (&file_info, 0, sizeof (file_info));
+  memset (pipe_in, -1, sizeof (pipe_in));
+  memset (pipe_out, -1, sizeof (pipe_in));
 }
 
 Client::Client (const Client &src) { (void)src; }

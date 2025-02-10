@@ -82,8 +82,14 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
             client->readRequest();
           else if (events[i].events & EPOLLOUT && client->isParsingDone())
           {
-            client->buildResponse();
-            sendResponse(client);
+            client->findRoute();
+            client->RouteValidation();
+            if (client->isCGI())
+              client->handleCGI ();
+            else
+              client->buildResponse();
+            if (client->response_is_done)
+              sendResponse(client);
           }
         }
     }

@@ -60,6 +60,10 @@ public:
   void redirectToFolderWithSlash ();
   void locationRedirect ();
 
+  bool isCGI ();
+  void handleCGI ();
+  bool response_is_done;
+
 private:
   /* Connection */
   time_t last_read;
@@ -77,6 +81,12 @@ private:
   Route * route;
   string response, static_file_name;
   struct stat file_info;
+
+  /* CGI */
+  bool cgi_is_done;
+  pid_t pid;
+  int pipe_in[2];
+  int pipe_out[2];
 };
 
 #endif
