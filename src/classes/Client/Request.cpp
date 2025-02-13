@@ -26,6 +26,7 @@ Client::setError(short status_code)
         return ;
     this->status_code = status_code;
     is_request_parsing_done = true;
+    response_is_done = true;
 }
 
 void

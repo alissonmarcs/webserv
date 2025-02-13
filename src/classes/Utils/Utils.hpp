@@ -52,6 +52,9 @@ enum HTTP_STATUS_CODES
 #define RESET "\033[0m"
 #define INVERSE "\033[7m"
 
+#define CGI_FILE_IN "/tmp/webserv_cgi_file_in"
+#define CGI_FILE_OUT "/tmp/webserv_cgi_file_out"
+
 #define HARD_MAX_BODY_SIZE 838860800 // 800MB
 #define BUFFER_SIZE 65000
 #define QUEUED_CONNECTIONS 300

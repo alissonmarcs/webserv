@@ -62,6 +62,7 @@ public:
 
   bool isCGI ();
   void handleCGI ();
+  void findScriptName ();
   bool response_is_done;
 
 private:
@@ -85,8 +86,8 @@ private:
   /* CGI */
   bool cgi_is_done;
   pid_t pid;
-  int pipe_in[2];
-  int pipe_out[2];
+  int fd_in, fd_out;
+  string script_name;
 };
 
 #endif
