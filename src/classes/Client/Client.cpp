@@ -12,8 +12,6 @@ Client::Client (int fd, struct sockaddr_in addr, Server *owner)
       is_chunked (false), is_sized (false), route (NULL), cgi_is_done (false)
 {
   memset (&file_info, 0, sizeof (file_info));
-  memset (pipe_in, -1, sizeof (pipe_in));
-  memset (pipe_out, -1, sizeof (pipe_in));
 }
 
 Client::Client (const Client &src) { (void)src; }

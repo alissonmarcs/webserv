@@ -98,6 +98,8 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::sendResponse (Client *client)
 {
+  if (client->haveError())
+    client->buildError();
 
   if (send (client->getClientFd (), client->getResponse ().c_str (),
             client->getResponse ().size (), 0)
