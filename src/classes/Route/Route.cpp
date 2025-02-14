@@ -186,3 +186,14 @@ Route::checkBasicDirectiveAreSet()
   	if (getAllowedMethods().empty())
 			throw ConfigParserException("Error: allowed_methods directive missing in route");
 }
+
+void
+Route::setUploadStore(const string &upload_store)
+{
+	string upload = upload_store;
+	trim(upload);
+
+	if (upload.empty() || upload[0] != '/' || upload[upload.size() - 1] != '/')
+		throw ConfigParserException("Error: value of 'upload_store' must be a directory");
+	this->upload_store = upload;
+}

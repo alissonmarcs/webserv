@@ -36,7 +36,7 @@ class Route
 	void setRedirect(string redirect) { this->redirect = redirect; }
 	void setDefaultFile(string default_file) { this->default_file = default_file; }
 	void setCgiExt(string cgi_ext) { this->cgi_ext = cgi_ext; }
-	void setUploadStore(string upload_store) { this->upload_store = upload_store; }
+	void setUploadStore(const string &upload_store);
 	void setIndex(string index) { this->index = index; }
 	void setDirectiveStatus(string directive, bool status) { directiveStatus[directive] = status; }
 	void setFolderToSearchInside(string folder) { folder_to_search_inside = folder; }
