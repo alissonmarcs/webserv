@@ -40,12 +40,41 @@ Client::findScriptName()
 }
 
 void
+Client::redirectStdin ()
+{
+  fd_in = open (CGI_FILE_IN, O_CREAT | O_TRUNC | O_RDWR, 0666);
+  if (fd_in == -1)
+    exit(EXIT_FAILURE);
+  if (write (fd_in, body.data(), body.size()) == -1)
+    exit(EXIT_FAILURE);
+  if (close (fd_in) == -1)
+    exit(EXIT_FAILURE);
+  fd_in = open (CGI_FILE_IN, O_RDONLY);
+  if (fd_in == -1)
+    exit(EXIT_FAILURE);
+  if (dup2(fd_in, STDIN_FILENO) == -1)
+    exit(EXIT_FAILURE);
+  close (fd_in);
+}
+
+void
+Client::redirectStdout ()
+{
+  fd_out = open (CGI_FILE_OUT, O_CREAT | O_TRUNC | O_RDWR, 0666);
+  if (fd_out == -1)
+    exit(EXIT_FAILURE);
+  if (dup2(fd_out, STDOUT_FILENO) == -1)
+    exit(EXIT_FAILURE);
+  close (fd_out);
+}
+
+void
 Client::handleCGI()
 {
+
   findScriptName ();
   if (haveError()) 
     return ;
-
   pid = fork();
   if (pid == -1)
   {
@@ -54,14 +83,12 @@ Client::handleCGI()
   }
   else if (pid == 0)
   {
-    fd_out = open (CGI_FILE_OUT, O_CREAT | O_TRUNC | O_RDWR, 0666);
-    if (fd_out == -1)
-      exit(EXIT_FAILURE);
-    if (dup2(fd_out, STDOUT_FILENO) == -1)
-      exit(EXIT_FAILURE);
-    close (fd_out);
+    if (method == "POST")
+      redirectStdin();
+    redirectStdout();
 
-    if (execve(script_name.c_str(), NULL, NULL) == -1)
+    char *argv[] = {const_cast<char*>(script_name.c_str()), NULL};
+    if (execve(script_name.c_str(), argv, NULL) == -1)
       exit(EXIT_FAILURE);
   }
   else
@@ -79,6 +106,6 @@ Client::handleCGI()
     while ((ret = read(fd_in, buffer, BUFFER_SIZE)) > 0)
       response.append(buffer, ret);
     close(fd_in);
-    cgi_is_done = true;
+    response_is_done = true;
   }
 }

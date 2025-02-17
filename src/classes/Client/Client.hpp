@@ -62,6 +62,8 @@ public:
   void redirectToFolderWithSlash ();
   void locationRedirect ();
 
+  void redirectStdin ();
+  void redirectStdout ();
   bool isCGI ();
   void handleCGI ();
   void findScriptName ();
