@@ -118,13 +118,11 @@ Client::parseSizedBody()
 {
     const size_t len = atoi(request_headers["content-length"].c_str());
 
-    if (len > HARD_MAX_BODY_SIZE)
+    if (len > server_owner->getClientMaxBodySize())
     {
         setError(PAYLOAD_TOO_LARGE);
         return ;
     }
-    else if (server_owner->getClientMaxBodySize() < len)
-        status_code = PAYLOAD_TOO_LARGE;
     body += raw_request;
     raw_request.clear();
     if (body.size() > len)

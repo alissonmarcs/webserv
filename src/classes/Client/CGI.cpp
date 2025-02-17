@@ -3,7 +3,7 @@
 bool
 Client::isCGI()
 {
-    if (this->route->getCgiExt().empty())
+    if (this->route && this->route->getCgiExt().empty())
         return (false);
   return (true);
 }
@@ -22,6 +22,8 @@ bool validateExtension (const string & file_name, const string & cgi_ext)
 void
 Client::findScriptName()
 {
+  if (route == NULL)
+    return ;
   if (validateExtension(target_resource, route->getCgiExt()))
     script_name = route->getRoot () + target_resource;
   else if (validateExtension(route->getIndex(), route->getCgiExt()))
@@ -38,12 +40,41 @@ Client::findScriptName()
 }
 
 void
+Client::redirectStdin ()
+{
+  fd_in = open (CGI_FILE_IN, O_CREAT | O_TRUNC | O_RDWR, 0666);
+  if (fd_in == -1)
+    exit(EXIT_FAILURE);
+  if (write (fd_in, body.data(), body.size()) == -1)
+    exit(EXIT_FAILURE);
+  if (close (fd_in) == -1)
+    exit(EXIT_FAILURE);
+  fd_in = open (CGI_FILE_IN, O_RDONLY);
+  if (fd_in == -1)
+    exit(EXIT_FAILURE);
+  if (dup2(fd_in, STDIN_FILENO) == -1)
+    exit(EXIT_FAILURE);
+  close (fd_in);
+}
+
+void
+Client::redirectStdout ()
+{
+  fd_out = open (CGI_FILE_OUT, O_CREAT | O_TRUNC | O_RDWR, 0666);
+  if (fd_out == -1)
+    exit(EXIT_FAILURE);
+  if (dup2(fd_out, STDOUT_FILENO) == -1)
+    exit(EXIT_FAILURE);
+  close (fd_out);
+}
+
+void
 Client::handleCGI()
 {
+
   findScriptName ();
   if (haveError()) 
     return ;
-
   pid = fork();
   if (pid == -1)
   {
@@ -52,14 +83,12 @@ Client::handleCGI()
   }
   else if (pid == 0)
   {
-    fd_out = open (CGI_FILE_OUT, O_CREAT | O_TRUNC | O_RDWR, 0666);
-    if (fd_out == -1)
-      exit(EXIT_FAILURE);
-    if (dup2(fd_out, STDOUT_FILENO) == -1)
-      exit(EXIT_FAILURE);
-    close (fd_out);
+    if (method == "POST")
+      redirectStdin();
+    redirectStdout();
 
-    if (execve(script_name.c_str(), NULL, NULL) == -1)
+    char *argv[] = {const_cast<char*>(script_name.c_str()), NULL};
+    if (execve(script_name.c_str(), argv, NULL) == -1)
       exit(EXIT_FAILURE);
   }
   else
@@ -72,15 +101,11 @@ Client::handleCGI()
       setError(INTERNAL_SERVER_ERROR);
       return ;
     }
-    response = "HTTP/1.1 200 OK\r\n";
-    response += "Content-Length: " + to_string(file_info.st_size) + "\r\n";
-    response += "Content-type: text/html\r\n";
-    response += "\r\n";
     char buffer[BUFFER_SIZE];
     int ret;
     while ((ret = read(fd_in, buffer, BUFFER_SIZE)) > 0)
       response.append(buffer, ret);
     close(fd_in);
-    cgi_is_done = true;
+    response_is_done = true;
   }
 }
