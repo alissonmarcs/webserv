@@ -59,50 +59,55 @@ Client::http_post()
 }
 
 void
+Client::validadeBodyPost (string & boundary)
+{
+    size_t start, end;
+
+    start = body.find(boundary);
+    end = body.find(boundary, start + boundary.size());
+    if (start == string::npos || end == string::npos)
+    {
+        setError(BAD_REQUEST);
+        return;
+    }
+    // our webserv allow only one file upload per request
+    if (body.find (boundary, end + boundary.size()) != string::npos)
+    {
+        setError(BAD_REQUEST);
+        return;
+    }
+    body = body.substr(start, end - start);
+}
+
+void
 Client::handleUpload(map<string, string>::iterator content_type)
 {
     string boundary = getBoundary(content_type->second);
-    vector<string> * parts = splitMultipart (boundary);
-    vector<string>::iterator start, end;
-
-    start = parts->begin();
-    end = parts->end();
-    while (start != end)
+    string file_name = getFileName(body);
+    string complete_path = route->getRoot() + route->getUploadStore() + file_name;
+    size_t end_headers = body.find("\r\n\r\n"); 
+    
+    validadeBodyPost (boundary);
+    if (haveError())
+        return ;
+    if (end_headers == string::npos || file_name.empty())
     {
-        if (isFile(*start))
-        {
-            string file_name = route->getRoot() + route->getUploadStore();
-
-            if (access (file_name.c_str(), X_OK) == -1)
-            {
-                setError(CONFLIT);
-                return;
-            }
-
-            file_name += getFileName(*start);
-            ofstream file (file_name.c_str());
-
-            if (file.is_open() == false)
-            {
-                setError(INTERNAL_SERVER_ERROR);
-                return;
-            }
-
-            size_t tmp = start->find("\r\n\r\n") + 4;
-
-            file.write (start->data() + tmp, start->size() - tmp);
-            
-            if (file.fail())
-            {
-                setError(INTERNAL_SERVER_ERROR);
-                return;
-            }
-            file.close();
-        }
-        start++;
+        setError(BAD_REQUEST);
+        return ;
     }
-    delete parts;
+    body.erase(0, end_headers + 4);
+    ofstream file(complete_path.c_str(), ios::binary);
+    if (file.is_open() == false)
+    {
+        setError(FORBIDDEN);
+        return ;
+    }
+    file << body;
     response = "HTTP/1.1 204 No Content\r\n";
+    response += "Server: any\r\n";
+    response += "\r\n";
+    file.close();
+    response_is_done = true;
 }
 
 bool isFile (const string & content)
