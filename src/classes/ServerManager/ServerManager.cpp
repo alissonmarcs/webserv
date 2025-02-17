@@ -136,10 +136,9 @@ ServerManager::checkTimeout ()
 {
   time_t current_time, client_time;
   Client * client;
-  map<int, Client>::iterator start = clients.begin ();
-  map<int, Client>::iterator end = clients.end ();
+  map<int, Client>::iterator start;
 
-  for (; start != end; start++)
+  for (start = clients.begin() ; start != clients.end(); )
     {
       client = &start->second;
       current_time = time (NULL);
@@ -149,7 +148,12 @@ ServerManager::checkTimeout ()
         {
           cout << client->getIpString() << " timeout, sending response and closing connection\n";
           client->setError(REQUEST_TIMEOUT);
+          client->buildResponse();
+          start++;
+          sendResponse(client);
         }
+      else
+          start++;
     }
 }
 
