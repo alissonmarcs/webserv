@@ -3,7 +3,7 @@
 bool
 Client::isCGI()
 {
-    if (this->route->getCgiExt().empty())
+    if (this->route && this->route->getCgiExt().empty())
         return (false);
   return (true);
 }
@@ -22,6 +22,8 @@ bool validateExtension (const string & file_name, const string & cgi_ext)
 void
 Client::findScriptName()
 {
+  if (route == NULL)
+    return ;
   if (validateExtension(target_resource, route->getCgiExt()))
     script_name = route->getRoot () + target_resource;
   else if (validateExtension(route->getIndex(), route->getCgiExt()))
@@ -72,10 +74,6 @@ Client::handleCGI()
       setError(INTERNAL_SERVER_ERROR);
       return ;
     }
-    response = "HTTP/1.1 200 OK\r\n";
-    response += "Content-Length: " + to_string(file_info.st_size) + "\r\n";
-    response += "Content-type: text/html\r\n";
-    response += "\r\n";
     char buffer[BUFFER_SIZE];
     int ret;
     while ((ret = read(fd_in, buffer, BUFFER_SIZE)) > 0)

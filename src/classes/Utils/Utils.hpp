@@ -96,6 +96,9 @@ enum file_status
 #include <vector>
 #include <wchar.h>
 #include <dirent.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 using namespace std;
 
