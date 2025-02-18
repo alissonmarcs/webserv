@@ -54,11 +54,13 @@ public:
 
   void autoindex();
   vector <string> * splitMultipart(string boundary);
-
+  
   void handleFolder ();
   void loadStaticFile ();
   void redirectToFolderWithSlash ();
   void locationRedirect ();
+  string normalizePath(const string &path);
+  bool isPathInsideRoot(const std::string &root, const std::string &path);
 
 private:
   /* Connection */

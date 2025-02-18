@@ -6,6 +6,8 @@ string getFileName(const string & content);
 void
 Client::buildResponse()
 {
+	target_resource = normalizePath(target_resource);
+
     if (haveError())
     {
         buildError();
@@ -24,8 +26,14 @@ Client::buildResponse()
     else if (method == "DELETE")
         http_delete ();
 
-    if (haveError())
+    if (haveError()){
         buildError();
+	}
+
+	if (status_code == 200 || status_code == 204)
+		response += "Connection: keep-alive\r\n";
+	else
+		response += "Connection: close\r\n";
 }
 
 void
@@ -43,7 +51,11 @@ Client::http_delete()
     else if (unlink (file.c_str()) == -1)
         setError(INTERNAL_SERVER_ERROR);
     else
+	{
         response = "HTTP/1.1 204 No Content\r\n\r\n";
+		response += "Connection: keep-alive\r\n";
+		response += "\r\n";
+	}
 }
 
 void
@@ -51,10 +63,13 @@ Client::http_post()
 {
     map<string, string>::iterator content_type = request_headers.find("content-type");
 
-    if (content_type == request_headers.end() || content_type->second.find ("multipart/form-data") == string::npos)
+    if (content_type == request_headers.end() || content_type->second.find ("multipart/form-data") == string::npos) {
         setError(UNSUPPORTED_MEDIA_TYPE);
-    else if (body.find("filename=\"") != string::npos)
+	} else if (body.find("filename=\"") != string::npos) {
         handleUpload(content_type);
+	} if (!haveError()) {
+	 	response = "Connection: keep-alive\r\n";
+	}
 }
 
 void
@@ -252,12 +267,21 @@ Client::http_get ()
     }
 
     static_file_name = route->getRoot() + target_resource;
+
+	if (!isPathInsideRoot(route->getRoot(), static_file_name)){
+		setError(FORBIDDEN);
+		return;
+	}
+
     stat (static_file_name.c_str(), &file_info);
 
-    if (S_ISDIR(file_info.st_mode))
+    if (S_ISDIR(file_info.st_mode)){
         handleFolder();
-    else
+	} else {
         loadStaticFile();
+	}
+
+	response += "Connection: keep-alive\r\n";
 }
 
 void
@@ -351,4 +375,37 @@ Client::findContentType()
     if (ext == "mp4")
         return "Content-type: video/mp4\r\n";
     return "Content-type: text/plain\r\n";
+}
+
+
+string 
+Client::normalizePath(const string &path)
+{
+	vector<string> parts;
+	stringstream ss(path);
+	string segment;
+	string normalizedPath;
+
+	while (getline(ss, segment, '/')){
+		if (segment == "..") {
+			if (!parts.empty())
+				parts.pop_back();
+		} else if (!segment.empty() && segment != ".")
+			parts.push_back(segment);
+	}
+
+	for (size_t i = 0; i < parts.size(); i++)
+		normalizedPath += "/" + parts[i];
+
+	return normalizedPath.empty() ? "/" : normalizedPath;
+}
+
+bool 
+Client::isPathInsideRoot(const std::string &root, const std::string &path) {
+    if (path.find(root) != 0)
+		return false;
+	if (path.size() == root.size() || path[root.size()] == '/')
+		return true;
+
+	return false;
 }
