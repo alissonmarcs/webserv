@@ -36,6 +36,7 @@ main (int argc, char **argv)
   catch (const std::exception &e)
     {
       std::cerr << RED << e.what () << RESET << std::endl;
+	  exit(EXIT_FAILURE);
     }
   //printServerInfo(Manager);
   Manager.initServers ();
