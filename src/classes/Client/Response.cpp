@@ -6,7 +6,11 @@ string getFileName(const string & content);
 void
 Client::buildResponse()
 {
-	target_resource = normalizePath(target_resource);
+	if (target_resource.find(".."))
+	{
+		setError(FORBIDDEN);
+		return;
+	}
 
     if (haveError())
     {
@@ -382,29 +386,6 @@ Client::findContentType()
     if (ext == "mp4")
         return "Content-type: video/mp4\r\n";
     return "Content-type: text/plain\r\n";
-}
-
-
-string 
-Client::normalizePath(const string &path)
-{
-	vector<string> parts;
-	stringstream ss(path);
-	string segment;
-	string normalizedPath;
-
-	while (getline(ss, segment, '/')){
-		if (segment == "..") {
-			if (!parts.empty())
-				parts.pop_back();
-		} else if (!segment.empty() && segment != ".")
-			parts.push_back(segment);
-	}
-
-	for (size_t i = 0; i < parts.size(); i++)
-		normalizedPath += "/" + parts[i];
-
-	return normalizedPath.empty() ? "/" : normalizedPath;
 }
 
 bool 

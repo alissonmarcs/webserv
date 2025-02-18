@@ -73,44 +73,35 @@ Client::parseBody()
         parseSizedBody();
 }
 
-void
-Client::parseChunkedBody ()
+void Client::parseChunkedBody()
 {
-    body += raw_request;
-    raw_request.clear();
-    size_t start, end, size, size_index = 0;
+    size_t size_index = 0;
+	body.clear();
 
-    end = body.find("0\r\n\r\n");
-    if (end != string::npos)
+	while (size_index < raw_request.size())
     {
-        cout << "body before:\n" << body << endl;
-        while (1) 
-        {
-            start = body.find("\r\n", size_index);
-            stringstream ss(body.substr(size_index, start - size_index));
-
-            ss << hex;
-            ss >> size;
-
-            if (size == 0)
-            {
-                body.erase(start);
-                is_request_parsing_done = true;
-                break;
-            }
-
-            body.erase(size_index, (start - size_index) + 2);
-            if (body[size] != '\r' || body[size + 1] != '\n')
-            {
-                setError(BAD_REQUEST);
-                return ;
-            }
-            body.erase(size, 2);
-            size_index = size;
+        size_t chunck_size_end = raw_request.find("\r\n", size_index);
+        if (chunck_size_end == std::string::npos) {
+            setError(BAD_REQUEST);
+            return;
         }
-        cout << "body after: " << body << endl;
+
+		string chunck_size_str = raw_request.substr(size_index, chunck_size_end - size_index);
+		size_t chunk_size = strtol(chunck_size_str.c_str(), NULL, 16);
+
+        if (chunk_size == 0)
+        {
+            is_request_parsing_done = true;
+            break;
+        }
+
+		size_index = chunck_size_end + 2;
+		body += raw_request.substr(size_index, chunk_size);
+		size_index += chunk_size + 2;
     }
+	cerr << "Body: " << body << endl;
 }
+
 
 void
 Client::parseSizedBody()
