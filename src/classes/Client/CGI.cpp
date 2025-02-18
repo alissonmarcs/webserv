@@ -75,6 +75,7 @@ Client::handleCGI()
   findScriptName ();
   if (haveError()) 
     return ;
+  start_time_cgi_process = time(NULL);
   pid = fork();
   if (pid == -1)
   {
@@ -93,7 +94,34 @@ Client::handleCGI()
   }
   else
   {
-    waitpid(pid, NULL, 0);
+    int child_status = 0;
+
+    while (waitpid(pid, &child_status, WNOHANG) == 0)
+    {
+      if (time(NULL) - start_time_cgi_process > 3)
+      {
+        if (kill(pid, SIGKILL) == -1)
+        {
+          perror ("kill");
+          exit(EXIT_FAILURE);
+        }
+        break ;
+      }
+    }
+
+    while (waitpid(pid, &child_status, WNOHANG) == 0)
+     ;
+
+    if (WIFSIGNALED(child_status) && WTERMSIG(child_status) == SIGKILL)
+    {
+      setError(GATEWAY_TIMEOUT);
+      return ;
+    }
+    else if (WIFEXITED(child_status) && WEXITSTATUS(child_status) != 0)
+    {
+      setError(BAD_GATEWAY);
+      return ;
+    }
 
     fd_in = open (CGI_FILE_OUT, O_RDONLY);
     if (fd_in == -1)

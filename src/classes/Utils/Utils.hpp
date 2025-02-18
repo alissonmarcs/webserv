@@ -21,6 +21,8 @@ enum HTTP_STATUS_CODES
     UNSUPPORTED_MEDIA_TYPE = 415,
     INTERNAL_SERVER_ERROR = 500,
     NOT_IMPLEMENTED = 501,
+    BAD_GATEWAY = 502,
+    GATEWAY_TIMEOUT = 504,
     HTTP_VERSION_NOT_SUPPORTED = 505
 };
 
@@ -36,6 +38,8 @@ enum HTTP_STATUS_CODES
 #define NOT_IMPLEMENTED_HTML "<html><head><title>501 Not Implemented</title></head><body><center><h1>501 Not Implemented</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define HTTP_VERSION_NOT_SUPPORTED_HTML "<html><head><title>505 HTTP Version Not Supported</title></head><body><center><h1>505 HTTP Version Not Supported</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define UNSUPPORTED_MEDIA_TYPE_HTML "<html><head><title>415 HTTP Unsupported Media Type</title></head><body><center><h1>HTTP Unsupported Media Type</h1></center><hr><center>nginx/1.27.2</center></body></html>"
+#define GATEWAY_TIMEOUT_HTML "<html><head><title>505 Gateway Timeout</title></head><body><center><h1>Gateway Timeout</h1></center><hr><center>nginx/1.27.2</center></body></html>"
+#define BAD_GATEWAY_HTML "<html><head><title>502 Bad Gateway</title></head><body><center><h1>Bad Gateway</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 
 #define ORANGE "\033[38;5;208m"
 #define PINK "\033[38;5;213m"
