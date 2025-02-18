@@ -1,1 +1,0 @@
-echo -ne "POST /upload HTTP/1.1\r\nHost: localhost:8080\r\nTransfer-Encoding: chunked\r\n\r\n5\r\n{\"na\r\nA\r\nme\":\"Test\r\n4\r\nUser\"}\r\n0\r\n\r\n" > chunked_request.txt
