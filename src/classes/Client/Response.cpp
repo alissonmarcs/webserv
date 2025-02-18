@@ -30,6 +30,9 @@ Client::buildResponse()
         buildError();
 	}
 
+	response += "Date: " + getHttpDate() + "\r\n";
+	response += getServerHeader();
+
 	if (status_code == 200 || status_code == 204)
 		response += "Connection: keep-alive\r\n";
 	else
@@ -243,6 +246,10 @@ Client::buildError()
     string * body = &server_owner->error_pages[status_code];
 
     response = "HTTP/1.1 " + to_string(status_code) + " " + getStatusText(status_code) + "\r\n";
+	response += "Date: " + getHttpDate() + "\r\n";
+	response += getServerHeader();
+	if (status_code == 405)
+		response += getAllowHeader();
     response += "Content-Length: " + to_string(body->size()) + "\r\n";
     response += "Connection: close\r\n";
     response += "\r\n";
@@ -409,3 +416,38 @@ Client::isPathInsideRoot(const std::string &root, const std::string &path) {
 
 	return false;
 }
+
+string
+Client::getHttpDate()
+{
+	char buffer[100];
+
+	time_t now = time(0);
+	struct tm tm = *gmtime(&now);
+
+	strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", &tm);
+	return string(buffer);
+}
+
+string
+Client::getServerHeader()
+{
+	return "server: " + server_owner->getServerName() + "\r\n";
+}
+
+string 
+Client::getAllowHeader()
+{
+    std::vector<std::string> methods = route->getAllowedMethods();
+    std::stringstream ss;
+
+    for (size_t i = 0; i < methods.size(); i++)
+    {
+        if (i > 0) 
+            ss << ", ";
+        ss << methods[i];
+    }
+
+    return "Allow: " + ss.str() + "\r\n";
+}
+
