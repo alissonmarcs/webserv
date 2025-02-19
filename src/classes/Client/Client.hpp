@@ -69,6 +69,10 @@ public:
   bool findScriptPath ();
   bool response_is_done;
 
+  void child ();
+  void parent ();
+  bool checkChildStatus (int status);
+
 private:
   /* Connection */
   time_t last_read;
@@ -88,10 +92,8 @@ private:
   struct stat file_info;
 
   /* CGI */
-  bool cgi_is_done;
   pid_t pid;
-  time_t start_time_cgi_process;
-  int fd_in, fd_out;
+  time_t child_born;
   string script_path;
 };
 
