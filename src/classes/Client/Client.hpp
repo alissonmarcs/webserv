@@ -92,7 +92,7 @@ private:
   pid_t pid;
   time_t start_time_cgi_process;
   int fd_in, fd_out;
-  string script_name;
+  string script_path;
 };
 
 #endif

@@ -25,17 +25,17 @@ Client::findScriptPath()
   if (route == NULL)
     return ;
   if (validateExtension(target_resource, route->getCgiExt()))
-    script_name = route->getRoot () + target_resource;
+    script_path = route->getRoot () + target_resource;
   else if (validateExtension(route->getIndex(), route->getCgiExt()))
-    script_name = route->getRoot () + route->getIndex();
+    script_path = route->getRoot () + route->getIndex();
   else
   {
     setError(NOT_FOUND);
     return ;
   }
-  if (access(script_name.c_str(), F_OK) == -1)
+  if (access(script_path.c_str(), F_OK) == -1)
     setError(NOT_FOUND); 
-  else if (access(script_name.c_str(), X_OK) == -1)
+  else if (access(script_path.c_str(), X_OK) == -1)
     setError(FORBIDDEN);
 }
 
@@ -72,12 +72,12 @@ Client::redirectStdout ()
     FATAL_ERROR("close");
 }
 
-string get_folder (const string & script_name)
+string get_folder (const string & script_path)
 {
-  size_t last_slash = script_name.rfind('/');
+  size_t last_slash = script_path.rfind('/');
   if (last_slash == string::npos)
     return ("");
-  return (script_name.substr(0, last_slash + 1));
+  return (script_path.substr(0, last_slash + 1));
 }
 
 string get_script_name (string script_path)
@@ -109,8 +109,8 @@ Client::handleCGI()
       redirectStdin();
     redirectStdout();
 
-    string folder = get_folder (script_name);
-    script_name = get_script_name (script_name);
+    string folder = get_folder (script_path);
+    string script_name = get_script_name (script_path);
 
     if (chdir(folder.c_str()) == -1)
       FATAL_ERROR("chdir");
@@ -128,7 +128,7 @@ Client::handleCGI()
 
     while (waitpid(pid, &child_status, WNOHANG) == 0)
     {
-      if (time(NULL) - start_time_cgi_process > 3)
+      if (time(NULL) - start_time_cgi_process > SECONDS_TIME_OUT_CGI_PROCESS)
       {
         if (kill(pid, SIGKILL) == -1)
         {
