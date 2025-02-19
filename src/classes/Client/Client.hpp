@@ -66,7 +66,7 @@ public:
   void redirectStdout ();
   bool isCGI ();
   void handleCGI ();
-  void findScriptName ();
+  void findScriptPath ();
   bool response_is_done;
 
 private:
