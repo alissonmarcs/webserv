@@ -19,11 +19,11 @@ bool validateExtension (const string & file_name, const string & cgi_ext)
   return (ext == cgi_ext);
 }
 
-void
+bool
 Client::findScriptPath()
 {
   if (route == NULL)
-    return ;
+    return (false);
   if (validateExtension(target_resource, route->getCgiExt()))
     script_path = route->getRoot () + target_resource;
   else if (validateExtension(route->getIndex(), route->getCgiExt()))
@@ -31,12 +31,13 @@ Client::findScriptPath()
   else
   {
     setError(NOT_FOUND);
-    return ;
+    return (false);
   }
   if (access(script_path.c_str(), F_OK) == -1)
     setError(NOT_FOUND); 
   else if (access(script_path.c_str(), X_OK) == -1)
     setError(FORBIDDEN);
+  return (true);
 }
 
 void
@@ -92,9 +93,7 @@ string get_script_name (string script_path)
 void
 Client::handleCGI()
 {
-
-  findScriptPath ();
-  if (haveError()) 
+  if (!findScriptPath())
     return ;
   start_time_cgi_process = time(NULL);
   pid = fork();
@@ -128,10 +127,7 @@ Client::handleCGI()
       if (time(NULL) - start_time_cgi_process > SECONDS_TIME_OUT_CGI_PROCESS)
       {
         if (kill(pid, SIGKILL) == -1)
-        {
-          perror ("kill");
-          exit(EXIT_FAILURE);
-        }
+          FATAL_ERROR("kill");
         break ;
       }
     }
