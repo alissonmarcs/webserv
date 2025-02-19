@@ -250,7 +250,7 @@ Client::buildError()
     string * body = &server_owner->error_pages[status_code];
 
     response = "HTTP/1.1 " + to_string(status_code) + " " + getStatusText(status_code) + "\r\n";
-	response += "Date: " + getHttpDate() + "\r\n";
+	response.insert(response.size() - 2, "Content-Length: " + to_string(body->size()) + "\r\n");
 	response += getServerHeader();
 	if (status_code == 405)
 		response += getAllowHeader();
