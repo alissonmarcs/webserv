@@ -117,10 +117,7 @@ Client::handleCGI()
 
     char *argv[] = {const_cast<char*>(script_name.c_str()), NULL};
     if (execve(script_name.c_str(), argv, NULL) == -1)
-    {
-      write (2, script_name.c_str(), script_name.size());
       FATAL_ERROR("execve");
-    }
   }
   else
   {
