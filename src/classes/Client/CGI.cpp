@@ -27,8 +27,18 @@ Client::findScriptPath()
 
   if (validateExtension(target_resource, route->getCgiExt()))
     script_path = route->getRoot () + target_resource;
-  else if (validateExtension(route->getIndex(), route->getCgiExt()))
-    script_path = route->getRoot () + route->getIndex();
+  else if (target_resource[target_resource.size() - 1] == '/')
+  {
+    if (route->getIndex().empty() && route->getAutoindex() == false)
+      { setError(NOT_FOUND); return (false); }
+    if (route->getIndex().empty() == false)
+      script_path = route->getRoot () + target_resource + route->getIndex();
+    else if (route->getAutoindex() == true)
+     {
+      autoindex();
+      return (false);
+     } 
+  }
   else
     { setError(NOT_FOUND); return (false); }
 
@@ -92,12 +102,14 @@ string get_script_name (string script_path)
 void
 Client::child ()
 {
+ if (close (client_fd) < 0) 
+    FATAL_ERROR("close");
+
   string folder = get_folder (script_path);
   string script_name = get_script_name (script_path);
   char *argv[] = {const_cast<char*>(script_name.c_str()), NULL};
   
-  if (method == "POST")
-    redirectStdin();
+  redirectStdin();
   redirectStdout();
   if (chdir(folder.c_str()) == -1)
     FATAL_ERROR("chdir");
@@ -141,9 +153,11 @@ Client::parent ()
 
   while ((bytes = read(output_fd, buffer, BUFFER_SIZE)) > 0)
     response.append(buffer, bytes);
+  
   if (bytes == -1)
     { setError(INTERNAL_SERVER_ERROR); return ; }
-
+  else if (response.size() == 0)
+    { setError(BAD_GATEWAY); return ; }
   close(output_fd);
   response_is_done = true;
 }

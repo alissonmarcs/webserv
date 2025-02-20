@@ -306,6 +306,7 @@ Client::autoindex()
     response += "Content-type: text/html\r\n";
     response += "\r\n";
     response += body;
+    response_is_done = true;
 }
 
 void
