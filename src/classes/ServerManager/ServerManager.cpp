@@ -78,9 +78,9 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
                 FATAL_ERROR ("close()");
               clients.erase (events[i].data.fd);
             }
-          else if (events[i].events & EPOLLIN && !client->isParsingDone())
+          else if (events[i].events & EPOLLIN && client->isParsingDone() == false)
             client->readRequest();
-          else if (events[i].events & EPOLLOUT && client->isParsingDone())
+          else if (events[i].events & EPOLLOUT && client->isParsingDone() == true)
           {
             client->findRoute();
             client->RouteValidation();

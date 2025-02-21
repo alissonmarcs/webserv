@@ -7,25 +7,13 @@ void
 Client::buildResponse()
 {
     if (haveError())
-    {
-        buildError();
         return ;
-    }
-    findRoute ();
-    RouteValidation ();
-
-    if (haveError())
-        buildError();
-    
-    else if (method == "GET")
+    if (method == "GET")
         http_get ();
     else if (method == "POST")
         http_post ();
     else if (method == "DELETE")
         http_delete ();
-
-    if (haveError())
-        buildError();
     response_is_done = true;
 }
 
@@ -161,6 +149,8 @@ getFileName(const string & content)
 void
 Client::RouteValidation ()
 {
+    if (haveError())
+        return ;
     if (route == NULL)
         setError(NOT_FOUND);
     else if (find(route->getAllowedMethods().begin(), route->getAllowedMethods().end(), method) == route->getAllowedMethods().end())
