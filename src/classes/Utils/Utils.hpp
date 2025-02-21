@@ -67,6 +67,9 @@ enum HTTP_STATUS_CODES
 #define FATAL_ERROR(msg) fatal_error (msg, __FILE__, __LINE__)
 #define NON_FATAL_ERROR(msg) non_fatal_error (msg, __FILE__, __LINE__)
 #define LOGGER(client, msg) logger(client, msg, __FILE__, __LINE__)
+#define GATEWAY_INTERFACE "CGI/1.1"
+#define SERVER_SOFTWARE "webserv/1.0"
+#define SERVER_PROTOCOL "HTTP/1.1"
 
 
 enum file_status
