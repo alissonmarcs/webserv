@@ -69,6 +69,8 @@ public:
   bool findScriptPath ();
   bool response_is_done;
 
+  string getHeader (string key);
+
   void child ();
   void parent ();
   bool checkChildStatus (int status);

@@ -172,6 +172,14 @@ Client::checkChildStatus (int status)
   return true;
 }
 
+string
+Client::getHeader (string key)
+{
+  if (request_headers.count (key) == 0)
+    return "";
+  return request_headers[key];
+}
+
 void
 Client::handleCGI ()
 {
