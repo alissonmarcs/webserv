@@ -41,7 +41,7 @@ Client::http_delete()
     }
     if (access (file.c_str(), F_OK) == -1)
         setError(NOT_FOUND);
-    else if (unlink (file.c_str()) == -1)
+    else if (remove (file.c_str()) == -1)
         setError(INTERNAL_SERVER_ERROR);
     else
         response = "HTTP/1.1 204 No Content\r\n\r\n";
