@@ -270,7 +270,14 @@ Client::parseHeaders()
         setError(BAD_REQUEST);
         return ;
     }
+    size_t content_len = 0;
+    if (is_sized)
+         content_len = atoi(request_headers["content-length"].c_str());
     raw_request.erase(0, end_headers + 4);
+    if (is_sized == false && raw_request.size() != 0)
+        setError(BAD_REQUEST);
+    if (is_sized && raw_request.size() != content_len)
+        setError(BAD_REQUEST);
 }
 
 bool
