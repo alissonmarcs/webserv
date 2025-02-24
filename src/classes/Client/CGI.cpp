@@ -86,7 +86,7 @@ Client::child ()
     FATAL_ERROR("close");
 
   string folder = get_folder (script_path);
-  string script_name = get_script_name (script_path);
+  script_name = get_script_name (script_path);
   char *argv[] = {const_cast<char*>(script_name.c_str()), NULL};
   
   redirectStdin();

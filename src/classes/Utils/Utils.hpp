@@ -146,6 +146,7 @@ string to_string (short status_code);
 const char * getStatusText (short status_code);
 const char * getCurrentHttpDate ();
 string to_string (size_t status_code);
+string to_string (uint16_t status_code);
 size_t getDifferIndex (string &one, string &two);
 
 #endif

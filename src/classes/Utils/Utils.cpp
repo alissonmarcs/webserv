@@ -195,6 +195,13 @@ string to_string (size_t status_code)
   return ss.str ();
 }
 
+string to_string (uint16_t status_code)
+{
+  stringstream ss;
+  ss << status_code;
+  return ss.str ();
+}
+
 const char * getStatusText(short status_code)
 {
   switch (status_code)

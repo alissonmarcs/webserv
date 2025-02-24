@@ -96,8 +96,7 @@ private:
   /* CGI */
   pid_t pid;
   time_t child_born;
-  string script_path;
-  char *cgi_vars[30];
+  string script_path, script_name;
 };
 
 #endif
