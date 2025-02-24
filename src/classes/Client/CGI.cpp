@@ -52,15 +52,16 @@ Client::findScriptPath()
 void
 Client::redirectStdin ()
 {
-  int fd_in = open (CGI_FILE_IN, O_CREAT | O_TRUNC | O_RDWR, 0666);
+  ofstream file(CGI_FILE_IN, ios::trunc | ios::binary);
 
-  if (fd_in == -1)
+  if (!file)
     FATAL_ERROR("open");
-  if (write (fd_in, body.data(), body.size()) == -1)
-    FATAL_ERROR("write");
-  if (close (fd_in) == -1)
+
+  file << body;
+  file.close();
+  if (!file)
     FATAL_ERROR("close");
-  fd_in = open (CGI_FILE_IN, O_RDONLY);
+  int fd_in = open (CGI_FILE_IN, O_RDONLY);
   if (fd_in == -1)
     FATAL_ERROR("open");
   if (dup2(fd_in, STDIN_FILENO) == -1)
@@ -140,25 +141,21 @@ wait_child (pid_t pid, time_t child_born)
 void
 Client::parent ()
 {
-  int status, output_fd, bytes;
-  char buffer[BUFFER_SIZE] = {0};
+  int status;
+  stringstream content;
   
   status = wait_child (pid, child_born); 
   if (!checkChildStatus (status))
     return ;
   
-  output_fd = open (CGI_FILE_OUT, O_RDONLY);
-  if (output_fd == -1)
+  ifstream file(CGI_FILE_OUT, ios::binary);
+  if (file.is_open() == false)
     { setError(INTERNAL_SERVER_ERROR); return ; }
-
-  while ((bytes = read(output_fd, buffer, BUFFER_SIZE)) > 0)
-    response.append(buffer, bytes);
-  
-  if (bytes == -1)
-    { setError(INTERNAL_SERVER_ERROR); return ; }
-  else if (response.size() == 0)
+   content << file.rdbuf();
+   response += content.str();
+  if (response.size() == 0)
     { setError(BAD_GATEWAY); return ; }
-  close(output_fd);
+  file.close();
   response_is_done = true;
 }
 
