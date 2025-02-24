@@ -9,16 +9,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-void
-populateServers (ServerManager &Manager)
-{
-  Server *server;
-  Manager.addEmptyServer ();
-  server = Manager.getLastServer ();
-  server->setHost ("127.0.0.1");
-  server->setPort (9000);
-}
-
 int
 main (int argc, char **argv)
 {
