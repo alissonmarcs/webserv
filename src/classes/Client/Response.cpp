@@ -47,7 +47,7 @@ Client::http_post()
 }
 
 void
-Client::validadeBodyPost (string & boundary)
+Client::validateBodyPost (string & boundary)
 {
     size_t start, end;
 
@@ -64,7 +64,20 @@ Client::validadeBodyPost (string & boundary)
         setError(BAD_REQUEST);
         return;
     }
-    body = body.substr(start, end - start);
+}
+
+void
+Client::removeAllButBody(string & boundary)
+{
+    size_t start = body.find("\r\n\r\n");
+
+    if (start == string::npos)
+        return;
+    body.erase(0, start + 4);
+    size_t end = body.find(boundary);
+    if (end == string::npos)
+        return;
+    body.erase(end - 2);
 }
 
 void
@@ -75,7 +88,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
     string complete_path = route->getRoot() + route->getUploadStore() + file_name;
     size_t end_headers = body.find("\r\n\r\n"); 
     
-    validadeBodyPost (boundary);
+    validateBodyPost (boundary);
     if (haveError())
         return ;
     if (end_headers == string::npos || file_name.empty())
@@ -83,7 +96,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
         setError(BAD_REQUEST);
         return ;
     }
-    body.erase(0, end_headers + 4);
+    removeAllButBody(boundary);
     ofstream file(complete_path.c_str(), ios::binary);
     if (file.is_open() == false)
     {

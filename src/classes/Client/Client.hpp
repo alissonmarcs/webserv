@@ -55,7 +55,8 @@ public:
   void autoindex();
   vector <string> * splitMultipart(string boundary);
 
-  void validadeBodyPost (string & boundary);
+  void validateBodyPost (string & boundary);
+  void removeAllButBody (string & boundary);
 
   void handleFolder ();
   void loadStaticFile ();
