@@ -43,11 +43,7 @@ Client::parseRequest ()
     {
         parseRequestLine();
         if (!haveError())
-        {
-            cout << "haveError(): " << haveError() << endl;
             parseHeaders();
-            cout << "haveError(): " << haveError() << endl;
-        }
         
         if (request_headers.size () == 0 || request_headers.count("host") == 0)
         {
