@@ -104,10 +104,11 @@ Client::handleUpload(map<string, string>::iterator content_type)
         return ;
     }
     file << body;
-    response = "HTTP/1.1 204 No Content\r\n";
-    response += "Server: any\r\n";
-    response += "\r\n";
     file.close();
+    response = "HTTP/1.1 200 OK\r\n";
+    response += "Server: " SERVER_SOFTWARE "\r\n";
+    response += "Content-type: text/html\r\n\r\n";
+    response += "<html><body><h1>File received successfully!</h1></body></html>";
     response_is_done = true;
 }
 
