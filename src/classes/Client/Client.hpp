@@ -76,6 +76,9 @@ public:
   void parent ();
   bool checkChildStatus (int status);
 
+  void chooseServer ();
+
+
 private:
   /* Connection */
   time_t last_read;

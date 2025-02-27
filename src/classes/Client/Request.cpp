@@ -263,14 +263,34 @@ Client::parseHeaders()
     }
     is_sized = request_headers.count("content-length");
     is_chunked = request_headers.count("transfer-encoding");
-    if ((is_sized && is_chunked) || request_headers.count("host") == 0)
-    {
-        setError(BAD_REQUEST);
-        return ;
-    }
+    if (is_sized && is_chunked)
+        { setError(BAD_REQUEST); return ; }
+    if (request_headers.count("host"))
+        chooseServer();
+    else
+        { setError(BAD_REQUEST); return ; }
     raw_request.erase(0, end_headers + 4);
     if (is_sized == false && is_chunked == false && raw_request.size() != 0)
         setError(BAD_REQUEST);
+}
+
+void
+Client::chooseServer()
+{
+    string host = getHeader("host");
+    vector<Server> & servers = ServerManager::getServersRef();
+    size_t index = 0;
+
+    for ( ; index < servers.size(); index++)
+    {
+        if (servers[index].getServerName() == host)
+        {
+            server_owner = &servers[index];
+            break;
+        }
+    }
+    if (index == servers.size())
+        setError(NOT_FOUND);
 }
 
 bool

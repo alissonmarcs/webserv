@@ -112,7 +112,6 @@ using namespace std;
 
 #include "Error.hpp"
 
-
 class ServerManager;
 class Server;
 
