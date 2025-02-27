@@ -199,3 +199,5 @@ ServerManager::getServersRef ()
 {
   return (servers);
 }
+
+vector<Server> ServerManager::servers;

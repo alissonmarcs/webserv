@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include "ServerManager.hpp"
 #include <sstream>
 
 void
@@ -278,19 +279,21 @@ void
 Client::chooseServer()
 {
     string host = getHeader("host");
-    vector<Server> & servers = ServerManager::getServersRef();
+    size_t double_dot = host.find(":");
+    vector<Server> & servers = ServerManager::servers;
     size_t index = 0;
 
+    if (double_dot != string::npos)
+        host = host.substr(0, double_dot);
     for ( ; index < servers.size(); index++)
     {
         if (servers[index].getServerName() == host)
         {
             server_owner = &servers[index];
-            break;
+            return ;
         }
     }
-    if (index == servers.size())
-        setError(NOT_FOUND);
+    setError(NOT_FOUND);
 }
 
 bool
