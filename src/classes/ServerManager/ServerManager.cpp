@@ -6,6 +6,19 @@ ServerManager::ServerManager (const ServerManager &src) { (void)src; }
 
 ServerManager::~ServerManager () {}
 
+bool mustBeSkiped (vector<Server> & servers, size_t index)
+{
+  if (index == 0)
+    return (false);
+
+  for (size_t i = 0; i < index; i++)
+    {
+      if (servers[i].getPort() == servers[index].getPort())
+        return (true);
+    }
+  return (false);
+}
+
 void
 ServerManager::initServers ()
 {
@@ -16,6 +29,8 @@ ServerManager::initServers ()
     FATAL_ERROR ("Error creating epoll file descriptor");
   for (size_t i = 0; i < servers.size (); i++)
     {
+      if (mustBeSkiped (servers, i))
+        continue;
       servers[i].init ();
       std::memset (&event, 0, sizeof (event));
       event.events = EPOLLIN;
