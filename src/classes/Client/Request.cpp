@@ -77,39 +77,37 @@ Client::parseBody()
 void
 Client::parseChunkedBody ()
 {
+    size_t end;
+    string tmp_body;
+
     body += raw_request;
     raw_request.clear();
-    size_t start, end, size, size_index = 0;
+    end = body.rfind("0\r\n\r\n");
+    if (body.size() > server_owner->getClientMaxBodySize() || (body.size() > 1000 && end == string::npos))
+        { setError(PAYLOAD_TOO_LARGE); return ; }
 
-    end = body.find("0\r\n\r\n");
     if (end != string::npos)
     {
-        cout << "body before:\n" << body << endl;
-        while (1) 
+        while (1)
         {
-            start = body.find("\r\n", size_index);
-            stringstream ss(body.substr(size_index, start - size_index));
 
-            ss << hex;
-            ss >> size;
-
-            if (size == 0)
-            {
-                body.erase(start);
-                is_request_parsing_done = true;
+            size_t size_chunk = atoi(body.data());
+            if (size_chunk == 0)
                 break;
-            }
+            size_t start_data = body.find("\r\n") + 2;
+            size_t index = 0;
 
-            body.erase(size_index, (start - size_index) + 2);
-            if (body[size] != '\r' || body[size + 1] != '\n')
+            for ( ; index < size_chunk; index++)
             {
-                setError(BAD_REQUEST);
-                return ;
+                    tmp_body += body[start_data + index];
             }
-            body.erase(size, 2);
-            size_index = size;
+            if (body[start_data + index] != '\r' || body[start_data + index + 1] != '\n')
+                { setError(BAD_REQUEST); return ; }
+            body.erase(0, start_data + index + 2);
         }
-        cout << "body after: " << body << endl;
+        request_headers.erase("transfer-encoding");
+        is_request_parsing_done = true;
+        body = tmp_body;
     }
 }
 
