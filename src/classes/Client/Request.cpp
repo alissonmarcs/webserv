@@ -271,7 +271,7 @@ Client::parseHeaders()
         return ;
     }
     raw_request.erase(0, end_headers + 4);
-    if (is_sized == false && raw_request.size() != 0)
+    if (is_sized == false && is_chunked == false && raw_request.size() != 0)
         setError(BAD_REQUEST);
 }
 
