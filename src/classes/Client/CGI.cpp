@@ -79,6 +79,17 @@ Client::parent ()
   response_is_done = true;
 }
 
+
+void
+Client::populate_env_vars()
+{
+  vector<string> vars;
+  vars.push_back(string("GATEWAY_INTERFACE=") + GATEWAY_INTERFACE);
+
+  env[0] = vars[0].c_str();
+}
+
+
 void
 Client::child ()
 {

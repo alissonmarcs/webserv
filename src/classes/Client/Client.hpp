@@ -58,6 +58,8 @@ public:
   void validateBodyPost (string & boundary);
   void removeAllButBody (string & boundary);
 
+  void populate_env_vars();
+
   void handleFolder ();
   void loadStaticFile ();
   void redirectToFolderWithSlash ();
@@ -101,6 +103,7 @@ private:
 
   /* CGI */
   pid_t pid;
+  char *env_vars[30];
   time_t child_born;
   string script_path, script_name;
 };
