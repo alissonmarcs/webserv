@@ -2,6 +2,8 @@
 #include "ServerManager.hpp"
 #include <sstream>
 
+extern ServerManager Manager;
+
 void
 Client::readRequest ()
 {
@@ -280,7 +282,7 @@ Client::chooseServer()
 {
     string host = getHeader("host");
     size_t double_dot = host.find(":");
-    vector<Server> & servers = ServerManager::servers;
+    vector<Server> & servers = Manager.getServersRef();
     size_t index = 0;
 
     if (double_dot != string::npos)

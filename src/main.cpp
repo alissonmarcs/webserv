@@ -15,7 +15,6 @@ extern ServerManager Manager;
 void signalHandler (int signum)
 {
   (void)signum;
-  Manager.~ServerManager ();
   cout << "\nBye!" << endl;
   exit (EXIT_SUCCESS);
 }

@@ -31,8 +31,8 @@ public:
   void checkIOEvents (int ready_fds, struct epoll_event *events);
   void checkTimeout ();
 
-  static vector<Server> servers;
 private:
+  vector<Server> servers;
   int epoll_fd;
   map<int, Client> clients;
 };
