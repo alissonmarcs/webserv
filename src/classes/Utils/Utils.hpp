@@ -58,6 +58,7 @@ enum HTTP_STATUS_CODES
 
 #define CGI_FILE_IN "/tmp/webserv_cgi_file_in"
 #define CGI_FILE_OUT "/tmp/webserv_cgi_file_out"
+#define CGI_FILE_ERR "./errors_cgi.log"
 #define SECONDS_TIME_OUT_CGI_PROCESS 3
 
 #define HARD_MAX_BODY_SIZE 838860800 // 800MB

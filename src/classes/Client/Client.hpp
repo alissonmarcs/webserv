@@ -78,6 +78,8 @@ public:
 
   void chooseServer ();
 
+  void redirectStderr ();
+
 
 private:
   /* Connection */

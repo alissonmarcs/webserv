@@ -91,6 +91,7 @@ Client::child ()
   
   redirectStdin();
   redirectStdout();
+  redirectStderr();
   if (chdir(folder.c_str()) == -1)
     FATAL_ERROR("chdir");
   if (execve(script_name.c_str(), argv, NULL) == -1)
@@ -113,6 +114,7 @@ string get_script_name (string script_path)
     return ("");
   return (script_path.substr(last_slash + 1));
 }
+
 
 void
 Client::redirectStdin ()
@@ -145,6 +147,19 @@ Client::redirectStdout ()
   if (dup2(fd_out, STDOUT_FILENO) == -1)
     FATAL_ERROR("dup2");
   else if (close (fd_out) == -1)
+    FATAL_ERROR("close");
+}
+
+void
+Client::redirectStderr ()
+{
+  int fd_err = open (CGI_FILE_ERR, O_CREAT | O_APPEND | O_RDWR, 0666);
+
+  if (fd_err == -1)
+    FATAL_ERROR("open");
+  if (dup2(fd_err, STDERR_FILENO) == -1)
+    FATAL_ERROR("dup2");
+  else if (close (fd_err) == -1)
     FATAL_ERROR("close");
 }
 
