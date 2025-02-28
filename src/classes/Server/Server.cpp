@@ -8,7 +8,7 @@ void parseClientMaxBodySize(istringstream &serverStream, Server &server);
 void duplicateServerDirective(Server &server, const string &directive);
 void initServerDirectiveStatus(Server &server);
 
-Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>()), isPortSet (false)
+Server::Server () : host (""), port (0), server_name (""), client_max_body_size (0), routes (vector<Route>()), server_fd(-1), isPortSet (false)
 {
   error_pages[BAD_REQUEST] = BAD_REQUEST_HTML;
   error_pages[UNAUTHORIZED] = UNAUTHORIZED_HTML;
@@ -34,7 +34,9 @@ Server::Server (const Server &src)
 	:	host (src.host), 
 		port (src.port), 
 		server_name (src.server_name),
-    	client_max_body_size (src.client_max_body_size) {
+    	client_max_body_size (src.client_max_body_size),
+		server_fd(src.server_fd)
+		{
 			  error_pages = src.error_pages;
 			  routes = src.routes;
 		}

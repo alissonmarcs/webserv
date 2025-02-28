@@ -26,6 +26,8 @@ public:
 		server_fd = other.server_fd;
 		adress = other.adress;
 		isPortSet = other.isPortSet;
+    directiveStatus = other.directiveStatus;
+    errorPagesMap = other.errorPagesMap;
       }
     return (*this);
   }
