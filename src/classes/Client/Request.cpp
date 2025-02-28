@@ -266,10 +266,10 @@ Client::parseHeaders()
     is_chunked = request_headers.count("transfer-encoding");
     if (is_sized && is_chunked)
         { setError(BAD_REQUEST); return ; }
-    // if (request_headers.count("host"))
-    //     chooseServer();
-    // else
-    //     { setError(BAD_REQUEST); return ; }
+    if (request_headers.count("host"))
+        chooseServer();
+    else
+        { setError(BAD_REQUEST); return ; }
     raw_request.erase(0, end_headers + 4);
     if (is_sized == false && is_chunked == false && raw_request.size() != 0)
         setError(BAD_REQUEST);
@@ -293,7 +293,6 @@ Client::chooseServer()
             return ;
         }
     }
-    setError(NOT_FOUND);
 }
 
 bool
