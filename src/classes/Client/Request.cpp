@@ -28,6 +28,7 @@ Client::setError(short status_code)
     if (this->status_code != 0)
         return ;
     this->status_code = status_code;
+    buildError();
     is_request_parsing_done = true;
     response_is_done = true;
 }

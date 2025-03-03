@@ -113,9 +113,6 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::sendResponse (Client *client)
 {
-  if (client->haveError())
-    client->buildError();
-
   const int client_fd = client->getClientFd();
   const char * response = client->getResponse().c_str();
   const size_t response_size = client->getResponse().size();
