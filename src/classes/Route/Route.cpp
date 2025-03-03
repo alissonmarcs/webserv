@@ -8,7 +8,7 @@ Route::Route()
 	autoindex = false;
 	redirect = "";
 	default_file = "";
-	cgi_ext = "";
+	// cgi_ext = NULL;
 	upload_store = "";
 	index = "";
 	initDirectiveStatus();
@@ -68,7 +68,7 @@ Route::parseRouteConfig(const string &line, istringstream &stream, int &nestingL
 	string routeDirective, value, extraValue;
 	routeIss >> routeDirective >> value;
 
-	if (routeDirective != "allowed_methods" && routeIss >> extraValue)
+	if (routeDirective != "allowed_methods" && routeDirective != "cgi_ext" && routeIss >> extraValue)
 		throw ConfigParserException("Error: too many arguments in directive");
 	if (routeDirective != "{")
 		checkEmptyDirectiveValue(value);
@@ -108,8 +108,29 @@ Route::setDirectiveValue(const string &directive, const string &value, istringst
 		setRedirect(value);
 	else if (directive == "default_file")
 		setDefaultFile(value);
+
+
 	else if (directive == "cgi_ext")
-		setCgiExt(value);
+	{
+		vector<string> extensions;
+
+		if (value != ".sh" && value != ".py")
+			throw ConfigParserException("Error: invalid extension in CGI extension directive");
+		extensions.push_back(value);
+
+		string extension;
+		while (routeIss >> extension)
+		{
+			if (extension != ".sh" && extension != ".py")
+			throw ConfigParserException("Error: invalid extension in CGI extension directive");
+			if (find(extensions.begin(), extensions.end(), extension) != extensions.end())
+			throw ConfigParserException("Error: duplicate extension in CGI extension directive");
+			extensions.push_back(extension);
+		}
+		for (size_t i = 0; i < extensions.size(); i++)
+			setCgiExt(extensions[i]);
+	}
+
 	else if (directive == "upload_store")
 		setUploadStore(value);
 	else if (directive == "index")

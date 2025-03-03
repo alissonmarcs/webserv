@@ -166,7 +166,10 @@ printRoutesInfo(Server &server)
 			cout << PINK << "\tMethod: " << RED << methods[j] << RESET << "\n";
 		cout << PINK << "Redirect: " << GREEN << routes[i].getRedirect() << RESET << "\n";
 		cout << PINK << "Default file: " << GREEN << routes[i].getDefaultFile() << RESET << "\n";
-		cout << PINK << "Cgi ext: " << GREEN << routes[i].getCgiExt() << RESET << "\n";
+    vector<string> cgi_ext = routes[i].getCgiExt();
+		size = cgi_ext.size();
+    for (size_t j = 0; j < size; j++)
+		  cout << PINK << "Cgi ext: " << GREEN << cgi_ext[j] << RESET << "\n";
 		cout << PINK << "Upload store: " << GREEN << routes[i].getUploadStore() << RESET << "\n";
 		cout << PINK << "Index files : " << routes[i].getIndex() << "\n";
     cout << PINK << "Folder to search inside : " << routes[i].getFolderToSearchInside() << "\n";

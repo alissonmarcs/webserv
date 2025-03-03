@@ -29,10 +29,12 @@ main (int argc, char **argv)
 
   try
     {
+
       string configFile = readFileAsString (argv[1]);
 
       ConfigParser parser (configFile);
       Manager.getServersRef () = parser.servers;
+      printServerInfo(Manager);
       configFile.~string ();
       parser.~ConfigParser ();
       Manager.initServers ();

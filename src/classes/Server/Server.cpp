@@ -109,8 +109,6 @@ Server::checkServerValues(Server &server)
 		throw ConfigParserException("Error: missing host directive");
 	if (server.getIsPortSet() == false)
 		throw ConfigParserException("Error: missing listen directive");
-	if (server.getServerName().empty())
-		throw ConfigParserException("Error: missing server_name directive");
 	if (server.routes.empty())
 		throw ConfigParserException("Error: missing location directive");
 	if (server.getClientMaxBodySize() == 0)
@@ -224,7 +222,14 @@ parseClientMaxBodySize(istringstream &serverStream, Server &server)
         throw ConfigParserException("Error: invalid numeric value for client_max_body_size");
     }
     if (serverStream >> remaining) {
-        throw ConfigParserException("Error: unexpected characters in client_max_body_size directive");
+		if(remaining != "K" && remaining != "G" && remaining != "M")
+			throw ConfigParserException("Error: invalid character");
+		if(remaining == "K")
+			directiveValue = directiveValue * 1000;
+		if(remaining == "G")
+			directiveValue = directiveValue *  1000000000;
+		if(remaining == "M")
+			directiveValue = directiveValue *  1000000;
     }
     server.setClientMaxBodySize(directiveValue);
 }
