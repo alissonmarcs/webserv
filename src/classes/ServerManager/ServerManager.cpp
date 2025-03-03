@@ -116,17 +116,26 @@ ServerManager::sendResponse (Client *client)
   if (client->haveError())
     client->buildError();
 
-  if (send (client->getClientFd (), client->getResponse ().c_str (),
-            client->getResponse ().size (), 0)
-      == -1)
-    FATAL_ERROR ("send");
+  const int client_fd = client->getClientFd();
+  const char * response = client->getResponse().c_str();
+  const size_t response_size = client->getResponse().size();
+  Server * owner = client->getServerOwner();
 
-  cout << BOLD "Response status code: " RESET;
-  cout << client->getStatusCode() << endl;
- 
-  if (close (client->getClientFd ()) == -1)
-    FATAL_ERROR ("close()");
-  clients.erase (client->getClientFd ());
+  if (send (client_fd, response, response_size, 0) < 0)
+  {
+    cout << "Error when sending response to client's socket: " << strerror(errno) << '\n';
+    close (client_fd);
+    clients.erase (client_fd);
+  }
+
+  if (client->getHeader("keep-alive") == "keep-alive")
+    *client = Client (client_fd, client->getAdress(), owner);
+  else
+  {
+    cout << "closing connection of " << client->getIpString() << '\n';
+    close (client_fd);
+    clients.erase (client_fd);
+  }
 }
 
 void

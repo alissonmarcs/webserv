@@ -13,7 +13,7 @@ Client::readRequest ()
     ret = recv (client_fd, buffer, BUFFER_SIZE, 0);
     if (ret < 0)
     {
-        LOGGER (getClientIp(&adress).c_str(), strerror (errno));
+        cout << "Error when reading from client's socket: "  << strerror(errno) + '\n';
         setError(INTERNAL_SERVER_ERROR);
         return ;
     }
