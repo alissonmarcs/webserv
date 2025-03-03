@@ -178,19 +178,6 @@ ServerManager::checkTimeout ()
     }
 }
 
-void
-ServerManager::readFromClient (Client &client)
-{
-  client.readRequest();
-  if (client.getStatusCode() != 0)
-    {
-      cout << '\n' << client.getIpString() << " sends a bad request, closing connection. " << "Error code: " << client.getStatusCode() << "\n";
-      if (close(client.getClientFd()) == -1)
-        FATAL_ERROR ("close()");
-      clients.erase(client.getClientFd());
-    }
-}
-
 Server *
 ServerManager::getServer (int index)
 {
