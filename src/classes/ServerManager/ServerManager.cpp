@@ -90,7 +90,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
             {
               cout << client->getIpString() << " close connection\n";
               if (close (events[i].data.fd) == -1)
-                FATAL_ERROR ("close()");
+                cout << "Error when closing client's socket: " << strerror(errno) << '\n';
               clients.erase (events[i].data.fd);
             }
           else if (events[i].events & EPOLLIN && client->isParsingDone() == false)
