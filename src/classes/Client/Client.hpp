@@ -103,7 +103,7 @@ private:
 
   /* CGI */
   pid_t pid;
-  char *env_vars[30];
+  const char *env_vars[30];
   time_t child_born;
   string script_path, script_name;
 };

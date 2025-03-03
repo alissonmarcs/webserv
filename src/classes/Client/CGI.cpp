@@ -34,9 +34,8 @@ Client::findScriptPath()
   if (route == NULL)
     { setError(NOT_FOUND); return (false); }
 
-  if (validateExtension(target_resource, route->getCgiExt()))
-    script_path = route->getRoot () + target_resource;
-  else if (target_resource[target_resource.size() - 1] == '/')
+  script_path = route->getRoot () + target_resource;
+  if (target_resource[target_resource.size() - 1] == '/')
   {
     if (route->getIndex().empty() && route->getAutoindex() == false)
       { setError(NOT_FOUND); return (false); }
@@ -85,8 +84,22 @@ Client::populate_env_vars()
 {
   vector<string> vars;
   vars.push_back(string("GATEWAY_INTERFACE=") + GATEWAY_INTERFACE);
+  vars.push_back(string("SERVER_SOFTWARE=") + SERVER_SOFTWARE);
+  vars.push_back(string("SERVER_PROTOCOL=") + SERVER_PROTOCOL);
+  vars.push_back(string("REQUEST_METHOD=") + this->method);
+  vars.push_back(string("PATH_INFO="));
+  vars.push_back(string("PATH=/bin:/sbin:/usr/bin:/usr/sbin"));
+  vars.push_back(string("SCRIPT_NAME=/cgi-bin/") + script_name);
 
-  env[0] = vars[0].c_str();
+  vars.push_back(string("SERVER_PORT=") + to_string(server_owner->getPort()));
+  
+  const size_t len = atoi(request_headers["content-length"].c_str());
+  vars.push_back(string("CONTENT_LENGTH=") + to_string(len));
+
+
+  for (size_t i = 0; i < vars.size(); i++){
+    env_vars[i] = vars[i].c_str();
+  }
 }
 
 
@@ -105,7 +118,7 @@ Client::child ()
   redirectStderr();
   if (chdir(folder.c_str()) == -1)
     FATAL_ERROR("chdir");
-  if (execve(script_name.c_str(), argv, NULL) == -1)
+  if (execve(script_name.c_str(), argv, const_cast<char* const*>(env_vars)) == -1)
     FATAL_ERROR("execve");
 }
 
@@ -172,17 +185,6 @@ Client::redirectStderr ()
     FATAL_ERROR("dup2");
   else if (close (fd_err) == -1)
     FATAL_ERROR("close");
-}
-
-bool validateExtension (const string & file_name, const string & cgi_ext)
-{
-  size_t dot = file_name.rfind('.');
-  string ext;
-
-  if  (dot == string::npos)
-    return (false);
-  ext = file_name.substr(dot);
-  return (ext == cgi_ext);
 }
 
 int

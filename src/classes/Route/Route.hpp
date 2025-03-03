@@ -22,7 +22,7 @@ class Route
 	std::vector<string> & getAllowedMethods() { return allowed_methods; }
 	string getRedirect() const { return redirect; }
 	string getDefaultFile() const { return default_file; }
-	string getCgiExt() const { return cgi_ext; }
+	vector<string> getCgiExt() const { return cgi_ext; }
 	string getUploadStore() const { return upload_store; }
 	string getIndex() const { return index; }
 	bool getDirectiveStatus(string directive) { return directiveStatus[directive]; }
@@ -35,7 +35,7 @@ class Route
 	void setAllowedMethods(string method) { this->allowed_methods.push_back(method); }
 	void setRedirect(string redirect) { this->redirect = redirect; }
 	void setDefaultFile(string default_file) { this->default_file = default_file; }
-	void setCgiExt(string cgi_ext) { this->cgi_ext = cgi_ext; }
+	void setCgiExt(string ext) { this->cgi_ext.push_back(ext); }
 	void setUploadStore(const string &upload_store);
 	void setIndex(string index) { this->index = index; }
 	void setDirectiveStatus(string directive, bool status) { directiveStatus[directive] = status; }
@@ -55,10 +55,10 @@ class Route
 	string path;
 	string root;
 	bool autoindex;
-	std::vector<string> allowed_methods;
+	vector<string> allowed_methods;
 	string redirect;
 	string default_file;
-	string cgi_ext;
+	vector<string> cgi_ext;
 	string upload_store;
 	string index;
 	map<string, bool> directiveStatus;
