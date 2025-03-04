@@ -110,6 +110,7 @@ Client::populate_env_vars()
   vars.push_back(string("REQUEST_METHOD=") + this->method);
   vars.push_back(string("PATH_INFO="));
   vars.push_back(string("SCRIPT_NAME=/cgi-bin/") + this->script_name);
+  vars.push_back(string("SERVER_NAME=") + getHeader("host"));
   vars.push_back(string("CONTENT_TYPE=") + getHeader("content-type"));
   vars.push_back(string("REMOTE_ADDR=") + getIpString());
   vars.push_back(string("QUERY_STRING=") + this->query_params);
