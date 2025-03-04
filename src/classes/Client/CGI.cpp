@@ -88,17 +88,16 @@ Client::populate_env_vars()
   vars.push_back(string("SERVER_PROTOCOL=") + SERVER_PROTOCOL);
   vars.push_back(string("REQUEST_METHOD=") + this->method);
   vars.push_back(string("PATH_INFO="));
-  vars.push_back(string("PATH=/bin:/sbin:/usr/bin:/usr/sbin"));
-  vars.push_back(string("SCRIPT_NAME=/cgi-bin/") + script_name);
-
+  vars.push_back(string("SCRIPT_NAME=/cgi-bin/") + this->script_name);
+  vars.push_back(string("CONTENT_TYPE=") + getHeader("content-type"));
+  vars.push_back(string("REMOTE_ADDR=") + getIpString());
+  vars.push_back(string("QUERY_STRING=") + this->query_params);
   vars.push_back(string("SERVER_PORT=") + to_string(server_owner->getPort()));
-  
-  const size_t len = atoi(request_headers["content-length"].c_str());
-  vars.push_back(string("CONTENT_LENGTH=") + to_string(len));
-
+  vars.push_back(string("CONTENT_LENGTH=") + getHeader("content-length"));
 
   for (size_t i = 0; i < vars.size(); i++){
     env_vars[i] = vars[i].c_str();
+    cout << vars[i].c_str() << endl;
   }
 }
 
