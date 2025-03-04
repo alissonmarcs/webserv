@@ -34,7 +34,7 @@ main (int argc, char **argv)
 
       ConfigParser parser (configFile);
       Manager.getServersRef () = parser.servers;
-      printServerInfo(Manager);
+      // printServerInfo(Manager);
       configFile.~string ();
       parser.~ConfigParser ();
       Manager.initServers ();
