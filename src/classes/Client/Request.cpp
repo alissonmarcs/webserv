@@ -119,8 +119,9 @@ void
 Client::parseSizedBody()
 {
     const size_t len = atoi(request_headers["content-length"].c_str());
+    const size_t client_max_body_size = server_owner->getClientMaxBodySize();
 
-    if (len > server_owner->getClientMaxBodySize())
+    if (len > client_max_body_size && len >= HARD_MAX_BODY_SIZE)
     {
         setError(PAYLOAD_TOO_LARGE);
         return ;
@@ -132,7 +133,9 @@ Client::parseSizedBody()
         setError (BAD_REQUEST);
         return ;
     }
-    if (body.size() == len)
+    if (body.size() == len && len > client_max_body_size)
+        setError (PAYLOAD_TOO_LARGE);
+    else if (body.size() == len)
         is_request_parsing_done = true;
 }
 
