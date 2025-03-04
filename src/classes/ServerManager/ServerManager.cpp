@@ -129,7 +129,7 @@ ServerManager::sendResponse (Client *client)
     *client = Client (client_fd, client->getAdress(), owner);
   else
   {
-    cout << "closing connection of " << client->getIpString() << '\n';
+    cout << "Closing connection of " << client->getIpString() << '\n';
     close (client_fd);
     clients.erase (client_fd);
   }
