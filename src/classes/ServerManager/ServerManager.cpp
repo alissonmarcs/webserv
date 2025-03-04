@@ -125,7 +125,7 @@ ServerManager::sendResponse (Client *client)
     clients.erase (client_fd);
   }
 
-  if (client->getHeader("keep-alive") == "keep-alive")
+  if (client->getHeader("keep-alive") == "keep-alive" && client->haveError() == false)
     *client = Client (client_fd, client->getAdress(), owner);
   else
   {
