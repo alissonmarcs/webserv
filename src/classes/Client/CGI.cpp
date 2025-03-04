@@ -104,27 +104,33 @@ void
 Client::populate_env_vars()
 {
   string currentHeader;
+
   vars.push_back(string("GATEWAY_INTERFACE=") + GATEWAY_INTERFACE);
   vars.push_back(string("SERVER_SOFTWARE=") + SERVER_SOFTWARE);
   vars.push_back(string("SERVER_PROTOCOL=") + SERVER_PROTOCOL);
   vars.push_back(string("REQUEST_METHOD=") + this->method);
-  vars.push_back(string("PATH_INFO="));
   vars.push_back(string("SCRIPT_NAME=") + this->script_name);
   vars.push_back(string("SERVER_NAME=") + getHeader("host"));
+  vars.push_back(string("REMOTE_ADDR=") + getIpString());
+  vars.push_back(string("SERVER_PORT=") + to_string(server_owner->getPort()));
+
   currentHeader = getHeader("content-type");
   if(currentHeader.empty() == false)
-    vars.push_back(string("CONTENT_TYPE=") + getHeader("content-type"));
-  vars.push_back(string("REMOTE_ADDR=") + getIpString());
-  vars.push_back(string("QUERY_STRING=") + this->query_params);
-  vars.push_back(string("SERVER_PORT=") + to_string(server_owner->getPort()));
+    vars.push_back(string("CONTENT_TYPE=") + currentHeader);
+ 
   currentHeader = getHeader("content-length");
   if(currentHeader.empty() == false)
-    vars.push_back(string("CONTENT_LENGTH=") + getHeader("content-length"));
+    vars.push_back(string("CONTENT_LENGTH=") + currentHeader);
+
+  if (query_params.empty() == false)
+    vars.push_back(string("QUERY_STRING=") + query_params);
+
+  if (path_info.empty() == false)
+    vars.push_back(string("PATH_INFO=") + path_info);
 
   for (size_t i = 0; i < vars.size(); i++){
     env_vars[i] = vars[i].c_str();
   }
-  cerr << target_resource << endl;
 }
 
 

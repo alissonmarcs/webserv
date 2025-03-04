@@ -233,7 +233,13 @@ Client::parseRequestLine()
         query_params = target_resource.substr(query_index + 1);
         target_resource.erase(query_index);
     }
-
+    size_t dot = target_resource.find("."); 
+    size_t slash = target_resource.find("/", dot); 
+    if (dot != string::npos && slash != string::npos && dot < slash)
+    {
+        path_info = target_resource.substr(slash);
+        target_resource.erase(slash);
+    } 
     raw_request.erase(0, end_request_line + 2);
 }
 
