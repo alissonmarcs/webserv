@@ -108,7 +108,7 @@ Client::handleUpload(map<string, string>::iterator content_type)
     response = "HTTP/1.1 200 OK\r\n";
     response += "Server: " SERVER_SOFTWARE "\r\n";
     response += "Content-type: text/html\r\n\r\n";
-    response += "<html><body><h1>File received successfully!</h1></body></html>";
+    response += "<h1>File <u>" + file_name + "</u> received successfully!</h1>";
     response_is_done = true;
 }
 
@@ -274,9 +274,9 @@ void
 Client::autoindex()
 {
     string folder = route->getRoot() + target_resource;
-    response = "HTTP/1.1 200 OK\r\n";
     DIR * dir = opendir (folder.c_str());
     struct dirent * entry = NULL;
+    string html;
 
     if (dir == NULL)
     {
@@ -284,32 +284,38 @@ Client::autoindex()
         setError(INTERNAL_SERVER_ERROR);
         return;
     }
-    body = "<html>\n";
-    body += "<head>\n";
-    body += "<title>Index of " + target_resource + "</title>\n";
-    body += "</head>\n";
-    body += "<body>\n";
-    body += "<h1>Index of " + target_resource + "</h1>\n";
-    body += "<hr>\n";
-    body += "<pre>\n";
+    html = "<html>\n";
+    html += "<head>\n";
+    html += "<title>Index of " + target_resource + "</title>\n";
+    html += "</head>\n";
+    html += "<body>\n";
+    html += "<h1>Index of " + target_resource + "</h1>\n";
+    html += "<hr>\n";
+    html += "<pre>\n";
+    html += "<a href=\"../\">../</a>\n";
     entry = readdir (dir);
     while (entry != NULL)
     {
         if (entry->d_type == DT_DIR)
-            body += "<a href=\"" + string(entry->d_name) + "/\">" + entry->d_name + "/</a>\n";
+        {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                { entry = readdir (dir); continue; }
+            html += "<a href=\"" + string(entry->d_name) + "/\">" + entry->d_name + "/</a>\n";
+        }
         else
-            body += "<a href=\"" + string(entry->d_name) + "\">" + entry->d_name + "</a>\n";
+            html += "<a href=\"" + string(entry->d_name) + "\">" + entry->d_name + "</a>\n";
         entry = readdir (dir);
     }
-    body += "</pre>\n";
-    body += "<hr>\n";
-    body += "</body>\n";
-    body += "</html>\n";
+    html += "</pre>\n";
+    html += "<hr>\n";
+    html += "</body>\n";
+    html += "</html>\n";
     closedir (dir);
-    response += "Content-Length: " + to_string(body.size()) + "\r\n";
+    response = "HTTP/1.1 200 OK\r\n";
+    response += "Content-Length: " + to_string(html.size()) + "\r\n";
     response += "Content-type: text/html\r\n";
     response += "\r\n";
-    response += body;
+    response += html;
     response_is_done = true;
 }
 

@@ -22,7 +22,7 @@ class Route
 	std::vector<string> & getAllowedMethods() { return allowed_methods; }
 	string getRedirect() const { return redirect; }
 	string getDefaultFile() const { return default_file; }
-	vector<string> getCgiExt() const { return cgi_ext; }
+	vector<string> & getCgiExt() { return cgi_ext; }
 	string getUploadStore() const { return upload_store; }
 	string getIndex() const { return index; }
 	bool getDirectiveStatus(string directive) { return directiveStatus[directive]; }

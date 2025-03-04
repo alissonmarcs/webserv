@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-bool validateExtension (const string & file_name, const string & cgi_ext);
+bool validateExtension (const string & file_name, vector<string> & cgi_extensions);
 int wait_child (pid_t pid, time_t child_born);
 string get_folder (const string & script_path);
 string get_script_name (string script_path);
@@ -28,14 +28,35 @@ Client::handleCGI ()
     parent ();
 }
 
+bool validateExtension (const string & file_name, vector<string> & cgi_extensions)
+{
+  size_t dot = file_name.rfind('.');
+  vector<string>::iterator start, end;
+  string ext;
+
+  if (dot == string::npos)
+    return (false);
+  ext = file_name.substr(dot);
+  start = cgi_extensions.begin();
+  end = cgi_extensions.end();
+  while (start != end)
+  {
+    if (*start == ext)
+      return (true);
+    start++;
+  }
+  return (false);
+}
+
 bool
 Client::findScriptPath()
 {
   if (route == NULL)
     { setError(NOT_FOUND); return (false); }
 
-  script_path = route->getRoot () + target_resource;
-  if (target_resource[target_resource.size() - 1] == '/')
+  if (validateExtension(target_resource, route->getCgiExt()))
+    script_path = route->getRoot () + target_resource;
+  else if (target_resource[target_resource.size() - 1] == '/')
   {
     if (route->getIndex().empty() && route->getAutoindex() == false)
       { setError(NOT_FOUND); return (false); }

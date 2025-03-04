@@ -13,7 +13,7 @@ Client::readRequest ()
     ret = recv (client_fd, buffer, BUFFER_SIZE, 0);
     if (ret < 0)
     {
-        LOGGER (getClientIp(&adress).c_str(), strerror (errno));
+        cout << "Error when reading from client's socket: "  << strerror(errno) + '\n';
         setError(INTERNAL_SERVER_ERROR);
         return ;
     }
@@ -28,6 +28,7 @@ Client::setError(short status_code)
     if (this->status_code != 0)
         return ;
     this->status_code = status_code;
+    buildError();
     is_request_parsing_done = true;
     response_is_done = true;
 }
@@ -118,8 +119,9 @@ void
 Client::parseSizedBody()
 {
     const size_t len = atoi(request_headers["content-length"].c_str());
+    const size_t client_max_body_size = server_owner->getClientMaxBodySize();
 
-    if (len > server_owner->getClientMaxBodySize())
+    if (len > client_max_body_size && len >= HARD_MAX_BODY_SIZE)
     {
         setError(PAYLOAD_TOO_LARGE);
         return ;
@@ -131,7 +133,9 @@ Client::parseSizedBody()
         setError (BAD_REQUEST);
         return ;
     }
-    if (body.size() == len)
+    if (body.size() == len && len > client_max_body_size)
+        setError (PAYLOAD_TOO_LARGE);
+    else if (body.size() == len)
         is_request_parsing_done = true;
 }
 

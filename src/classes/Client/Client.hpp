@@ -13,7 +13,8 @@ public:
   Client (const Client &src);
 
   /* getters*/
-  struct sockaddr_in * getAdress () { return (&adress); }
+  struct sockaddr_in  getAdress () { return (adress); }
+  Server * getServerOwner () { return (server_owner); }
   short getStatusCode () { return (status_code); }
   bool isParsingDone () { return (is_request_parsing_done); }
   time_t getLastReadTime () { return (last_read); }

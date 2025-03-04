@@ -90,7 +90,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
             {
               cout << client->getIpString() << " close connection\n";
               if (close (events[i].data.fd) == -1)
-                FATAL_ERROR ("close()");
+                cout << "Error when closing client's socket: " << strerror(errno) << '\n';
               clients.erase (events[i].data.fd);
             }
           else if (events[i].events & EPOLLIN && client->isParsingDone() == false)
@@ -113,20 +113,26 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
 void
 ServerManager::sendResponse (Client *client)
 {
-  if (client->haveError())
-    client->buildError();
+  const int client_fd = client->getClientFd();
+  const char * response = client->getResponse().c_str();
+  const size_t response_size = client->getResponse().size();
+  Server * owner = client->getServerOwner();
 
-  if (send (client->getClientFd (), client->getResponse ().c_str (),
-            client->getResponse ().size (), 0)
-      == -1)
-    FATAL_ERROR ("send");
+  if (send (client_fd, response, response_size, 0) < 0)
+  {
+    cout << "Error when sending response to client's socket: " << strerror(errno) << '\n';
+    close (client_fd);
+    clients.erase (client_fd);
+  }
 
-  cout << BOLD "Response status code: " RESET;
-  cout << client->getStatusCode() << endl;
- 
-  if (close (client->getClientFd ()) == -1)
-    FATAL_ERROR ("close()");
-  clients.erase (client->getClientFd ());
+  if (client->getHeader("keep-alive") == "keep-alive" && client->haveError() == false)
+    *client = Client (client_fd, client->getAdress(), owner);
+  else
+  {
+    cout << "Closing connection of " << client->getIpString() << '\n';
+    close (client_fd);
+    clients.erase (client_fd);
+  }
 }
 
 void
@@ -163,25 +169,11 @@ ServerManager::checkTimeout ()
         {
           cout << client->getIpString() << " timeout, sending response and closing connection\n";
           client->setError(REQUEST_TIMEOUT);
-          client->buildResponse();
           start++;
           sendResponse(client);
         }
       else
           start++;
-    }
-}
-
-void
-ServerManager::readFromClient (Client &client)
-{
-  client.readRequest();
-  if (client.getStatusCode() != 0)
-    {
-      cout << '\n' << client.getIpString() << " sends a bad request, closing connection. " << "Error code: " << client.getStatusCode() << "\n";
-      if (close(client.getClientFd()) == -1)
-        FATAL_ERROR ("close()");
-      clients.erase(client.getClientFd());
     }
 }
 
