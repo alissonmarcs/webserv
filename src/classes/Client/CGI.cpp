@@ -37,10 +37,13 @@ bool validateExtension (const string & file_name, vector<string> & cgi_extension
   if (dot == string::npos)
     return (false);
   ext = file_name.substr(dot);
-  for (start = cgi_extensions.begin(); start != end ; start++ )
+  start = cgi_extensions.begin();
+  end = cgi_extensions.end();
+  while (start != end)
   {
     if (*start == ext)
       return (true);
+    start++;
   }
   return (false);
 }
