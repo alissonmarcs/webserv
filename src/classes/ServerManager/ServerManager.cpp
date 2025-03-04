@@ -169,7 +169,6 @@ ServerManager::checkTimeout ()
         {
           cout << client->getIpString() << " timeout, sending response and closing connection\n";
           client->setError(REQUEST_TIMEOUT);
-          client->buildResponse();
           start++;
           sendResponse(client);
         }
