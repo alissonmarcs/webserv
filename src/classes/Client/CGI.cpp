@@ -103,24 +103,28 @@ Client::parent ()
 void
 Client::populate_env_vars()
 {
-  vector<string> vars;
+  string currentHeader;
   vars.push_back(string("GATEWAY_INTERFACE=") + GATEWAY_INTERFACE);
   vars.push_back(string("SERVER_SOFTWARE=") + SERVER_SOFTWARE);
   vars.push_back(string("SERVER_PROTOCOL=") + SERVER_PROTOCOL);
   vars.push_back(string("REQUEST_METHOD=") + this->method);
   vars.push_back(string("PATH_INFO="));
-  vars.push_back(string("SCRIPT_NAME=/cgi-bin/") + this->script_name);
+  vars.push_back(string("SCRIPT_NAME=") + this->script_name);
   vars.push_back(string("SERVER_NAME=") + getHeader("host"));
-  vars.push_back(string("CONTENT_TYPE=") + getHeader("content-type"));
+  currentHeader = getHeader("content-type");
+  if(currentHeader.empty() == false)
+    vars.push_back(string("CONTENT_TYPE=") + getHeader("content-type"));
   vars.push_back(string("REMOTE_ADDR=") + getIpString());
   vars.push_back(string("QUERY_STRING=") + this->query_params);
   vars.push_back(string("SERVER_PORT=") + to_string(server_owner->getPort()));
-  vars.push_back(string("CONTENT_LENGTH=") + getHeader("content-length"));
+  currentHeader = getHeader("content-length");
+  if(currentHeader.empty() == false)
+    vars.push_back(string("CONTENT_LENGTH=") + getHeader("content-length"));
 
   for (size_t i = 0; i < vars.size(); i++){
     env_vars[i] = vars[i].c_str();
-    cout << vars[i].c_str() << endl;
   }
+  cerr << target_resource << endl;
 }
 
 
@@ -137,6 +141,7 @@ Client::child ()
   redirectStdin();
   redirectStdout();
   redirectStderr();
+  populate_env_vars();
   if (chdir(folder.c_str()) == -1)
     FATAL_ERROR("chdir");
   if (execve(script_name.c_str(), argv, const_cast<char* const*>(env_vars)) == -1)

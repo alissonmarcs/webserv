@@ -104,7 +104,9 @@ private:
 
   /* CGI */
   pid_t pid;
+  string path_info;
   const char *env_vars[30];
+  vector<string> vars;
   time_t child_born;
   string script_path, script_name;
 };
