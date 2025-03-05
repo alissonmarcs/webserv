@@ -322,7 +322,7 @@ Client::autoindex()
 void
 Client::findRoute ()
 {
-    if (route != NULL)
+    if (route != NULL || haveError())
         return ;
 
     vector<Route> & routes = server_owner->getRoutes();
