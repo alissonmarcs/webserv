@@ -24,7 +24,7 @@ def main():
         return
     decoded_string = unquote(encoded_string)
     print_headers("200", "OK", "text/html")
-    print ("<h1>Inputed string in upper case</h1>")
+    print ("<h1>Typed string in upper case:</h1>")
     if '=' in decoded_string:
         key, value = decoded_string.split('=', 1)
         if key == 'content':
