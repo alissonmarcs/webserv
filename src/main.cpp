@@ -2,15 +2,7 @@
 #include "ServerManager.hpp"
 #include "Utils.hpp"
 
-#include <cstring>
-#include <iostream>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 ServerManager Manager;
-extern ServerManager Manager;
 
 void signalHandler (int signum)
 {
