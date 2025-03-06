@@ -163,14 +163,6 @@ Server::addRoute (Route route)
 }
 
 void
-Server::addRedirectRoute (Route route)
-{
-	if (route.getRedirect().empty())
-		return ;
-	routes_redirect.push_back (route.getRedirect());
-}
-
-void
 parseLocation(istringstream &serverStream, Server &server)
 {
 	int directiveValue;

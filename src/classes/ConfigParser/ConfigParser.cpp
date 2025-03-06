@@ -71,14 +71,21 @@ ConfigParser::processLocation(Server*& activeServer, const string& lineStream, i
 	Route route;
 	route.parseRouteConfig(lineStream, stream, nestingLevel);
 	activeServer->addRoute(route);
-	activeServer->addRedirectRoute(route);
+	activeServer->routes_redirect[route.getPath()] = route.getRedirect();
 
-	if (activeServer->routes_redirect.size() > 0){
-		for (vector<string>::iterator it = activeServer->routes_redirect.begin(); it != activeServer->routes_redirect.end(); it++)
-		{
-			if (route.getPath() == *it)
-				throw ConfigParserException("Error: redirect loop");
-		}
+	string current = route.getRedirect();
+	set<string> visited;
+
+	while (!current.empty()) {
+		if (visited.find(current) != visited.end())
+			throw ConfigParserException("Error: redirect loop detected");
+
+		visited.insert(current);
+
+		if (activeServer->routes_redirect.find(current) == activeServer->routes_redirect.end())
+			break;
+
+		current = activeServer->routes_redirect[current];
 	}
 
 	stream.clear();

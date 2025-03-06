@@ -108,6 +108,7 @@ enum file_status
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <set>
 
 using namespace std;
 
