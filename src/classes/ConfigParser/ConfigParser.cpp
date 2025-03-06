@@ -73,7 +73,7 @@ ConfigParser::processLocation(Server*& activeServer, const string& lineStream, i
 	activeServer->addRoute(route);
 	activeServer->addRedirectRoute(route);
 
-	if (!route.getRedirect().empty()){
+	if (activeServer->routes_redirect.size() > 0){
 		for (vector<string>::iterator it = activeServer->routes_redirect.begin(); it != activeServer->routes_redirect.end(); it++)
 		{
 			if (route.getPath() == *it)
