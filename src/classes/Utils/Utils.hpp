@@ -84,8 +84,6 @@ enum file_status
 };
 
 #include <arpa/inet.h>
-#include <cerrno>
-#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <algorithm>
@@ -93,8 +91,6 @@ enum file_status
 #include <list>
 #include <map>
 #include <sstream>
-#include <stdexcept>
-#include <stdio.h>
 #include <string.h>
 #include <string>
 #include <sys/epoll.h>
@@ -103,7 +99,6 @@ enum file_status
 #include <sys/time.h>
 #include <unistd.h>
 #include <vector>
-#include <wchar.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/types.h>
