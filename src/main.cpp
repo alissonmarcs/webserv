@@ -19,7 +19,6 @@ main (int argc, char **argv)
 
   if (validateConfigFile (argc, argv))
     exit (EXIT_FAILURE);
-
   try
     {
 
