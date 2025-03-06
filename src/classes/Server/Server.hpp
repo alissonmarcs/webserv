@@ -56,6 +56,8 @@ public:
   void checkServerValues(Server &server);
   void validatePort (int directiveValue);
   void addRoute (Route route);
+  void addRedirectRoute (Route route);
+
 
   map<int, string> error_pages;
 
@@ -64,6 +66,7 @@ public:
 
   //checking for duplicated error pages
   map<int , string> errorPagesMap;
+  vector<string> routes_redirect;
 
 private:
   string host;

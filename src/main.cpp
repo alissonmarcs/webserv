@@ -15,7 +15,8 @@ extern ServerManager Manager;
 void signalHandler (int signum)
 {
   (void)signum;
-  cout << "\nBye!" << endl;
+  cout << endl;
+  thatIsAllFolks();
   exit (EXIT_SUCCESS);
 }
 
@@ -34,7 +35,6 @@ main (int argc, char **argv)
 
       ConfigParser parser (configFile);
       Manager.getServersRef () = parser.servers;
-      // printServerInfo(Manager);
       configFile.~string ();
       parser.~ConfigParser ();
       Manager.initServers ();

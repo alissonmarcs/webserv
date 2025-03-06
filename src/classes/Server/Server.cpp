@@ -153,7 +153,6 @@ duplicateServerDirective(Server &server, const string &directive)
 	server.directiveStatus[directive] = true;
 }
 
-
 void
 Server::addRoute (Route route)
 {
@@ -161,6 +160,14 @@ Server::addRoute (Route route)
 		if (it->getPath() == route.getPath())
 			throw ConfigParserException("Error: duplicate location directive");
   routes.push_back (route);
+}
+
+void
+Server::addRedirectRoute (Route route)
+{
+	if (route.getRedirect().empty())
+		return ;
+	routes_redirect.push_back (route.getRedirect());
 }
 
 void

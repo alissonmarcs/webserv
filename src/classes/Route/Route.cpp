@@ -8,7 +8,6 @@ Route::Route()
 	autoindex = false;
 	redirect = "";
 	default_file = "";
-	// cgi_ext = NULL;
 	upload_store = "";
 	index = "";
 	initDirectiveStatus();
@@ -96,65 +95,19 @@ Route::setDirectiveValue(const string &directive, const string &value, istringst
 	if (directive == "root")
 		setRoot(value);
 	else if (directive == "autoindex")
-	{
-		if (value == "on")
-			setAutoindex(true);
-		else if (value == "off")
-			setAutoindex(false);
-		else
-			throw ConfigParserException("Error: invalid value in autoindex directive");
-	}
+		setAutoindex(value);
 	else if (directive == "redirect")
 		setRedirect(value);
 	else if (directive == "default_file")
 		setDefaultFile(value);
-
-
 	else if (directive == "cgi_ext")
-	{
-		vector<string> extensions;
-
-		if (value != ".sh" && value != ".py")
-			throw ConfigParserException("Error: invalid extension in CGI extension directive");
-		extensions.push_back(value);
-
-		string extension;
-		while (routeIss >> extension)
-		{
-			if (extension != ".sh" && extension != ".py")
-			throw ConfigParserException("Error: invalid extension in CGI extension directive");
-			if (find(extensions.begin(), extensions.end(), extension) != extensions.end())
-			throw ConfigParserException("Error: duplicate extension in CGI extension directive");
-			extensions.push_back(extension);
-		}
-		for (size_t i = 0; i < extensions.size(); i++)
-			setCgiExt(extensions[i]);
-	}
-
+		setCgiExt(value, routeIss);
 	else if (directive == "upload_store")
 		setUploadStore(value);
 	else if (directive == "index")
 		setIndex(value);
 	else if (directive == "allowed_methods")
-	{
-		vector<string> methods;
-
-		if (value != "GET" && value != "POST" && value != "DELETE" && value != "PUT")
-			throw ConfigParserException("Error: invalid method in allowed_methods directive");
-		methods.push_back(value);
-
-		string method;
-		while (routeIss >> method)
-		{
-			if (method != "GET" && method != "POST" && method != "DELETE" && method != "PUT")
-				throw ConfigParserException("Error: invalid method in allowed_methods directive");
-			if (find(methods.begin(), methods.end(), method) != methods.end())
-				throw ConfigParserException("Error: duplicate method in allowed_methods directive");
-			methods.push_back(method);
-		}
-		for (size_t i = 0; i < methods.size(); i++)
-			setAllowedMethods(methods[i]);
-	}
+		setAllowedMethods(value, routeIss);
 }
 
 
@@ -225,4 +178,65 @@ Route::setUploadStore(const string &upload_store)
 		throw ConfigParserException("Error: upload_store directory does not exist");
 
 	this->upload_store = upload;
+}
+
+void
+Route::setCgiExt(const string &value, istringstream &routeIss)
+{
+	string ext;
+	if (value.empty())
+		throw ConfigParserException("Error: empty value in cgi_ext directive");
+	if (value[0] != '.')
+		throw ConfigParserException("Error: invalid value in cgi_ext directive");
+	cgi_ext.push_back(value);
+	while (routeIss >> ext)
+	{
+		if (ext[0] != '.')
+			throw ConfigParserException("Error: invalid value in cgi_ext directive");
+		if (find(cgi_ext.begin(), cgi_ext.end(), ext) != cgi_ext.end())
+			throw ConfigParserException("Error: duplicate value in cgi_ext directive");
+		cgi_ext.push_back(ext);
+	}
+}
+
+void
+Route::setAllowedMethods(const string &value, istringstream &routeIss)
+{
+	string method;
+	if (value != "GET" && value != "POST" && value != "DELETE" && value != "PUT")
+		throw ConfigParserException("Error: invalid method in allowed_methods directive");
+	allowed_methods.push_back(value);
+	while (routeIss >> method)
+	{
+		if (method != "GET" && method != "POST" && method != "DELETE" && method != "PUT")
+			throw ConfigParserException("Error: invalid method in allowed_methods directive");
+		if (find(allowed_methods.begin(), allowed_methods.end(), method) != allowed_methods.end())
+			throw ConfigParserException("Error: duplicate value in allowed_methods directive");
+		allowed_methods.push_back(method);
+	}
+}
+
+void
+Route::setAutoindex(const string &value)
+{
+	if (value == "on")
+		autoindex = true;
+	else if (value == "off")
+		autoindex = false;
+	else
+		throw ConfigParserException("Error: invalid value in autoindex directive");
+}
+
+void
+Route::setRedirect(const string &value)
+{
+	if (value.empty())
+		throw ConfigParserException("Error: empty value in redirect directive");
+	if (value[0] != '/')
+		throw ConfigParserException("Error: invalid value in redirect directive");
+	if (value == path)
+		throw ConfigParserException("Error: redirect loop");
+
+
+	redirect = value;
 }

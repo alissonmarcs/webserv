@@ -17,9 +17,9 @@ class Route
 
 	// Getters
 	string & getPath() { return path; }
-	string getRoot() const { return root; }
+	string	getRoot() const { return root; }
 	bool getAutoindex() const { return autoindex; }
-	std::vector<string> & getAllowedMethods() { return allowed_methods; }
+	vector<string> & getAllowedMethods() { return allowed_methods; }
 	string getRedirect() const { return redirect; }
 	string getDefaultFile() const { return default_file; }
 	vector<string> & getCgiExt() { return cgi_ext; }
@@ -31,11 +31,11 @@ class Route
 	// Setters
 	void setPath(string path) { this->path = path; }
 	void setRoot(string root) { this->root = root; }
-	void setAutoindex(bool autoindex) { this->autoindex = autoindex; }
-	void setAllowedMethods(string method) { this->allowed_methods.push_back(method); }
-	void setRedirect(string redirect) { this->redirect = redirect; }
+	void setAutoindex(const string &value);
+	void setRedirect(const string &value);
 	void setDefaultFile(string default_file) { this->default_file = default_file; }
-	void setCgiExt(string ext) { this->cgi_ext.push_back(ext); }
+	void setAllowedMethods(const string &value, istringstream &routeIss);
+	void setCgiExt(const string &value, istringstream &routeIss);
 	void setUploadStore(const string &upload_store);
 	void setIndex(string index) { this->index = index; }
 	void setDirectiveStatus(string directive, bool status) { directiveStatus[directive] = status; }

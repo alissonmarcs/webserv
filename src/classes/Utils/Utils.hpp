@@ -149,4 +149,6 @@ string to_string (size_t status_code);
 string to_string (uint16_t status_code);
 size_t getDifferIndex (string &one, string &two);
 
+void thatIsAllFolks();
+
 #endif

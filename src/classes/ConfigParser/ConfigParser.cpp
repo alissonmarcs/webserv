@@ -71,6 +71,15 @@ ConfigParser::processLocation(Server*& activeServer, const string& lineStream, i
 	Route route;
 	route.parseRouteConfig(lineStream, stream, nestingLevel);
 	activeServer->addRoute(route);
+	activeServer->addRedirectRoute(route);
+
+	if (!route.getRedirect().empty()){
+		for (vector<string>::iterator it = activeServer->routes_redirect.begin(); it != activeServer->routes_redirect.end(); it++)
+		{
+			if (route.getPath() == *it)
+				throw ConfigParserException("Error: redirect loop");
+		}
+	}
 
 	stream.clear();
 	stream.seekg(0, ios::cur);
