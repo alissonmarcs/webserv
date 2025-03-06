@@ -232,8 +232,6 @@ Route::setRedirect(const string &value)
 {
 	if (value.empty())
 		throw ConfigParserException("Error: empty value in redirect directive");
-	if (value[0] != '/')
-		throw ConfigParserException("Error: invalid value in redirect directive");
 	if (value == path)
 		throw ConfigParserException("Error: redirect loop");
 
