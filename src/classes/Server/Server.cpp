@@ -149,7 +149,10 @@ duplicateServerDirective(Server &server, const string &directive)
 	if (directive == "error_page")
 		return ;
 	if (server.directiveStatus[directive])
-		throw ConfigParserException("Error: duplicate directive in server: " + directive);
+	{
+		string tmp = "Error: duplicate directive in server: " + directive;
+		throw ConfigParserException(tmp.c_str());
+	}
 	server.directiveStatus[directive] = true;
 }
 

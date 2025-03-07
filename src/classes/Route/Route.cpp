@@ -13,6 +13,10 @@ Route::Route()
 	initDirectiveStatus();
 }
 
+Route::~Route()
+{
+}
+
 // Class assignment operator
 Route &Route::operator=(const Route &rhs)
 {
@@ -133,7 +137,8 @@ Route::checkEmptyDirectiveValue(const string &value)
 void
 Route::checkDuplicateDirectiveRoute(const string &directive) {
     if (getDirectiveStatus(directive)) {
-        throw ConfigParserException("Error: duplicate directive in route: " + directive);
+		string tmp = "Error: duplicate directive in route: " + directive;
+        throw ConfigParserException(tmp.c_str());
     }
     setDirectiveStatus(directive, true);
 }

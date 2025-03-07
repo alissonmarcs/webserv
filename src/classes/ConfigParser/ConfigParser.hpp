@@ -10,6 +10,7 @@ class ConfigParser
 {
 public:
   ConfigParser ();
+  ~ConfigParser ();
   ConfigParser &operator= (const ConfigParser &rhs);
 
   vector<Server> servers;

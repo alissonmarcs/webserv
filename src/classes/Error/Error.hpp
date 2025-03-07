@@ -35,19 +35,19 @@ class ConfigException : public Error
 class ConfigParserException : public std::exception
 {
   public:
-	ConfigParserException(const string &msg) : _msg(msg)
+	ConfigParserException(const char * msg) : _msg(msg)
 	{
 	}
 	virtual const char *what() const throw()
 	{
-		return (_msg.c_str());
+		return (_msg);
 	}
 	~ConfigParserException() throw()
 	{
 	}
 
   private:
-	string _msg;
+	const char * _msg;
 };
 
 #endif

@@ -14,6 +14,7 @@ class Route
 	Route();
 	Route(const Route &src);
 	Route &operator=(const Route &rhs);
+	~Route ();
 
 	// Getters
 	string & getPath() { return path; }

@@ -5,6 +5,10 @@ ConfigParser::ConfigParser ()
 {
 }
 
+ConfigParser::~ConfigParser ()
+{
+}
+
 void
 ConfigParser::init (string & config)
 {
