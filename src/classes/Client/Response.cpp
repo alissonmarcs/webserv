@@ -58,7 +58,6 @@ Client::validateBodyPost (string & boundary)
         setError(BAD_REQUEST);
         return;
     }
-    // our webserv allow only one file upload per request
     if (body.find (boundary, end + boundary.size()) != string::npos)
     {
         setError(BAD_REQUEST);

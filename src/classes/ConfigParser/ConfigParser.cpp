@@ -63,8 +63,6 @@ ConfigParser::startServerBlock(Server & activeServer)
 {
 	(void)activeServer;
 	nestingLevel++;
-	// if (nestingLevel == 1)
-		// activeServer = new Server ();
 	if (nestingLevel > 1 && locationCount == 0)
 		throw ConfigParserException("Error: missing location directive");
 }
@@ -77,8 +75,6 @@ ConfigParser::endServerBlock(Server & activeServer, bool& serverFound)
 	{
 		activeServer.checkServerValues(activeServer);
 		servers.push_back (activeServer);
-		// delete activeServer;
-		// activeServer = NULL;
 		activeServer = Server();
 		serverFound = false;
 	}
