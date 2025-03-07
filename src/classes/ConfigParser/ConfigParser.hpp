@@ -9,7 +9,7 @@
 class ConfigParser
 {
 public:
-  ConfigParser (const string &config);
+  ConfigParser ();
   ConfigParser &operator= (const ConfigParser &rhs);
 
   vector<Server> servers;
@@ -19,6 +19,7 @@ public:
   void startServerBlock(Server*& activeServer);
   void endServerBlock(Server*& activeServer, bool& serverFound);
   void processLocation(Server*& activeServer, const string& lineStream, istringstream& stream);
+  void init (string &config);
 
 private:
 	int nestingLevel;

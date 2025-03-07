@@ -23,8 +23,9 @@ main (int argc, char **argv)
     {
 
       string configFile = readFileAsString (argv[1]);
+      ConfigParser parser;
 
-      ConfigParser parser (configFile);
+      parser.init (configFile);
       Manager.getServersRef () = parser.servers;
       configFile.~string ();
       parser.~ConfigParser ();

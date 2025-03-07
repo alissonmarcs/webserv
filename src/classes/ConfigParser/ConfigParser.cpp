@@ -1,7 +1,12 @@
 #include "ConfigParser.hpp"
 #include "Error.hpp"
 
-ConfigParser::ConfigParser (const string &config)
+ConfigParser::ConfigParser ()
+{
+}
+
+void
+ConfigParser::init (string & config)
 {
 	istringstream stream (config);
 	string lineStream;

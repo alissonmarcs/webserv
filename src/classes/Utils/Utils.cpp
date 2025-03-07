@@ -54,10 +54,11 @@ readFileAsString (const string &path)
 
   if (!file.is_open ())
     FATAL_ERROR ("Error: Could not open file");
-
   stringstream buffer;
   buffer << file.rdbuf ();
   file.close ();
+  if (buffer.str ().empty ())
+    throw ConfigParserException("Error: file is empty");
   return (buffer.str ());
 }
 
