@@ -116,7 +116,7 @@ void Route::validDirective(const std::string &directive)
     if (directive == "root" || directive == "autoindex" || directive == "allowed_methods" || 
         directive == "redirect" || directive == "default_file" || directive == "cgi_ext" || 
         directive == "upload_store" || directive == "index" || directive == "error_page" || 
-		directive == "return" || directive == "}" || directive == "{")
+		directive == "}" || directive == "{")
     {
 		return ;
 	}
