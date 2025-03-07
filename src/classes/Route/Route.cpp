@@ -115,8 +115,8 @@ void Route::validDirective(const std::string &directive)
 {
     if (directive == "root" || directive == "autoindex" || directive == "allowed_methods" || 
         directive == "redirect" || directive == "default_file" || directive == "cgi_ext" || 
-        directive == "upload_store" || directive == "index" || directive == "client_max_body_size" || 
-		directive == "error_page" || directive == "return" || directive == "}" || directive == "{")
+        directive == "upload_store" || directive == "index" || directive == "error_page" || 
+		directive == "return" || directive == "}" || directive == "{")
     {
 		return ;
 	}
@@ -159,6 +159,8 @@ Route::checkBasicDirectiveAreSet()
 			throw ConfigParserException("Error: root directive missing in route");
   	if (getAllowedMethods().empty())
 			throw ConfigParserException("Error: allowed_methods directive missing in route");
+	if (getPath().empty())
+		throw ConfigParserException("Error: location directive missing in route");
 }
 
 void
