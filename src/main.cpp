@@ -27,8 +27,6 @@ main (int argc, char **argv)
 
       parser.init (configFile);
       Manager.getServersRef () = parser.servers;
-      configFile.~string ();
-      parser.~ConfigParser ();
       Manager.initServers ();
       Manager.mainLoop ();
     }
