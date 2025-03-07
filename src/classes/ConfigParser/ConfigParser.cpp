@@ -17,6 +17,7 @@ ConfigParser::init (string & config)
 	Server activeServer;
 	bool serverFound = false;
 	nestingLevel = 0;
+	locationCount = 0;
 
 	while (getline (stream, lineStream))
 	{
@@ -32,12 +33,17 @@ ConfigParser::init (string & config)
 			throw ConfigParserException("Error: server directive inside server block");
 		if (nestingLevel == 0 && !serverFound)
 			thereIsServerDirective(lineStream, serverFound);
+		if (lineStream.find ("location") != string::npos)
+			locationCount++;
 		if (serverFound && lineStream.find ("{") != string::npos)
 			startServerBlock(activeServer);
 		else if (lineStream.find ("}") != string::npos)
 			endServerBlock(activeServer, serverFound);
 		if (activeServer.getHost() != "" && lineStream.find("location") != string::npos)
+		{
+			locationCount--;
 			processLocation(activeServer, lineStream, stream);
+		}
 		else if (nestingLevel == 1)
 			activeServer.parseServerConfig (lineStream, activeServer);
 	}
@@ -59,6 +65,8 @@ ConfigParser::startServerBlock(Server & activeServer)
 	nestingLevel++;
 	// if (nestingLevel == 1)
 		// activeServer = new Server ();
+	if (nestingLevel > 1 && locationCount == 0)
+		throw ConfigParserException("Error: missing location directive");
 }
 
 void

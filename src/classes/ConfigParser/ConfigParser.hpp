@@ -24,6 +24,7 @@ public:
 
 private:
 	int nestingLevel;
+  int locationCount;
 };
 
 #endif
