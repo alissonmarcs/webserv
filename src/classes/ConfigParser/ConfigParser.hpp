@@ -17,9 +17,9 @@ public:
   void loadConfig (const string &config);
 
   void thereIsServerDirective(const string& lineStream, bool& serverFound);
-  void startServerBlock(Server*& activeServer);
-  void endServerBlock(Server*& activeServer, bool& serverFound);
-  void processLocation(Server*& activeServer, const string& lineStream, istringstream& stream);
+  void startServerBlock(Server & activeServer);
+  void endServerBlock(Server & activeServer, bool& serverFound);
+  void processLocation(Server & activeServer, const string& lineStream, istringstream& stream);
   void init (string &config);
 
 private:

@@ -14,7 +14,7 @@ ConfigParser::init (string & config)
 {
 	istringstream stream (config);
 	string lineStream;
-	Server *activeServer = NULL;
+	Server activeServer;
 	bool serverFound = false;
 	nestingLevel = 0;
 
@@ -36,10 +36,10 @@ ConfigParser::init (string & config)
 			startServerBlock(activeServer);
 		else if (lineStream.find ("}") != string::npos)
 			endServerBlock(activeServer, serverFound);
-		if (activeServer && lineStream.find("location") != string::npos)
+		if (activeServer.getHost() != "" && lineStream.find("location") != string::npos)
 			processLocation(activeServer, lineStream, stream);
 		else if (nestingLevel == 1)
-			activeServer->parseServerConfig (lineStream, *activeServer);
+			activeServer.parseServerConfig (lineStream, activeServer);
 	}
 	if (nestingLevel != 0)
 		throw ConfigParserException ("Error: brackets mismatch");
@@ -53,34 +53,36 @@ ConfigParser::operator= (const ConfigParser &rhs)
 }
 
 void
-ConfigParser::startServerBlock(Server*& activeServer)
+ConfigParser::startServerBlock(Server & activeServer)
 {
+	(void)activeServer;
 	nestingLevel++;
-	if (nestingLevel == 1)
-		activeServer = new Server ();
+	// if (nestingLevel == 1)
+		// activeServer = new Server ();
 }
 
 void
-ConfigParser::endServerBlock(Server*& activeServer, bool& serverFound)
+ConfigParser::endServerBlock(Server & activeServer, bool& serverFound)
 {
 	nestingLevel--;
 	if (nestingLevel == 0)
 	{
-		activeServer->checkServerValues(*activeServer);
-		servers.push_back (*activeServer);
-		delete activeServer;
-		activeServer = NULL;
+		activeServer.checkServerValues(activeServer);
+		servers.push_back (activeServer);
+		// delete activeServer;
+		// activeServer = NULL;
+		activeServer = Server();
 		serverFound = false;
 	}
 }
 
 void
-ConfigParser::processLocation(Server*& activeServer, const string& lineStream, istringstream& stream)
+ConfigParser::processLocation(Server & activeServer, const string& lineStream, istringstream& stream)
 {
 	Route route;
 	route.parseRouteConfig(lineStream, stream, nestingLevel);
-	activeServer->addRoute(route);
-	activeServer->routes_redirect[route.getPath()] = route.getRedirect();
+	activeServer.addRoute(route);
+	activeServer.routes_redirect[route.getPath()] = route.getRedirect();
 
 	string current = route.getRedirect();
 	set<string> visited;
@@ -91,10 +93,10 @@ ConfigParser::processLocation(Server*& activeServer, const string& lineStream, i
 
 		visited.insert(current);
 
-		if (activeServer->routes_redirect.find(current) == activeServer->routes_redirect.end())
+		if (activeServer.routes_redirect.find(current) == activeServer.routes_redirect.end())
 			break;
 
-		current = activeServer->routes_redirect[current];
+		current = activeServer.routes_redirect[current];
 	}
 
 	stream.clear();
