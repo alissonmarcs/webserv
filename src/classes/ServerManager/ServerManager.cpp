@@ -93,9 +93,9 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
                 cout << "Error when closing client's socket: " << strerror(errno) << '\n';
               clients.erase (events[i].data.fd);
             }
-          else if (events[i].events & EPOLLIN && client->isParsingDone() == false)
+          else if (events[i].events & EPOLLIN && client->is_request_parsing_done == false)
             client->readRequest();
-          else if (events[i].events & EPOLLOUT && client->isParsingDone() == true)
+          else if (events[i].events & EPOLLOUT && client->is_request_parsing_done == true)
           {
             client->findRoute();
             client->RouteValidation();
@@ -103,7 +103,7 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
               client->handleCGI ();
             else
               client->buildResponse();
-            if (client->response_is_done)
+            if (client->response_is_done == true)
               sendResponse(client);
           }
         }

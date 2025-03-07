@@ -16,7 +16,6 @@ public:
   struct sockaddr_in  getAdress () { return (adress); }
   Server * getServerOwner () { return (server_owner); }
   short getStatusCode () { return (status_code); }
-  bool isParsingDone () { return (is_request_parsing_done); }
   time_t getLastReadTime () { return (last_read); }
   int getClientFd () { return (client_fd); }
   string & getBody () { return (body); }
@@ -29,7 +28,6 @@ public:
   
   void readRequest ();
   void buildResponse();
-
   void parseRequestLine();
   void parseHeaders();
   void parseBody();
@@ -37,52 +35,39 @@ public:
   void parseChunkedBody();
   void printRequest();
   void parseRequest();
-
   void buildError();
   bool haveError();
   void setError(short status_code);
-
   void findRoute ();
   void http_get ();
   string findContentType ();
   void RouteValidation ();
-
   void http_post ();
   void handleUpload (map<string, string>::iterator content_type);
   string getBoundary (string content_type);
-
   void http_delete ();
-
   void autoindex();
   vector <string> * splitMultipart(string boundary);
-
   void validateBodyPost (string & boundary);
   void removeAllButBody (string & boundary);
-
   void populate_env_vars();
-
   void handleFolder ();
   void loadStaticFile ();
   void redirectToFolderWithSlash ();
   void locationRedirect ();
-
   void redirectStdin ();
   void redirectStdout ();
   bool isCGI ();
   void handleCGI ();
   bool findScriptPath ();
-  bool response_is_done;
-
   string getHeader (string key);
-
   void child ();
   void parent ();
   bool checkChildStatus (int status);
-
   void chooseServer ();
-
   void redirectStderr ();
 
+  bool is_request_parsing_done, response_is_done;
 
 private:
   /* Connection */
@@ -93,7 +78,7 @@ private:
   short status_code;
 
   /* Request */
-  bool is_request_parsing_done, is_chunked, is_sized;
+  bool is_chunked, is_sized;
   string raw_request, method, target_resource, query_params, version, body;
   map<string, string> request_headers;
 
