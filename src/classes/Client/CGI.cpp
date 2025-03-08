@@ -69,7 +69,14 @@ Client::findScriptPath()
      } 
   }
   else
-    { setError(NOT_FOUND); return (false); }
+    {
+      script_path = route->getRoot () + target_resource;
+
+      if (access(script_path.c_str(), F_OK) == -1)
+        { setError(NOT_FOUND); return (false); }
+      else
+        { setError(FORBIDDEN); return (false); }
+    }
 
   if (access(script_path.c_str(), F_OK) == -1)
     { setError(NOT_FOUND); return (false); }
