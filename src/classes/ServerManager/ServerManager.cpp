@@ -123,6 +123,7 @@ ServerManager::sendResponse (Client *client)
     cout << "Error when sending response to client's socket: " << strerror(errno) << '\n';
     close (client_fd);
     clients.erase (client_fd);
+    return ;
   }
 
   if (client->getHeader("keep-alive") == "keep-alive" && client->haveError() == false)
