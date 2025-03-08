@@ -26,7 +26,7 @@ public:
   void setStatusCode (short code) { status_code = code; }
   string & getResponse () { return (response); }
   
-  void readRequest ();
+  bool readRequest ();
   void buildResponse();
   void parseRequestLine();
   void parseHeaders();

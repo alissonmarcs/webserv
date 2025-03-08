@@ -4,7 +4,7 @@
 
 extern ServerManager Manager;
 
-void
+bool
 Client::readRequest ()
 {
     char buffer[BUFFER_SIZE] = {0};
@@ -15,11 +15,12 @@ Client::readRequest ()
     {
         cout << "Error when reading from client's socket: "  << strerror(errno) << '\n';
         setError(INTERNAL_SERVER_ERROR);
-        return ;
+        return false;
     }
     raw_request += string (buffer, ret);
     last_read = time(NULL);
     parseRequest ();
+    return true;
 }
 
 void

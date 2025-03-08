@@ -94,7 +94,13 @@ ServerManager::checkIOEvents (int ready_fds, struct epoll_event *events)
               clients.erase (events[i].data.fd);
             }
           else if (events[i].events & EPOLLIN && client->is_request_parsing_done == false)
-            client->readRequest();
+          {
+            if (client->readRequest() == false)
+            {
+              close (events[i].data.fd);
+              clients.erase (events[i].data.fd);
+            }
+          }
           else if (events[i].events & EPOLLOUT && client->is_request_parsing_done == true)
           {
             client->findRoute();
