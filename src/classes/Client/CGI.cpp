@@ -259,7 +259,10 @@ Client::checkChildStatus (int status)
 string
 Client::getHeader (string key)
 {
-  if (request_headers.count (key) == 0)
+  map<string, string>::iterator element;
+
+  element = request_headers.find(key);
+  if (element == request_headers.end())
     return "";
-  return request_headers[key];
+  return element->second;
 }

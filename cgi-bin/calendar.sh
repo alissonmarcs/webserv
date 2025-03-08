@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 echo -e 'HTTP/1.1 200 OK'
 echo -e 'Content-Type: text/html\r\n\r\n'
