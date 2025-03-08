@@ -239,6 +239,7 @@ Client::buildError()
     response = "HTTP/1.1 " + to_string(status_code) + " " + getStatusText(status_code) + "\r\n";
     response += "Content-Length: " + to_string(body->size()) + "\r\n";
     response += "Connection: close\r\n";
+    response += "Content-type: text/html\r\n";
     response += "\r\n";
     response += *body;
 }
