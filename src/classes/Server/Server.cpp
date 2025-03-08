@@ -16,6 +16,7 @@ Server::Server () : host (""), port (0), server_name (""), client_max_body_size 
   error_pages[NOT_FOUND] = NOT_FOUND_HTML;
   error_pages[METHOD_NOT_ALLOWED] = METHOD_NOT_ALLOWED_HTML;
   error_pages[REQUEST_TIMEOUT] = REQUEST_TIMEOUT_HTML;
+  error_pages[LENGTH_REQUIRED] = LENGTH_REQUIRED_HTML;
   error_pages[PAYLOAD_TOO_LARGE] = PAYLOAD_TOO_LARGE_HTML;
   error_pages[INTERNAL_SERVER_ERROR] = INTERNAL_SERVER_ERROR_HTML;
   error_pages[NOT_IMPLEMENTED] = NOT_IMPLEMENTED_HTML;

@@ -5,7 +5,8 @@ enum HTTP_STATUS_CODES
 {
     OK = 200,
     CREATED = 201,
-    ACCEPTED = 202, NO_CONTENT = 204,
+    ACCEPTED = 202,
+    NO_CONTENT = 204,
     MOVED_PERMANENTLY = 301,
     FOUND = 302,
     SEE_OTHER = 303,
@@ -17,6 +18,7 @@ enum HTTP_STATUS_CODES
     METHOD_NOT_ALLOWED = 405,
     REQUEST_TIMEOUT = 408,
     CONFLIT = 409,
+    LENGTH_REQUIRED = 411,
     PAYLOAD_TOO_LARGE = 413,
     UNSUPPORTED_MEDIA_TYPE = 415,
     INTERNAL_SERVER_ERROR = 500,
@@ -33,12 +35,13 @@ enum HTTP_STATUS_CODES
 #define METHOD_NOT_ALLOWED_HTML "<html><head><title>405 Method Not Allowed</title></head><body><center><h1>405 Method Not Allowed</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define REQUEST_TIMEOUT_HTML "<html><head><title>408 Request Timeout</title></head><body><center><h1>408 Request Timeout</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define REQUEST_CONFLIT_HTML "<html><head><title>409 Conflit</title></head><body><center><h1>409 Conflit</h1></center><hr><center>nginx/1.27.2</center></body></html>"
+#define LENGTH_REQUIRED_HTML "<html><head><title>411 Length Required</title></head><body><center><h1>411 Length Required</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define PAYLOAD_TOO_LARGE_HTML "<html><head><title>413 Payload Too Large</title></head><body><center><h1>413 Payload Too Large</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define INTERNAL_SERVER_ERROR_HTML "<html><head><title>500 Internal Server Error</title></head><body><center><h1>500 Internal Server Error</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define NOT_IMPLEMENTED_HTML "<html><head><title>501 Not Implemented</title></head><body><center><h1>501 Not Implemented</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define HTTP_VERSION_NOT_SUPPORTED_HTML "<html><head><title>505 HTTP Version Not Supported</title></head><body><center><h1>505 HTTP Version Not Supported</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define UNSUPPORTED_MEDIA_TYPE_HTML "<html><head><title>415 HTTP Unsupported Media Type</title></head><body><center><h1>HTTP Unsupported Media Type</h1></center><hr><center>nginx/1.27.2</center></body></html>"
-#define GATEWAY_TIMEOUT_HTML "<html><head><title>505 Gateway Timeout</title></head><body><center><h1>Gateway Timeout</h1></center><hr><center>nginx/1.27.2</center></body></html>"
+#define GATEWAY_TIMEOUT_HTML "<html><head><title>504 Gateway Timeout</title></head><body><center><h1>Gateway Timeout</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 #define BAD_GATEWAY_HTML "<html><head><title>502 Bad Gateway</title></head><body><center><h1>Bad Gateway</h1></center><hr><center>nginx/1.27.2</center></body></html>"
 
 #define ORANGE "\033[38;5;208m"
