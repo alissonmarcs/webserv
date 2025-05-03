@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-import cgi
 import os
+import sys
+from urllib.parse import parse_qs
+
+body = sys.stdin.read()
+data = parse_qs(body)
+
+def get_field_value(field_name: str) -> str | None:
+    value = data.get(field_name)
+    if value:
+        return value[0] 
+    return None
 
 def print_headers(status_code, phase, content_type):
     print ("HTTP/1.1 %s %s" % (status_code, phase), end='\r\n')
@@ -25,8 +33,5 @@ if content_length == 0:
     exit()
 
 print_headers("200", "OK", "text/html")
-
-form = cgi.FieldStorage()
-number = int(form.getvalue('number', 0))
-
+number = int(get_field_value('number'))
 print(f"<h1>{number} {'is prime!' if is_prime(number) else 'is not prime.'}</h1>")

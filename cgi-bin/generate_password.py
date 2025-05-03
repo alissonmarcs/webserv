@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-import cgi
+import sys
 import random
 import string
+from urllib.parse import parse_qs
+
+body = sys.stdin.read()
+data = parse_qs(body)
+
+def get_field_value(field_name: str) -> str | None:
+    value = data.get(field_name)
+    if value:
+        return value[0] 
+    return None
 
 def print_headers(status_code, phase, content_type):
     print ("HTTP/1.1 %s %s" % (status_code, phase), end='\r\n')
@@ -27,13 +34,11 @@ def generate_password(length, upper_case, lower_case, numbers, symbols):
     senha = ''.join(random.choice(caracteres) for _ in range(length))
     return senha
 
-form = cgi.FieldStorage()
-
-length = int(form.getvalue('length', 8))  # Valor padrão é 8
-upper_case = form.getvalue('uppercase') == '1'
-lower_case = form.getvalue('lowercase') == '1'
-numbers = form.getvalue('numbers') == '1'
-symbols = form.getvalue('symbols') == '1'
+length = int(get_field_value('length'))
+upper_case = get_field_value('uppercase') == '1'
+lower_case = get_field_value('lowercase') == '1'
+numbers = get_field_value('numbers') == '1'
+symbols = get_field_value('symbols') == '1'
 
 if (not upper_case and not lower_case and not numbers and not symbols):
     print_headers ("200", "OK", "text/html")
